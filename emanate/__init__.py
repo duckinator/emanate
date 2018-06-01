@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Example usage:
 # TODO
 
 import argparse
 import sys
+from pathlib import Path
 from pprint import pprint
 
 class Emanate:
@@ -48,8 +49,16 @@ class Emanate:
         args = argparser.parse_args(argv[1:])
         return args
 
+    def path(self, raw_path):
+        return Path(raw_path).expanduser().resolve()
+
     def run(self, argv):
-        args = self.parse_args(argv)
+        args        = self.parse_args(argv)
+        destination = self.path(args.destination)
+        config      = self.path(args.config)
+
+        pprint(destination)
+        pprint(config)
         pprint(args)
         print("TODO.")
 
