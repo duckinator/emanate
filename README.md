@@ -2,8 +2,8 @@
 
 Symlink files from one directory into another directory.
 
-Inspired by [effuse](https://github.com/programble/effuse) and, to a
-lesser extent, [stow](https://www.gnu.org/software/stow/manual/stow.html).
+Inspired by [effuse](https://github.com/programble/effuse) and
+[stow](https://www.gnu.org/software/stow/manual/stow.html).
 
 ## Contributing
 
