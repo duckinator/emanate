@@ -53,10 +53,10 @@ class Emanate:
         args = argparser.parse_args(argv[1:])
         return args
 
-    def ignored_file(self, config, path_obj):
-        config_ignore = config.get("ignore", [])
-        patterns = self.DEFAULT_IGNORE
-        match = functools.partial(fnmatch, str(path_obj))
+    def ignored_file(self, config, path):
+        path = str(path)
+        patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
+        match = functools.partial(fnmatch, path)
         return any(map(match, patterns))
 
     def valid_file(self, config, path_obj):
