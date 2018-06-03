@@ -25,7 +25,8 @@ class Emanate:
             "*/__pycache__/*",
             ]
 
-    def parse_args(self, argv):
+    @staticmethod
+    def parse_args(argv):
         argparser = argparse.ArgumentParser(
                 description="symlink files from one directory to another",
                 argument_default=argparse.SUPPRESS)
@@ -53,20 +54,31 @@ class Emanate:
         args = argparser.parse_args(argv[1:])
         return args
 
-    def ignored_file(self, config, path_obj):
+    @staticmethod
+    def parse_conf(file):
+        if isinstance(file, io.IOBase):
+            pass
+        elif isinstance(file, Path):
+            file = file.open()
+        else:
+            file = open(file, 'r')
+
+        return json.load(file)
+
+    def ignored_file(self, path_obj):
         path = str(path_obj.resolve())
-        patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
+        patterns = self.DEFAULT_IGNORE + self.config.get("ignore", [])
         match = functools.partial(fnmatch, path)
         return any(map(match, patterns))
 
-    def valid_file(self, config, path_obj):
+    def valid_file(self, path_obj):
         if path_obj.is_dir():
             return False
 
-        return not self.ignored_file(config, path_obj)
+        return not self.ignored_file(path_obj)
 
-    def confirm(self, prompt, no_confirm):
-        if no_confirm:
+    def confirm(self, prompt):
+        if self.config.no_confirm:
             return True
 
         result = None
@@ -76,7 +88,7 @@ class Emanate:
 
         return (result == "y")
 
-    def symlink_file(self, dest, no_confirm, config, path_obj):
+    def symlink_file(self, dest, path_obj):
         assert (not path_obj.is_absolute()), \
                 "expected path_obj to be a relative path, got absolute path."
 
@@ -93,7 +105,7 @@ class Emanate:
         if dest_file.exists() and src_file.samefile(dest_file):
             return True
 
-        if dest_file.exists() and not self.confirm(prompt, no_confirm):
+        if dest_file.exists() and not self.confirm(prompt):
             return False
 
         print("{!r} -> {!r}".format(str(src_file), str(dest_file)))
@@ -102,11 +114,10 @@ class Emanate:
 
         return src_file.samefile(dest_file)
 
-    def symlink_all(self, dest, args, config, files):
+    def symlink_all(self, dest, files):
         # symlinkfn is a partially-applied variant of symlink_file(),
-        # which has the first 3 arguments always set to:
-        #     dest, args.no_confirm, config
-        symlinkfn = functools.partial(self.symlink_file, dest, args.no_confirm, config)
+        # whose first argument is always set to dest
+        symlinkfn = functools.partial(self.symlink_file, dest)
         return list(map(symlinkfn, files))
 
     def clean_file(self, dest, config, path_obj):
@@ -126,35 +137,39 @@ class Emanate:
 
         return not dest_file.exists()
 
-    def clean_all(self, dest, config, files):
+    def clean_all(self, dest, files):
         # cleanfn is a partially-applied variant of clean_file(),
-        # which has the first 3 arguments always set to:
-        #     dest, args.no_confirm, config
-        cleanfn = functools.partial(self.clean_file, dest, config)
+        # whose first argument is set to dest
+        cleanfn = functools.partial(self.clean_file, dest)
         return list(map(cleanfn, files))
 
-    def run(self, argv):
-        args    = self.parse_args(argv)
-        dest    = Path(args.destination).expanduser().resolve()
+    def run(self):
+        dest  = Path(self.config.destination).expanduser().resolve()
+        files = list(filter(self.valid_file, Path(".").glob("**/*")))
 
-        config_file = Path(args.config)
-        if config_file.exists():
-            config = json.loads(config_file.read_text())
+        if self.config.clean:
+            self.clean_all(dest, files)
         else:
-            config = {}
+            self.symlink_all(dest, files)
 
-        # validfn is a partially-applied variant of valid_file(),
-        # which has the first argument always set to `config`.
-        validfn = functools.partial(self.valid_file, config)
-        files   = list(filter(validfn, Path(".").glob("**/*")))
+    def __init__(self, argv=None, config=None):
+        """Emanate obeys configuration source with the following priorities:
+        - command-line arguments (argv) overrides anything else;
+        - programmatic configuration (config) overrides the configuration file;
+        - the configuration file has the least priority.
+        """
+        args = Emanate.parse_args(argv) if argv is not None else {}
+        conf = Emanate.parse_conf(config) if config is not None else {}
 
-        if args.clean:
-            self.clean_all(dest, config, files)
-        else:
-            self.symlink_all(dest, args, config, files)
+        if args.config is not None and os.path.exists(args.config):
+            conf = parse_conf(args.config).update(conf)
+
+        conf.update(args)
+        self.config = conf
+
 
 def main():
-    return Emanate().run(sys.argv)
+    return Emanate(argv=sys.argv).run()
 
 if __name__ == '__main__':
     exit(main())
