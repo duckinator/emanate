@@ -125,11 +125,7 @@ class Emanate:
         return not dest_file.exists()
 
     def clean_all(self, dest, config, files):
-        # cleanfn is a partially-applied variant of clean_file(),
-        # which has the first 3 arguments always set to:
-        #     dest, args.no_confirm, config
-        cleanfn = functools.partial(self.clean_file, dest, config)
-        return list(map(cleanfn, files))
+        return list(self.clean_file(dest, config, f) for f in files)
 
     def run(self, argv):
         args = self.parse_args(argv)
