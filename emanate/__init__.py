@@ -54,6 +54,9 @@ class Emanate:
         return args
 
     def valid_file(self, config, path_obj):
+        assert (not path_obj.is_absolute()), \
+                "expected path_obj to be a relative path, got absolute path."
+
         if path_obj.is_dir():
             return False
 
@@ -70,9 +73,6 @@ class Emanate:
         return (result == "y")
 
     def add_symlink(self, dest, no_confirm, config, path_obj):
-        assert (not path_obj.is_absolute()), \
-                "expected path_obj to be a relative path, got absolute path."
-
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
         prompt    = "{!r} already exists. Replace it?".format(str(dest_file))
@@ -101,9 +101,6 @@ class Emanate:
         return src_file.samefile(dest_file)
 
     def del_symlink(self, dest, _args, config, path_obj):
-        assert (not path_obj.is_absolute()), \
-                "expected path_obj to be a relative path, got absolute path."
-
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
 
