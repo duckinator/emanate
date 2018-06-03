@@ -81,7 +81,7 @@ class Emanate:
         dest_file = Path(dest, path_obj)
         prompt    = "{!r} already exists. Replace it?".format(str(dest_file))
 
-        assert(src_file.exists(), "expected {!r} to exist.".format(str(src_file)))
+        assert src_file.exists(), "expected {!r} to exist.".format(str(src_file))
 
         # If it's not a file, we just skip it.
         if src_file.exists() and not src_file.is_file():
