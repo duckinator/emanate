@@ -125,7 +125,12 @@ class Emanate:
     def run(self, argv):
         args    = self.parse_args(argv)
         dest    = Path(args.destination).expanduser().resolve()
-        config  = json.loads(Path(args.config).read_text())
+
+        config_file = Path(args.config)
+        if config_file.exists():
+            config = json.loads(config_file.read_text())
+        else:
+            config = {}
 
         # validfn is a partially-applied variant of valid_file(),
         # which has the first argument always set to `config`.
