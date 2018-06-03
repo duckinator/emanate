@@ -82,9 +82,9 @@ class Emanate:
 
         return (result != "n")
 
-    def add_symlink(self, dest, path_obj):
+    def add_symlink(self, path_obj):
         src_file  = path_obj.resolve()
-        dest_file = Path(dest, path_obj)
+        dest_file = Path(self.dest, path_obj)
         prompt    = "{!r} already exists. Replace it?".format(str(dest_file))
 
         assert src_file.exists(), "expected {!r} to exist.".format(str(src_file))
@@ -110,9 +110,9 @@ class Emanate:
 
         return src_file.samefile(dest_file)
 
-    def del_symlink(self, dest, path_obj):
+    def del_symlink(self, path_obj):
         src_file  = path_obj.resolve()
-        dest_file = Path(dest, path_obj)
+        dest_file = Path(self.dest, path_obj)
 
         print("{!r}".format(str(dest_file)))
 
@@ -130,8 +130,8 @@ class Emanate:
 
     def run(self):
         all_files = Path(".").glob("**/*")
-        files = list(filter(self.valid_file, all_files))
-        list(self.function(self.dest, filename) for filename in files)
+        files = filter(self.valid_file, all_files)
+        list(map(self.function, files))
 
 def main():
     return Emanate(sys.argv).run()
