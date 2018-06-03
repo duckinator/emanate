@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='emanate',
-    version='1.0.2',
+    version='2.0.0',
     description='Symlink files from one directory to another, similarly to Effuse and Stow.',
     author='Ellen Marie Dash',
     author_email='me@duckie.co',
