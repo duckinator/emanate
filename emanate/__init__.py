@@ -62,9 +62,6 @@ class Emanate:
         return argparser.parse_args(argv[1:])
 
     def valid_file(self, path_obj):
-        assert (not path_obj.is_absolute()), \
-                "expected path_obj to be a relative path, got absolute path."
-
         if path_obj.is_dir():
             return False
 
@@ -86,8 +83,6 @@ class Emanate:
         src_file  = path_obj.resolve()
         dest_file = Path(self.dest, path_obj)
         prompt    = "{!r} already exists. Replace it?".format(str(dest_file))
-
-        assert src_file.exists(), "expected {!r} to exist.".format(str(src_file))
 
         # If the symlink is already in place, skip it.
         if dest_file.exists() and src_file.samefile(dest_file):
