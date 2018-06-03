@@ -55,7 +55,7 @@ class Emanate:
 
     def valid_file(self, config, path_obj):
         if path_obj.is_dir():
-            return True
+            return False
 
         path = str(path_obj.resolve())
         patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
