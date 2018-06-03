@@ -3,7 +3,7 @@
 # Example usage:
 # TODO
 
-import argparse
+from argparse import ArgumentParser
 from fnmatch import fnmatch
 import json
 from pathlib import Path
@@ -24,9 +24,8 @@ class Emanate:
             ]
 
     def parse_args(self, argv):
-        argparser = argparse.ArgumentParser(
-                description="symlink files from one directory to another",
-                argument_default=argparse.SUPPRESS)
+        argparser = ArgumentParser(
+                description="symlink files from one directory to another")
         argparser.add_argument("--clean",
                 action="store_true",
                 default=False,
