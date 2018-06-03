@@ -63,11 +63,11 @@ class Emanate:
 
     def confirm(self, prompt):
         result = None
-        while not result in ["y", "n"]:
+        while not result in ["y", "n", "\n"]:
             print("{} [Y/n] ".format(prompt), end="", flush=True)
             result = sys.stdin.read(1).lower()
 
-        return (result == "y")
+        return (result != "n")
 
     def add_symlink(self, dest, no_confirm, config, path_obj):
         src_file  = path_obj.resolve()
