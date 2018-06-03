@@ -10,7 +10,6 @@ import json
 import os
 from pathlib import Path
 import sys
-from pprint import pprint
 
 class Emanate:
     DEFAULT_IGNORE = [
