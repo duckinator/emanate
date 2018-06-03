@@ -27,7 +27,11 @@ class Emanate:
         args        = self.parse_args(argv)
         self.dest   = Path(args.destination).expanduser().resolve()
         self.config = self.load_config(args.config)
-        self.no_confirm = args.no_confirm
+
+        if args.no_confirm:
+            self.confirm = self.confirm_delete_interactive
+        else:
+            self.confirm = self.confirm_delete_always_true
 
         if args.clean:
             self.function = self.del_symlink
@@ -74,7 +78,12 @@ class Emanate:
         patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
         return not any(fnmatch(path, p) for p in patterns)
 
-    def confirm(self, prompt):
+    def confirm_delete_always_true(self, dest_file):
+        return True
+
+    def confirm_delete_interactive(self, dest_file):
+        prompt = "{!r} already exists. Replace it?".format(str(dest_file))
+
         result = None
         while not result in ["y", "n", "\n"]:
             print("{} [Y/n] ".format(prompt), end="", flush=True)
@@ -82,7 +91,7 @@ class Emanate:
 
         return (result != "n")
 
-    def add_symlink(self, dest, no_confirm, config, path_obj):
+    def add_symlink(self, dest, config, path_obj):
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
         prompt    = "{!r} already exists. Replace it?".format(str(dest_file))
@@ -96,7 +105,7 @@ class Emanate:
         # If it's a file and not already a symlink, prompt the user to
         # overwrite it.
         if dest_file.exists():
-            if no_confirm or self.confirm(prompt):
+            if self.confirm(dest_file):
                 # If they confirm, rename the the file.
                 new_name = str(dest_file) + ".emanate"
                 dest_file.rename(new_name)
@@ -110,7 +119,7 @@ class Emanate:
 
         return src_file.samefile(dest_file)
 
-    def del_symlink(self, dest, _no_confirm, config, path_obj):
+    def del_symlink(self, dest, config, path_obj):
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
 
@@ -131,7 +140,7 @@ class Emanate:
     def run(self):
         all_files = Path(".").glob("**/*")
         files = list(filter(self.valid_file, all_files))
-        list(self.function(self.dest, self.no_confirm, self.config, f) for f in files)
+        list(self.function(self.dest, self.config, f) for f in files)
 
 def main():
     return Emanate(sys.argv).run()
