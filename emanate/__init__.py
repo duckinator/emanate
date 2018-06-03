@@ -107,15 +107,17 @@ class Emanate:
 
         return not dest_file.exists()
 
-    def run(self, argv):
-        args = self.parse_args(argv)
-        dest = Path(args.destination).expanduser().resolve()
-
-        config_file = Path(args.config)
+    def load_config(self, filename):
+        config_file = Path(filename)
         if config_file.exists():
-            config = json.loads(config_file.read_text())
+            return json.loads(config_file.read_text())
         else:
-            config = {}
+            return {}
+
+    def run(self, argv):
+        args   = self.parse_args(argv)
+        dest   = Path(args.destination).expanduser().resolve()
+        config = self.load_config(args.config)
 
         all_files = Path(".").glob("**/*")
         validfn = lambda path_obj: self.valid_file(config, path_obj)
