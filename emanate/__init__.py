@@ -68,7 +68,9 @@ class Emanate:
         path = str(path_obj.resolve())
         return not any(fnmatch(path, pattern) for pattern in self.ignore)
 
-    def confirm(self, prompt):
+    def confirm_replace(self, dest_file):
+        prompt = "{!r} already exists. Replace it?".format(str(dest_file))
+
         if self.no_confirm:
             return True
 
@@ -82,7 +84,6 @@ class Emanate:
     def add_symlink(self, path_obj):
         src_file  = path_obj.resolve()
         dest_file = Path(self.dest, path_obj)
-        prompt    = "{!r} already exists. Replace it?".format(str(dest_file))
 
         # If the symlink is already in place, skip it.
         if dest_file.exists() and src_file.samefile(dest_file):
@@ -91,7 +92,7 @@ class Emanate:
         # If it's a file and not already a symlink, prompt the user to
         # overwrite it.
         if dest_file.exists():
-            if self.confirm(prompt):
+            if self.confirm_replace(dest_file):
                 # If they confirm, rename the the file.
                 new_name = str(dest_file) + ".emanate"
                 dest_file.rename(new_name)
