@@ -24,7 +24,7 @@ class Emanate:
             ]
 
     def __init__(self, argv):
-        args   = self.parse_args(argv)
+        args        = self.parse_args(argv)
         self.dest   = Path(args.destination).expanduser().resolve()
         self.config = self.load_config(args.config)
         self.no_confirm = args.no_confirm
