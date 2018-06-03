@@ -59,17 +59,13 @@ class Emanate:
 
         path = str(path_obj.resolve())
         patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
-        match = functools.partial(fnmatch, path)
-        return not any(map(match, patterns))
+        return not any(fnmatch(path, p) for p in patterns)
 
-    def confirm(self, prompt, no_confirm):
-        if no_confirm:
-            return True
-
+    def confirm(self, prompt):
         result = None
         while not result in ["y", "n"]:
             print("{} [Y/n] ".format(prompt), end="", flush=True)
-            result = sys.stdin.read(1)
+            result = sys.stdin.read(1).lower()
 
         return (result == "y")
 
@@ -83,16 +79,23 @@ class Emanate:
 
         assert src_file.exists(), "expected {!r} to exist.".format(str(src_file))
 
-        # If it's not a file, skip it.
-        if src_file.exists() and not src_file.is_file():
-            return True
-
         # If the symlink is already in place, skip it.
         if dest_file.exists() and src_file.samefile(dest_file):
             return True
 
-        if dest_file.exists() and not self.confirm(prompt, no_confirm):
+        # If it's not a file, skip it.
+        if src_file.exists() and not src_file.is_file():
             return False
+
+        # If it's a file and not already a symlink, prompt the user to
+        # overwrite it.
+        if dest_file.exists():
+            if no_confirm or self.confirm(prompt):
+                # If they confirm, overwrite it.
+                dest_file.unlink()
+            else:
+                # If they don't confirm, simply return here.
+                return False
 
         print("{!r} -> {!r}".format(str(src_file), str(dest_file)))
 
