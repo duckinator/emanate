@@ -23,6 +23,17 @@ class Emanate:
             "*/__pycache__/*",
             ]
 
+    def __init__(self, argv):
+        args   = self.parse_args(argv)
+        self.dest   = Path(args.destination).expanduser().resolve()
+        self.config = self.load_config(args.config)
+        self.no_confirm = args.no_confirm
+
+        if args.clean:
+            self.function = self.del_symlink
+        else:
+            self.function = self.add_symlink
+
     def parse_args(self, argv):
         argparser = ArgumentParser(
                 description="symlink files from one directory to another")
@@ -49,7 +60,10 @@ class Emanate:
                 help="Show version information")
         return argparser.parse_args(argv[1:])
 
-    def valid_file(self, config, path_obj):
+    def valid_file(self, path_obj, config=None):
+        if config is None:
+            config = self.config
+
         assert (not path_obj.is_absolute()), \
                 "expected path_obj to be a relative path, got absolute path."
 
@@ -96,7 +110,7 @@ class Emanate:
 
         return src_file.samefile(dest_file)
 
-    def del_symlink(self, dest, _args, config, path_obj):
+    def del_symlink(self, dest, _no_confirm, config, path_obj):
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
 
@@ -114,24 +128,13 @@ class Emanate:
         else:
             return {}
 
-    def run(self, argv):
-        args   = self.parse_args(argv)
-        dest   = Path(args.destination).expanduser().resolve()
-        config = self.load_config(args.config)
-
+    def run(self):
         all_files = Path(".").glob("**/*")
-        validfn = lambda path_obj: self.valid_file(config, path_obj)
-        files = list(filter(validfn, all_files))
-
-        if args.clean:
-            fn = self.del_symlink
-        else:
-            fn = self.add_symlink
-
-        list(fn(dest, args.no_confirm, config, f) for f in files)
+        files = list(filter(self.valid_file, all_files))
+        list(self.function(self.dest, self.no_confirm, self.config, f) for f in files)
 
 def main():
-    return Emanate().run(sys.argv)
+    return Emanate(sys.argv).run()
 
 if __name__ == '__main__':
     exit(main())
