@@ -69,7 +69,7 @@ class Emanate:
             return False
 
         path = str(path_obj.resolve())
-        return not any(fnmatch(path, p) for p in self.ignore)
+        return not any(fnmatch(path, pattern) for pattern in self.ignore)
 
     def confirm(self, prompt):
         if self.no_confirm:
@@ -131,7 +131,7 @@ class Emanate:
     def run(self):
         all_files = Path(".").glob("**/*")
         files = list(filter(self.valid_file, all_files))
-        list(self.function(self.dest, f) for f in files)
+        list(self.function(self.dest, filename) for filename in files)
 
 def main():
     return Emanate(sys.argv).run()
