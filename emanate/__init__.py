@@ -24,16 +24,11 @@ class Emanate:
             ]
 
     def __init__(self, argv):
-        args        = self.parse_args(argv)
-        self.dest   = Path(args.destination).expanduser().resolve()
-        self.config = self.load_config(args.config)
+        self.args   = self.parse_args(argv)
+        self.dest   = Path(self.args.destination).expanduser().resolve()
+        self.config = self.load_config(self.args.config)
 
-        if args.no_confirm:
-            self.confirm = self.confirm_delete_interactive
-        else:
-            self.confirm = self.confirm_delete_always_true
-
-        if args.clean:
+        if self.args.clean:
             self.function = self.del_symlink
         else:
             self.function = self.add_symlink
@@ -78,11 +73,9 @@ class Emanate:
         patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
         return not any(fnmatch(path, p) for p in patterns)
 
-    def confirm_delete_always_true(self, dest_file):
-        return True
-
-    def confirm_delete_interactive(self, dest_file):
-        prompt = "{!r} already exists. Replace it?".format(str(dest_file))
+    def confirm(self, prompt):
+        if self.args.no_confirm:
+            return True
 
         result = None
         while not result in ["y", "n", "\n"]:
@@ -105,7 +98,7 @@ class Emanate:
         # If it's a file and not already a symlink, prompt the user to
         # overwrite it.
         if dest_file.exists():
-            if self.confirm(dest_file):
+            if self.confirm(prompt):
                 # If they confirm, rename the the file.
                 new_name = str(dest_file) + ".emanate"
                 dest_file.rename(new_name)
