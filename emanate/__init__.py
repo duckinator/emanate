@@ -22,6 +22,7 @@ class Emanate:
             ".git",
             ".gitignore",
             ".gitmodules",
+            "__pycache__",
             ]
 
     def parse_args(self, argv):
