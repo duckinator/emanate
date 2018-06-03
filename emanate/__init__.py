@@ -47,8 +47,7 @@ class Emanate:
                 action="store_true",
                 default=False,
                 help="Show version information")
-        args = argparser.parse_args(argv[1:])
-        return args
+        return argparser.parse_args(argv[1:])
 
     def valid_file(self, config, path_obj):
         assert (not path_obj.is_absolute()), \
