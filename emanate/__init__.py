@@ -53,17 +53,14 @@ class Emanate:
         args = argparser.parse_args(argv[1:])
         return args
 
-    def ignored_file(self, config, path_obj):
+    def valid_file(self, config, path_obj):
+        if path_obj.is_dir():
+            return True
+
         path = str(path_obj.resolve())
         patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
         match = functools.partial(fnmatch, path)
-        return any(map(match, patterns))
-
-    def valid_file(self, config, path_obj):
-        if path_obj.is_dir():
-            return False
-
-        return not self.ignored_file(config, path_obj)
+        return not any(map(match, patterns))
 
     def confirm(self, prompt, no_confirm):
         if no_confirm:
@@ -86,10 +83,11 @@ class Emanate:
 
         assert src_file.exists(), "expected {!r} to exist.".format(str(src_file))
 
-        # If it's not a file, we just skip it.
+        # If it's not a file, skip it.
         if src_file.exists() and not src_file.is_file():
             return True
 
+        # If the symlink is already in place, skip it.
         if dest_file.exists() and src_file.samefile(dest_file):
             return True
 
@@ -116,12 +114,9 @@ class Emanate:
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
 
-        if not dest_file.exists():
-            return True
-
         print("{!r}".format(str(dest_file)))
 
-        if src_file.samefile(dest_file):
+        if dest_file.exists() and src_file.samefile(dest_file):
             dest_file.unlink()
 
         return not dest_file.exists()
@@ -134,8 +129,8 @@ class Emanate:
         return list(map(cleanfn, files))
 
     def run(self, argv):
-        args    = self.parse_args(argv)
-        dest    = Path(args.destination).expanduser().resolve()
+        args = self.parse_args(argv)
+        dest = Path(args.destination).expanduser().resolve()
 
         config_file = Path(args.config)
         if config_file.exists():
