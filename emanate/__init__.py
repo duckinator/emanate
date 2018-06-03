@@ -103,10 +103,7 @@ class Emanate:
 
         return src_file.samefile(dest_file)
 
-    def symlink_all(self, dest, args, config, files):
-        return list(self.symlink_file(dest, args.no_confirm, config, f) for f in files)
-
-    def clean_file(self, dest, config, path_obj):
+    def clean_file(self, dest, _args, config, path_obj):
         assert (not path_obj.is_absolute()), \
                 "expected path_obj to be a relative path, got absolute path."
 
@@ -119,9 +116,6 @@ class Emanate:
             dest_file.unlink()
 
         return not dest_file.exists()
-
-    def clean_all(self, dest, config, files):
-        return list(self.clean_file(dest, config, f) for f in files)
 
     def run(self, argv):
         args = self.parse_args(argv)
@@ -138,9 +132,11 @@ class Emanate:
         files = list(filter(validfn, all_files))
 
         if args.clean:
-            self.clean_all(dest, config, files)
+            fn = self.clean_file
         else:
-            self.symlink_all(dest, args, config, files)
+            fn = self.symlink_file
+
+        list(fn(dest, args.no_confirm, config, f) for f in files)
 
 def main():
     return Emanate().run(sys.argv)
