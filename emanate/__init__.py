@@ -87,8 +87,9 @@ class Emanate:
         # overwrite it.
         if dest_file.exists():
             if no_confirm or self.confirm(prompt):
-                # If they confirm, overwrite it.
-                dest_file.unlink()
+                # If they confirm, rename the the file.
+                new_name = str(dest_file) + ".emanate"
+                dest_file.rename(new_name)
             else:
                 # If they don't confirm, simply return here.
                 return False
