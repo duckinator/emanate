@@ -59,7 +59,7 @@ class Emanate:
         return any(map(match, patterns))
 
     def valid_file(self, config, path_obj):
-        return path_obj.is_file() and not (".git" in path_obj.parts) \
+        return not (".git" in path_obj.parts) \
                 and not self.ignored_file(config, path_obj)
 
     def confirm(self, prompt, no_confirm):
