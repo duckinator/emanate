@@ -24,9 +24,10 @@ class Emanate:
             ]
 
     def __init__(self, argv):
-        args = self.parse_args(argv)
+        args   = self.parse_args(argv)
+        config = self.load_config(args.config)
         self.dest   = Path(args.destination).expanduser().resolve()
-        self.config = self.load_config(args.config)
+        self.ignore = self.DEFAULT_IGNORE + config.get("ignore", [])
         self.no_confirm = args.no_confirm
 
         if args.clean:
@@ -60,10 +61,7 @@ class Emanate:
                 help="Show version information")
         return argparser.parse_args(argv[1:])
 
-    def valid_file(self, path_obj, config=None):
-        if config is None:
-            config = self.config
-
+    def valid_file(self, path_obj):
         assert (not path_obj.is_absolute()), \
                 "expected path_obj to be a relative path, got absolute path."
 
@@ -71,8 +69,7 @@ class Emanate:
             return False
 
         path = str(path_obj.resolve())
-        patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
-        return not any(fnmatch(path, p) for p in patterns)
+        return not any(fnmatch(path, p) for p in self.ignore)
 
     def confirm(self, prompt):
         if self.no_confirm:
@@ -85,7 +82,7 @@ class Emanate:
 
         return (result != "n")
 
-    def add_symlink(self, dest, config, path_obj):
+    def add_symlink(self, dest, path_obj):
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
         prompt    = "{!r} already exists. Replace it?".format(str(dest_file))
@@ -113,7 +110,7 @@ class Emanate:
 
         return src_file.samefile(dest_file)
 
-    def del_symlink(self, dest, config, path_obj):
+    def del_symlink(self, dest, path_obj):
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
 
@@ -134,7 +131,7 @@ class Emanate:
     def run(self):
         all_files = Path(".").glob("**/*")
         files = list(filter(self.valid_file, all_files))
-        list(self.function(self.dest, self.config, f) for f in files)
+        list(self.function(self.dest, f) for f in files)
 
 def main():
     return Emanate(sys.argv).run()
