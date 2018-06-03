@@ -141,5 +141,8 @@ class Emanate:
         else:
             self.symlink_all(dest, args, config, files)
 
+def main():
+    return Emanate().run(sys.argv)
+
 if __name__ == '__main__':
-    exit(Emanate().run(sys.argv))
+    exit(main())
