@@ -56,10 +56,6 @@ class Emanate:
                 metavar="CONFIG_FILE",
                 default="emanate.json",
                 help="Configuration file to use.")
-        argparser.add_argument("--version",
-                action="store_true",
-                default=False,
-                help="Show version information")
         return argparser.parse_args(argv[1:])
 
     def valid_file(self, path_obj):
