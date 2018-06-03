@@ -54,6 +54,17 @@ class Emanate:
         args = argparser.parse_args(argv[1:])
         return args
 
+    @staticmethod
+    def parse_conf(file):
+        if isinstance(file, io.IOBase):
+            pass
+        elif isinstance(file, Path):
+            file = file.open()
+        else:
+            file = open(file, 'r')
+
+        return json.load(file)
+
     def ignored_file(self, config, path_obj):
         path = str(path_obj.resolve())
         patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
@@ -138,11 +149,7 @@ class Emanate:
         args    = Emanate.parse_args(argv)
         dest    = Path(args.destination).expanduser().resolve()
 
-        config_file = Path(args.config)
-        if config_file.exists():
-            config = json.loads(config_file.read_text())
-        else:
-            config = {}
+        config = parse_conf(args.config) if os.path.exists(args.config) else {}
 
         # validfn is a partially-applied variant of valid_file(),
         # which has the first argument always set to `config`.
