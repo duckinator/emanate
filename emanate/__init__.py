@@ -114,6 +114,9 @@ class Emanate:
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
 
+        if not src_file.exists():
+            return True
+
         print("{!r}".format(str(dest_file)))
 
         if src_file.samefile(dest_file):
