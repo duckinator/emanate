@@ -134,7 +134,7 @@ class Emanate:
         # validfn is a partially-applied variant of valid_file(),
         # which has the first argument always set to `config`.
         validfn = functools.partial(self.valid_file, config)
-        files   = list(filter(validfn, Path(".").iterdir()))
+        files   = list(filter(validfn, Path(".").glob("**")))
 
         if args.clean:
             self.clean_all(dest, config, files)
