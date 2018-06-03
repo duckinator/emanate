@@ -17,9 +17,11 @@ class Emanate:
             "*/emanate.json",
             "*.emanate",
             ".*.emanate",
+            "*/.git",
             "*/.git/*",
             "*/.gitignore",
             "*/.gitmodules",
+            "*/__pycache__",
             "*/__pycache__/*",
             ]
 
@@ -45,7 +47,6 @@ class Emanate:
         argparser.add_argument("--destination",
                 default=Path.home(),
                 metavar="DESTINATION",
-                nargs="?",
                 help="Directory to create and/or remove symlinks in.")
         argparser.add_argument("--no-confirm",
                 action="store_true",
@@ -62,11 +63,15 @@ class Emanate:
         return argparser.parse_args(argv[1:])
 
     def valid_file(self, path_obj):
-        if path_obj.is_dir():
+        path = str(path_obj.resolve())
+        if any(fnmatch(path, pattern) for pattern in self.ignore):
             return False
 
-        path = str(path_obj.resolve())
-        return not any(fnmatch(path, pattern) for pattern in self.ignore)
+        if path_obj.is_dir():
+            Path(self.dest, path_obj).mkdir(exist_ok=True)
+            return False
+
+        return True
 
     def confirm_replace(self, dest_file):
         prompt = "{!r} already exists. Replace it?".format(str(dest_file))
