@@ -104,11 +104,7 @@ class Emanate:
         return src_file.samefile(dest_file)
 
     def symlink_all(self, dest, args, config, files):
-        # symlinkfn is a partially-applied variant of symlink_file(),
-        # which has the first 3 arguments always set to:
-        #     dest, args.no_confirm, config
-        symlinkfn = functools.partial(self.symlink_file, dest, args.no_confirm, config)
-        return list(map(symlinkfn, files))
+        return list(self.symlink_file(dest, args.no_confirm, config, f) for f in files)
 
     def clean_file(self, dest, config, path_obj):
         assert (not path_obj.is_absolute()), \
