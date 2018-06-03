@@ -25,7 +25,8 @@ class Emanate:
             "*/__pycache__/*",
             ]
 
-    def parse_args(self, argv):
+    @staticmethod
+    def parse_args(argv):
         argparser = argparse.ArgumentParser(
                 description="symlink files from one directory to another",
                 argument_default=argparse.SUPPRESS)
@@ -134,7 +135,7 @@ class Emanate:
         return list(map(cleanfn, files))
 
     def run(self, argv):
-        args    = self.parse_args(argv)
+        args    = Emanate.parse_args(argv)
         dest    = Path(args.destination).expanduser().resolve()
 
         config_file = Path(args.config)
