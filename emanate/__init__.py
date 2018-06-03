@@ -5,7 +5,6 @@
 
 import argparse
 from fnmatch import fnmatch
-import functools
 import json
 import os
 from pathlib import Path
