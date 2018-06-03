@@ -16,13 +16,13 @@ class Emanate:
             "*~",
             ".*~",
             ".*.sw?",
-            "emanate.json",
+            "*/emanate.json",
             "*.emanate",
             ".*.emanate",
-            ".git",
-            ".gitignore",
-            ".gitmodules",
-            "__pycache__",
+            "*/.git/*",
+            "*/.gitignore",
+            "*/.gitmodules",
+            "*/__pycache__/*",
             ]
 
     def parse_args(self, argv):
@@ -54,14 +54,16 @@ class Emanate:
         return args
 
     def ignored_file(self, config, path_obj):
-        path = str(path_obj)
+        path = str(path_obj.resolve())
         patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
         match = functools.partial(fnmatch, path)
         return any(map(match, patterns))
 
     def valid_file(self, config, path_obj):
-        return not (".git" in path_obj.parts) \
-                and not self.ignored_file(config, path_obj)
+        if path_obj.is_dir():
+            return False
+
+        return not self.ignored_file(config, path_obj)
 
     def confirm(self, prompt, no_confirm):
         if no_confirm:
@@ -114,7 +116,7 @@ class Emanate:
         src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
 
-        if not src_file.exists():
+        if not dest_file.exists():
             return True
 
         print("{!r}".format(str(dest_file)))
