@@ -22,6 +22,8 @@ drwxr-xr-x.  8 pup pup 4096 Jun  3 12:10 .git/
 -rw-r--r--.  1 pup pup   78 Jun  3 11:59 .bash_env
 -rw-r--r--.  1 pup pup 1987 Jun  3 11:59 .bashrc
 -rw-r--r--.  1 pup pup  163 Jun  3 12:06 README.md
+~/dotfiles$ cat .bashrc
+# TODO: Write .bashrc.
 ~/dotfiles$ echo '{"ignore": ["README.md"]}' > emanate.json
 ~/dotfiles$ emanate
 ~/dotfiles$ cat ~/.bashrc
