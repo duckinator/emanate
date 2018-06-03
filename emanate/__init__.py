@@ -84,7 +84,7 @@ class Emanate:
         assert(src_file.exists(), "expected {!r} to exist.".format(str(src_file)))
 
         # If it's not a file, we just skip it.
-        if src_file.exist() and not src_file.is_file():
+        if src_file.exists() and not src_file.is_file():
             return True
 
         if dest_file.exists() and src_file.samefile(dest_file):
