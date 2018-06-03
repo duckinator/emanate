@@ -83,10 +83,6 @@ class Emanate:
         if dest_file.exists() and src_file.samefile(dest_file):
             return True
 
-        # If it's not a file, skip it.
-        if src_file.exists() and not src_file.is_file():
-            return False
-
         # If it's a file and not already a symlink, prompt the user to
         # overwrite it.
         if dest_file.exists():
