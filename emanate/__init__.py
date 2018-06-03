@@ -24,11 +24,12 @@ class Emanate:
             ]
 
     def __init__(self, argv):
-        self.args   = self.parse_args(argv)
-        self.dest   = Path(self.args.destination).expanduser().resolve()
-        self.config = self.load_config(self.args.config)
+        args = self.parse_args(argv)
+        self.dest   = Path(args.destination).expanduser().resolve()
+        self.config = self.load_config(args.config)
+        self.no_confirm = args.no_confirm
 
-        if self.args.clean:
+        if args.clean:
             self.function = self.del_symlink
         else:
             self.function = self.add_symlink
@@ -74,7 +75,7 @@ class Emanate:
         return not any(fnmatch(path, p) for p in patterns)
 
     def confirm(self, prompt):
-        if self.args.no_confirm:
+        if self.no_confirm:
             return True
 
         result = None
