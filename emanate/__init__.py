@@ -81,6 +81,11 @@ class Emanate:
 
         return (result != "n")
 
+    def backup(self, dest_file):
+        # Rename the file so we can safely write to the original path.
+        new_name = str(dest_file) + ".emanate"
+        dest_file.rename(new_name)
+
     def add_symlink(self, path_obj):
         src_file  = path_obj.resolve()
         dest_file = Path(self.dest, path_obj)
@@ -89,16 +94,13 @@ class Emanate:
         if dest_file.exists() and src_file.samefile(dest_file):
             return True
 
-        # If it's a file and not already a symlink, prompt the user to
-        # overwrite it.
+        # If the file exists and _isn't_ the symlink we're trying to make,
+        # prompt the user to determine what to do.
         if dest_file.exists():
-            if self.confirm_replace(dest_file):
-                # If they confirm, rename the the file.
-                new_name = str(dest_file) + ".emanate"
-                dest_file.rename(new_name)
-            else:
-                # If they don't confirm, simply return here.
+            # If the user said no, skip the file.
+            if not self.confirm_replace(dest_file):
                 return False
+            self.backup(dest_file)
 
         print("{!r} -> {!r}".format(str(src_file), str(dest_file)))
 
