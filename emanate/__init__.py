@@ -17,7 +17,7 @@ class Emanate:
             "*~",
             ".*~",
             ".*.sw?",
-            "emanate.yml",
+            "emanate.json",
             "*.emanate",
             ".*.emanate",
             ".git",
@@ -61,7 +61,7 @@ class Emanate:
 
     def valid_file(self, config, path_obj):
         return path_obj.is_file() and not (".git" in path_obj.parts) \
-            and not self.ignored_file(config, path_obj)
+                and not self.ignored_file(config, path_obj)
 
     def confirm(self, prompt, no_confirm):
         if no_confirm:
@@ -74,24 +74,53 @@ class Emanate:
 
         return (result == "y")
 
-    def file_exists_and_not_identical(self, src_file, dest_file):
-        return dest_file.exists() #and ???
-
     def symlink_file(self, dest, no_confirm, config, path_obj):
         assert (not path_obj.is_absolute()), \
-            "expected path_obj to be a relative path, got absolute path."
+                "expected path_obj to be a relative path, got absolute path."
 
-        src_file  = path_obj
+        src_file  = path_obj.resolve()
         dest_file = Path(dest, path_obj)
         prompt    = "{!r} already exists. Replace it?".format(str(dest_file))
 
-        if self.file_exists_and_not_identical(src_file, dest_file) and \
-            not self.confirm(prompt, no_confirm):
-                return False
+        if dest_file.exists() and src_file.samefile(dest_file):
+            return True
 
+        if dest_file.exists() and not self.confirm(prompt, no_confirm):
+            return False
 
         print("{!r} -> {!r}".format(str(src_file), str(dest_file)))
-        return True
+
+        dest_file.symlink_to(src_file)
+
+        return src_file.samefile(dest_file)
+
+    def symlink_all(self, dest, args, config, files):
+        # symlinkfn is a partially-applied variant of symlink_file(),
+        # which has the first 3 arguments always set to:
+        #     dest, args.no_confirm, config
+        symlinkfn = functools.partial(self.symlink_file, dest, args.no_confirm, config)
+        return list(map(symlinkfn, files))
+
+    def clean_file(self, dest, config, path_obj):
+        assert (not path_obj.is_absolute()), \
+                "expected path_obj to be a relative path, got absolute path."
+
+        src_file  = path_obj.resolve()
+        dest_file = Path(dest, path_obj)
+
+        print("{!r}".format(str(dest_file)))
+
+        if src_file.samefile(dest_file):
+            dest_file.unlink()
+
+        return not dest_file.exists()
+
+    def clean_all(self, dest, config, files):
+        # cleanfn is a partially-applied variant of clean_file(),
+        # which has the first 3 arguments always set to:
+        #     dest, args.no_confirm, config
+        cleanfn = functools.partial(self.clean_file, dest, config)
+        return list(map(cleanfn, files))
 
     def run(self, argv):
         args    = self.parse_args(argv)
@@ -103,11 +132,10 @@ class Emanate:
         validfn = functools.partial(self.valid_file, config)
         files   = list(filter(validfn, Path(".").iterdir()))
 
-        # symlinkfn is a partially-applied variant of symlink_file(),
-        # which has the first 3 arguments always set to:
-        #     dest, args.no_confirm, config
-        symlinkfn = functools.partial(self.symlink_file, dest, args.no_confirm, config)
-        list(map(symlinkfn, files))
+        if args.clean:
+            self.clean_all(dest, config, files)
+        else:
+            self.symlink_all(dest, args, config, files)
 
 if __name__ == '__main__':
     exit(Emanate().run(sys.argv))
