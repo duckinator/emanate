@@ -90,17 +90,12 @@ class Emanate:
 def parse_args(args=None):
     argparser = ArgumentParser(
         description="symlink files from one directory to another")
-    argparser.add_argument("--clean",
-                           action="store_true",
-                           default=False,
-                           help="Remove symlinks.")
+    argparser.add_argument("--clean", help="Remove symlinks.")
     argparser.add_argument("--destination",
-                           default=Path.home(),
                            metavar="DESTINATION",
                            help="Directory to create and remove symlinks in.")
     argparser.add_argument("--no-confirm",
                            action="store_true",
-                           default=False,
                            help="Don't prompt before replacing a file.")
     argparser.add_argument("--config",
                            metavar="CONFIG_FILE",
