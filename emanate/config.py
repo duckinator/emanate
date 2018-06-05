@@ -22,6 +22,7 @@ DEFAULT_SETTINGS = {
     'clean': False,
     'confirm': True,
     'destination': Path.home(),
+    'source': Path.cwd(),
 }
 
 

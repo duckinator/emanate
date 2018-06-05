@@ -50,7 +50,7 @@ class Emanate:
 
     def add_symlink(self, path_obj):
         src_file  = path_obj.resolve()
-        dest_file = Path(self.dest, path_obj)
+        dest_file = self.dest / src_file.relative_to(self.config.source)
 
         # If the symlink is already in place, skip it.
         if dest_file.exists() and src_file.samefile(dest_file):
@@ -82,7 +82,7 @@ class Emanate:
         return not dest_file.exists()
 
     def run(self):
-        all_files = Path(".").glob("**/*")
+        all_files = Path(self.config.source).glob("**/*")
         files = filter(self.valid_file, all_files)
         list(map(self.function, files))
 
@@ -94,12 +94,15 @@ def parse_args(args=None):
     argparser.add_argument("--destination",
                            metavar="DESTINATION",
                            help="Directory to create and remove symlinks in.")
+    argparser.add_argument("--source",
+                           metavar="SOURCE",
+                           type=Path,
+                           help="Directory holding the files to symlink.")
     argparser.add_argument("--no-confirm",
                            action="store_true",
                            help="Don't prompt before replacing a file.")
     argparser.add_argument("--config",
                            metavar="CONFIG_FILE",
-                           default="emanate.json",
                            type=Path,
                            help="Configuration file to use.")
 
@@ -116,7 +119,10 @@ def main():
         clean=args.clean,
         destination=args.destination,
         confirm=not args.no_confirm,
+        source=args.source,
     )
+    if args.config is None:
+        args.config = args.source / "emanate.json"
 
     config = Config.merge(
         Config.from_json(args.config.open()) if args.config.exists() else None,
