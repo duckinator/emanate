@@ -25,7 +25,7 @@ class Emanate:
             "*/__pycache__/*",
             ]
 
-    def __init__(self, argv):
+    def __init__(self, argv=None, config=None):
         """Emanate prioritizes configuration sources in the following order:
         - default values have lowest priority;
         - the configuration file overrides defaults;
@@ -67,7 +67,7 @@ class Emanate:
     def load_config(filename):
         config_file = Path(filename)
         if config_file.exists():
-            return json.loads(config_file.read_text())
+            return json.load(config_file.open())
         else:
             return {}
 
