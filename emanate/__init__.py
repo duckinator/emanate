@@ -3,13 +3,11 @@
 # Example usage:
 # TODO
 
+from .config import Config
 from argparse import ArgumentParser
 from fnmatch import fnmatch
-import json
 from pathlib import Path
 import sys
-from .config import Config
-
 
 class Emanate:
     def __init__(self, config=None):
@@ -89,21 +87,21 @@ class Emanate:
         list(map(self.function, files))
 
 
-def parse_args(args=sys.argv[1:]):
+def parse_args(args=None):
     argparser = ArgumentParser(
-            description="symlink files from one directory to another")
+        description="symlink files from one directory to another")
     argparser.add_argument("--clean",
-            action="store_true",
-            default=False,
-            help="Remove symlinks.")
+                           action="store_true",
+                           default=False,
+                           help="Remove symlinks.")
     argparser.add_argument("--destination",
-            default=Path.home(),
-            metavar="DESTINATION",
-            help="Directory to create and/or remove symlinks in.")
+                           default=Path.home(),
+                           metavar="DESTINATION",
+                           help="Directory to create and remove symlinks in.")
     argparser.add_argument("--no-confirm",
-            action="store_true",
-            default=False,
-            help="Don't prompt before replacing a file.")
+                           action="store_true",
+                           default=False,
+                           help="Don't prompt before replacing a file.")
     argparser.add_argument("--config",
                            metavar="CONFIG_FILE",
                            default="emanate.json",
@@ -111,6 +109,7 @@ def parse_args(args=sys.argv[1:]):
                            help="Configuration file to use.")
 
     return argparser.parse_args(args)
+
 
 def main():
     """Emanate prioritizes configuration sources in the following order:

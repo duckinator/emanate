@@ -32,7 +32,7 @@ class Config(collections.abc.MutableMapping):
     Configuration that just initializes itself from default values.
     """
 
-    def __init__(self, **kargs):
+    def __init__(self, **kwargs):
         if not kwargs:
             self._data = {}
         else:
@@ -55,14 +55,15 @@ class Config(collections.abc.MutableMapping):
 
     def __getattr__(self, name):
         if name not in self:
-            raise AttributeError("{!r} object has no attribute {!r}".format(type(self).__name__, name))
+            raise AttributeError("{!r} object has no attribute {!r}".
+                                 format(type(self).__name__, name))
 
         return self[name]
 
     @staticmethod
-    def merge(*args):
+    def merge(*pargs):
         result = Config()
-        for arg in args:
+        for arg in pargs:
             if arg is not None:
                 result.update(arg)
 
@@ -81,7 +82,7 @@ class Config(collections.abc.MutableMapping):
 
     @staticmethod
     def from_json(file):
-        if isinstance(file, str): # TODO string classes
+        if isinstance(file, str):
             data = json.loads(file)
         else:
             data = json.load(file)
