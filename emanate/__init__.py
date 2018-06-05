@@ -26,8 +26,12 @@ class Emanate:
             ]
 
     def __init__(self, argv):
-        args   = self.parse_args(argv)
-        config = self.load_config(args.config)
+        """Emanate prioritizes configuration sources in the following order:
+        - default values have lowest priority;
+        - the configuration file overrides defaults;
+        - command-line arguments override everything."""
+        args   = Emanate.parse_args(argv)
+        config = Emanate.load_config(args.config)
         self.dest   = Path(args.destination).expanduser().resolve()
         self.ignore = self.DEFAULT_IGNORE + config.get("ignore", [])
         self.no_confirm = args.no_confirm
@@ -37,7 +41,8 @@ class Emanate:
         else:
             self.function = self.add_symlink
 
-    def parse_args(self, argv):
+    @staticmethod
+    def parse_args(argv):
         argparser = ArgumentParser(
                 description="symlink files from one directory to another")
         argparser.add_argument("--clean",
@@ -57,6 +62,14 @@ class Emanate:
                 default="emanate.json",
                 help="Configuration file to use.")
         return argparser.parse_args(argv[1:])
+
+    @staticmethod
+    def load_config(filename):
+        config_file = Path(filename)
+        if config_file.exists():
+            return json.loads(config_file.read_text())
+        else:
+            return {}
 
     def valid_file(self, path_obj):
         path = str(path_obj.resolve())
@@ -119,13 +132,6 @@ class Emanate:
             dest_file.unlink()
 
         return not dest_file.exists()
-
-    def load_config(self, filename):
-        config_file = Path(filename)
-        if config_file.exists():
-            return json.loads(config_file.read_text())
-        else:
-            return {}
 
     def run(self):
         all_files = Path(".").glob("**/*")
