@@ -9,6 +9,7 @@ from fnmatch import fnmatch
 from pathlib import Path
 import sys
 
+
 class Emanate:
     def __init__(self, *configs):
         self.config   = config.merge(config.DEFAULTS, *configs)
