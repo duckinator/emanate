@@ -36,7 +36,11 @@ class Config(collections.abc.MutableMapping):
         if not kwargs:
             self._data = {}
         else:
-            self._data = kwargs
+            self._data = {
+                k: v
+                for k, v in kwargs.items()
+                if v is not None
+            }
 
     def __getitem__(self, key):
         return self._data.get(key, DEFAULT_SETTINGS.get(key))
@@ -49,9 +53,15 @@ class Config(collections.abc.MutableMapping):
 
     def __iter__(self):
         yield from self._data
+        for k in DEFAULT_SETTINGS:
+            if k not in self._data:
+                yield k
 
     def __len__(self):
-        return len(self._data)
+        return len(self._data) + len(
+            k for k in DEFAULT_SETTINGS
+            if k not in self._data
+        )
 
     def __getattr__(self, name):
         if name not in self:
