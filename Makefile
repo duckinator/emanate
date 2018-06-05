@@ -8,4 +8,7 @@ build:
 clean:
 	rm -rf build release dist emanate.egg-info
 
-.PHONY: release build clean
+test:
+	tox
+
+.PHONY: release build clean test
