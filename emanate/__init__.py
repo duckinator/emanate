@@ -3,11 +3,9 @@
 # Example usage:
 # TODO
 
-import argparse
+from argparse import ArgumentParser
 from fnmatch import fnmatch
-import functools
 import json
-import os
 from pathlib import Path
 import sys
 
@@ -19,16 +17,29 @@ class Emanate:
             "*/emanate.json",
             "*.emanate",
             ".*.emanate",
+            "*/.git",
             "*/.git/*",
             "*/.gitignore",
             "*/.gitmodules",
+            "*/__pycache__",
             "*/__pycache__/*",
             ]
 
+    def __init__(self, argv):
+        args   = self.parse_args(argv)
+        config = self.load_config(args.config)
+        self.dest   = Path(args.destination).expanduser().resolve()
+        self.ignore = self.DEFAULT_IGNORE + config.get("ignore", [])
+        self.no_confirm = args.no_confirm
+
+        if args.clean:
+            self.function = self.del_symlink
+        else:
+            self.function = self.add_symlink
+
     def parse_args(self, argv):
-        argparser = argparse.ArgumentParser(
-                description="symlink files from one directory to another",
-                argument_default=argparse.SUPPRESS)
+        argparser = ArgumentParser(
+                description="symlink files from one directory to another")
         argparser.add_argument("--clean",
                 action="store_true",
                 default=False,
@@ -36,7 +47,6 @@ class Emanate:
         argparser.add_argument("--destination",
                 default=Path.home(),
                 metavar="DESTINATION",
-                nargs="?",
                 help="Directory to create and/or remove symlinks in.")
         argparser.add_argument("--no-confirm",
                 action="store_true",
@@ -46,55 +56,52 @@ class Emanate:
                 metavar="CONFIG_FILE",
                 default="emanate.json",
                 help="Configuration file to use.")
-        argparser.add_argument("--version",
-                action="store_true",
-                default=False,
-                help="Show version information")
-        args = argparser.parse_args(argv[1:])
-        return args
+        return argparser.parse_args(argv[1:])
 
-    def ignored_file(self, config, path_obj):
+    def valid_file(self, path_obj):
         path = str(path_obj.resolve())
-        patterns = self.DEFAULT_IGNORE + config.get("ignore", [])
-        match = functools.partial(fnmatch, path)
-        return any(map(match, patterns))
-
-    def valid_file(self, config, path_obj):
-        if path_obj.is_dir():
+        if any(fnmatch(path, pattern) for pattern in self.ignore):
             return False
 
-        return not self.ignored_file(config, path_obj)
+        if path_obj.is_dir():
+            Path(self.dest, path_obj).mkdir(exist_ok=True)
+            return False
 
-    def confirm(self, prompt, no_confirm):
-        if no_confirm:
+        return True
+
+    def confirm_replace(self, dest_file):
+        prompt = "{!r} already exists. Replace it?".format(str(dest_file))
+
+        if self.no_confirm:
             return True
 
         result = None
-        while not result in ["y", "n"]:
+        while not result in ["y", "n", "\n"]:
             print("{} [Y/n] ".format(prompt), end="", flush=True)
-            result = sys.stdin.read(1)
+            result = sys.stdin.read(1).lower()
 
-        return (result == "y")
+        return (result != "n")
 
-    def symlink_file(self, dest, no_confirm, config, path_obj):
-        assert (not path_obj.is_absolute()), \
-                "expected path_obj to be a relative path, got absolute path."
+    def backup(self, dest_file):
+        # Rename the file so we can safely write to the original path.
+        new_name = str(dest_file) + ".emanate"
+        dest_file.rename(new_name)
 
+    def add_symlink(self, path_obj):
         src_file  = path_obj.resolve()
-        dest_file = Path(dest, path_obj)
-        prompt    = "{!r} already exists. Replace it?".format(str(dest_file))
+        dest_file = Path(self.dest, path_obj)
 
-        assert src_file.exists(), "expected {!r} to exist.".format(str(src_file))
-
-        # If it's not a file, we just skip it.
-        if src_file.exists() and not src_file.is_file():
-            return True
-
+        # If the symlink is already in place, skip it.
         if dest_file.exists() and src_file.samefile(dest_file):
             return True
 
-        if dest_file.exists() and not self.confirm(prompt, no_confirm):
-            return False
+        # If the file exists and _isn't_ the symlink we're trying to make,
+        # prompt the user to determine what to do.
+        if dest_file.exists():
+            # If the user said no, skip the file.
+            if not self.confirm_replace(dest_file):
+                return False
+            self.backup(dest_file)
 
         print("{!r} -> {!r}".format(str(src_file), str(dest_file)))
 
@@ -102,59 +109,31 @@ class Emanate:
 
         return src_file.samefile(dest_file)
 
-    def symlink_all(self, dest, args, config, files):
-        # symlinkfn is a partially-applied variant of symlink_file(),
-        # which has the first 3 arguments always set to:
-        #     dest, args.no_confirm, config
-        symlinkfn = functools.partial(self.symlink_file, dest, args.no_confirm, config)
-        return list(map(symlinkfn, files))
-
-    def clean_file(self, dest, config, path_obj):
-        assert (not path_obj.is_absolute()), \
-                "expected path_obj to be a relative path, got absolute path."
-
+    def del_symlink(self, path_obj):
         src_file  = path_obj.resolve()
-        dest_file = Path(dest, path_obj)
-
-        if not dest_file.exists():
-            return True
+        dest_file = Path(self.dest, path_obj)
 
         print("{!r}".format(str(dest_file)))
 
-        if src_file.samefile(dest_file):
+        if dest_file.exists() and src_file.samefile(dest_file):
             dest_file.unlink()
 
         return not dest_file.exists()
 
-    def clean_all(self, dest, config, files):
-        # cleanfn is a partially-applied variant of clean_file(),
-        # which has the first 3 arguments always set to:
-        #     dest, args.no_confirm, config
-        cleanfn = functools.partial(self.clean_file, dest, config)
-        return list(map(cleanfn, files))
-
-    def run(self, argv):
-        args    = self.parse_args(argv)
-        dest    = Path(args.destination).expanduser().resolve()
-
-        config_file = Path(args.config)
+    def load_config(self, filename):
+        config_file = Path(filename)
         if config_file.exists():
-            config = json.loads(config_file.read_text())
+            return json.loads(config_file.read_text())
         else:
-            config = {}
+            return {}
 
-        # validfn is a partially-applied variant of valid_file(),
-        # which has the first argument always set to `config`.
-        validfn = functools.partial(self.valid_file, config)
-        files   = list(filter(validfn, Path(".").glob("**/*")))
-
-        if args.clean:
-            self.clean_all(dest, config, files)
-        else:
-            self.symlink_all(dest, args, config, files)
+    def run(self):
+        all_files = Path(".").glob("**/*")
+        files = filter(self.valid_file, all_files)
+        list(map(self.function, files))
 
 def main():
-    return Emanate().run(sys.argv)
+    return Emanate(sys.argv).run()
 
 if __name__ == '__main__':
     exit(main())
