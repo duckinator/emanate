@@ -38,7 +38,7 @@ class Emanate:
             return True
 
         result = None
-        while not result in ["y", "n", "\n"]:
+        while result not in ["y", "n", "\n"]:
             print("{} [Y/n] ".format(prompt), end="", flush=True)
             result = sys.stdin.read(1).lower()
 
@@ -130,6 +130,7 @@ def main():
         config.from_json(args.config) if args.config.exists() else None,
         config.resolve(vars(args))
     ).run()
+
 
 if __name__ == '__main__':
     exit(main())
