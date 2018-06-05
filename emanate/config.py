@@ -1,3 +1,9 @@
+"""Emanate's configuration module
+
+emanate.config defines Emanate's defaults, along with helpers for working with
+config objects, loading them from JSON files, and dealing with relative paths.
+"""
+
 import json
 from pathlib import Path
 
@@ -26,6 +32,8 @@ DEFAULTS = {
 
 
 class AttrDict(dict):
+    """AttrDict is a simple wrapper around the standard dict, which
+    allows accessing values with obj.foo rather than obj['foo']."""
     def __getattr__(self, name):
         if name not in self:
             raise AttributeError("{!r} object has no attribute {!r}".
@@ -58,6 +66,8 @@ CONFIG_PATHS = ('destination', 'source')
 
 
 def is_resolved(config):
+    """Checks whether all path options in a config object
+    are pathlib objects designating an absolute path."""
     for key in CONFIG_PATHS:
         if key in config:
             value = config[key]

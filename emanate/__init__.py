@@ -3,11 +3,11 @@
 # Example usage:
 # TODO
 
-from . import config
 from argparse import ArgumentParser, SUPPRESS
 from fnmatch import fnmatch
 from pathlib import Path
 import sys
+from . import config
 
 
 class Emanate:
@@ -42,9 +42,10 @@ class Emanate:
             print("{} [Y/n] ".format(prompt), end="", flush=True)
             result = sys.stdin.read(1).lower()
 
-        return (result != "n")
+        return result != "n"
 
-    def backup(self, dest_file):
+    @staticmethod
+    def backup(dest_file):
         # Rename the file so we can safely write to the original path.
         new_name = str(dest_file) + ".emanate"
         dest_file.rename(new_name)
@@ -63,7 +64,7 @@ class Emanate:
             # If the user said no, skip the file.
             if not self.confirm_replace(dest_file):
                 return False
-            self.backup(dest_file)
+            Emanate.backup(dest_file)
 
         print("{!r} -> {!r}".format(str(src_file), str(dest_file)))
 
