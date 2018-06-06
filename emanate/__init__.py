@@ -3,77 +3,25 @@
 # Example usage:
 # TODO
 
-from argparse import ArgumentParser
+from . import config
+from argparse import ArgumentParser, SUPPRESS
 from fnmatch import fnmatch
-import json
 from pathlib import Path
 import sys
 
 class Emanate:
-    DEFAULT_IGNORE = [
-            "*~",
-            ".*~",
-            ".*.sw?",
-            "*/emanate.json",
-            "*.emanate",
-            ".*.emanate",
-            "*/.git",
-            "*/.git/*",
-            "*/.gitignore",
-            "*/.gitmodules",
-            "*/__pycache__",
-            "*/__pycache__/*",
-            ]
+    def __init__(self, *configs):
+        self.config   = config.merge(config.DEFAULTS, *configs)
+        self.dest     = self.config.destination.resolve()
 
-    def __init__(self, argv):
-        """Emanate prioritizes configuration sources in the following order:
-        - default values have lowest priority;
-        - the configuration file overrides defaults;
-        - command-line arguments override everything."""
-        args   = Emanate.parse_args(argv)
-        config = Emanate.load_config(args.config)
-        self.dest   = Path(args.destination).expanduser().resolve()
-        self.ignore = self.DEFAULT_IGNORE + config.get("ignore", [])
-        self.no_confirm = args.no_confirm
-
-        if args.clean:
+        if self.config.clean:
             self.function = self.del_symlink
         else:
             self.function = self.add_symlink
 
-    @staticmethod
-    def parse_args(argv):
-        argparser = ArgumentParser(
-                description="symlink files from one directory to another")
-        argparser.add_argument("--clean",
-                action="store_true",
-                default=False,
-                help="Remove symlinks.")
-        argparser.add_argument("--destination",
-                default=Path.home(),
-                metavar="DESTINATION",
-                help="Directory to create and/or remove symlinks in.")
-        argparser.add_argument("--no-confirm",
-                action="store_true",
-                default=False,
-                help="Don't prompt before replacing a file.")
-        argparser.add_argument("--config",
-                metavar="CONFIG_FILE",
-                default="emanate.json",
-                help="Configuration file to use.")
-        return argparser.parse_args(argv[1:])
-
-    @staticmethod
-    def load_config(filename):
-        config_file = Path(filename)
-        if config_file.exists():
-            return json.loads(config_file.read_text())
-        else:
-            return {}
-
     def valid_file(self, path_obj):
         path = str(path_obj.resolve())
-        if any(fnmatch(path, pattern) for pattern in self.ignore):
+        if any(fnmatch(path, pattern) for pattern in self.config.ignore):
             return False
 
         if path_obj.is_dir():
@@ -85,7 +33,7 @@ class Emanate:
     def confirm_replace(self, dest_file):
         prompt = "{!r} already exists. Replace it?".format(str(dest_file))
 
-        if self.no_confirm:
+        if not self.config.confirm:
             return True
 
         result = None
@@ -102,7 +50,7 @@ class Emanate:
 
     def add_symlink(self, path_obj):
         src_file  = path_obj.resolve()
-        dest_file = Path(self.dest, path_obj)
+        dest_file = self.dest / path_obj.relative_to(self.config.source)
 
         # If the symlink is already in place, skip it.
         if dest_file.exists() and src_file.samefile(dest_file):
@@ -134,12 +82,53 @@ class Emanate:
         return not dest_file.exists()
 
     def run(self):
-        all_files = Path(".").glob("**/*")
+        all_files = Path(self.config.source).glob("**/*")
         files = filter(self.valid_file, all_files)
         list(map(self.function, files))
 
+
+def parse_args(args=None):
+    argparser = ArgumentParser(
+        description="symlink files from one directory to another",
+        argument_default=SUPPRESS
+    )
+    argparser.add_argument("--clean", help="Remove symlinks.")
+    argparser.add_argument("--destination",
+                           metavar="DESTINATION",
+                           help="Directory to create and remove symlinks in.")
+    argparser.add_argument("--source",
+                           metavar="SOURCE",
+                           type=Path,
+                           help="Directory holding the files to symlink.")
+    argparser.add_argument("--no-confirm",
+                           action="store_false",
+                           dest="confirm",
+                           help="Don't prompt before replacing a file.")
+    argparser.add_argument("--config",
+                           metavar="CONFIG_FILE",
+                           default=None,
+                           type=Path,
+                           help="Configuration file to use.")
+
+    return argparser.parse_args(args)
+
+
 def main():
-    return Emanate(sys.argv).run()
+    """Emanate prioritizes configuration sources in the following order:
+    - default values have lowest priority;
+    - the configuration file overrides defaults;
+    - command-line arguments override everything."""
+    args = parse_args()
+    if args.config is None:
+        if 'source' in args:
+            args.config = args.source / "emanate.json"
+        else:
+            args.config = Path.cwd() / "emanate.json"
+
+    return Emanate(
+        config.from_json(args.config) if args.config.exists() else None,
+        config.resolve(vars(args))
+    ).run()
 
 if __name__ == '__main__':
     exit(main())
