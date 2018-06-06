@@ -12,8 +12,10 @@ import sys
 class Emanate:
     def __init__(self, *configs):
         self.config   = config.merge(config.DEFAULTS, *configs)
-        self.dest     = Path(self.config.destination).expanduser().resolve()
+        self.dest     = self.config.destination.resolve()
         self.function = self.del_symlink if self.config.clean else self.add_symlink
+
+        assert(config.is_resolved(self.config))
 
     def valid_file(self, path_obj):
         path = str(path_obj.resolve())
@@ -119,8 +121,8 @@ def main():
         args.config = args.source / "emanate.json"
 
     return Emanate(
-        config.from_json(args.config.open()) if args.config.exists() else None,
-        vars(args)
+        config.from_json(args.config) if args.config.exists() else None,
+        config.resolve(vars(args))
     ).run()
 
 if __name__ == '__main__':

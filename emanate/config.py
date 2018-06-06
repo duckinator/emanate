@@ -46,8 +46,33 @@ def merge(*configs):
 
     return result
 
-def from_json(file):
-    if isinstance(file, str):
-        return json.loads(file)
-    else:
-        return json.load(file)
+
+CONFIG_PATHS = ('destination', 'source')
+
+def is_resolved(config):
+    for key in CONFIG_PATHS:
+        if key in config:
+            value = config[key]
+            if not isinstance(value, Path) or not value.is_absolute():
+                return False
+
+    return True
+
+def resolve(config, cwd=Path.cwd()):
+    assert isinstance(cwd, Path)
+    assert cwd.is_absolute()
+    result = config.copy()
+
+    for key in CONFIG_PATHS:
+        if key in result:
+            if isinstance(result[key], str):
+                result[key] = Path(result[key])
+
+            if not result[key].is_absolute():
+                result[key] = cwd / result[key].expanduser()
+
+    return result
+
+def from_json(path):
+    assert isinstance(path, Path)
+    return resolve(json.load(path.open()), cwd=path.parent)
