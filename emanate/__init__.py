@@ -48,7 +48,7 @@ class Emanate:
 
     def add_symlink(self, path_obj):
         src_file  = path_obj.resolve()
-        dest_file = self.dest / src_file.relative_to(self.config.source)
+        dest_file = self.dest / path_obj.relative_to(self.config.source)
 
         # If the symlink is already in place, skip it.
         if dest_file.exists() and src_file.samefile(dest_file):
