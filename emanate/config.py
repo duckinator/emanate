@@ -1,4 +1,4 @@
-"""Emanate's configuration module
+"""Emanate's configuration module.
 
 emanate.config defines Emanate's defaults, along with helpers for working with
 config objects, loading them from JSON files, and dealing with relative paths.
@@ -33,8 +33,8 @@ DEFAULTS = {
 
 
 class AttrDict(dict):
-    """AttrDict is a simple wrapper around the standard dict, which
-    allows accessing values with obj.foo rather than obj['foo']."""
+    """Simple wrapper around dict, allowing accessing values as attributes."""
+
     def __getattr__(self, name):
         if name not in self:
             raise AttributeError("{!r} object has no attribute {!r}".
@@ -65,10 +65,11 @@ def _merge_one(config, dict_like):
 
 
 def merge(*configs, strict_resolve=True):
-    """Merges a sequence of configuration dict-like objects.
-    Later configs overide previous ones, and the `ignore` attributes are
-    merged (according to set union)."""
+    """Merge a sequence of configuration dict-like objects.
 
+    Later configs overide previous ones, and the `ignore` attributes are
+    merged (according to set union).
+    """
     if strict_resolve:
         assert all(map(is_resolved, configs))
 
@@ -79,8 +80,7 @@ CONFIG_PATHS = ('destination', 'source')
 
 
 def is_resolved(config):
-    """Checks whether all path options in a config object
-    are pathlib objects designating an absolute path."""
+    """Check that all path options in a config object are absolute Paths."""
     for key in CONFIG_PATHS:
         if key in config:
             value = config[key]
@@ -91,8 +91,12 @@ def is_resolved(config):
 
 
 def resolve(config, cwd=Path.cwd()):
-    """Returns a new config dict-like, similar to its input,
-    with all relative paths resolved relatively to `cwd`."""
+    """Convert path options to pathlib.Path objects, and resolve relative paths.
+
+    Returns a new config dict-like, similar to its input, with all paths
+    attributes converted to pathlib objects, and relative paths resolved
+    relatively to `cwd`.
+    """
     assert isinstance(cwd, Path)
     assert cwd.is_absolute()
     result = config.copy()
@@ -109,7 +113,10 @@ def resolve(config, cwd=Path.cwd()):
 
 
 def from_json(path):
-    """Takes a pathlib.Path object designating a JSON configuration for Emanate,
-    loads it, and resolve paths relative to the configuration file."""
+    """Load an Emanate configuration from a file.
+
+    Takes a pathlib.Path object designating a JSON configuration file,
+    loads it, and resolve paths relative to the filepath.
+    """
     assert isinstance(path, Path)
     return resolve(json.load(path.open()), cwd=path.parent)
