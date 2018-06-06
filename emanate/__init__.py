@@ -120,7 +120,10 @@ def main():
     - command-line arguments override everything."""
     args = parse_args()
     if args.config is None:
-        args.config = args.source / "emanate.json"
+        if 'source' in args:
+            args.config = args.source / "emanate.json"
+        else:
+            args.config = Path.cwd() / "emanate.json"
 
     return Emanate(
         config.from_json(args.config) if args.config.exists() else None,
