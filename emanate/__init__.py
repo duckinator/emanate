@@ -115,12 +115,12 @@ def parse_args(args=None):
     return argparser.parse_args(args)
 
 
-def main():
+def main(args=None):
     """Emanate prioritizes configuration sources in the following order:
     - default values have lowest priority;
     - the configuration file overrides defaults;
     - command-line arguments override everything."""
-    args = parse_args()
+    args = parse_args(args)
     if args.config is None:
         if 'source' in args:
             args.config = args.source / "emanate.json"
