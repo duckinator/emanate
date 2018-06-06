@@ -13,7 +13,11 @@ class Emanate:
     def __init__(self, *configs):
         self.config   = config.merge(config.DEFAULTS, *configs)
         self.dest     = self.config.destination.resolve()
-        self.function = self.del_symlink if self.config.clean else self.add_symlink
+
+        if self.config.clean:
+            self.function = self.del_symlink
+        else:
+            self.function = self.add_symlink
 
     def valid_file(self, path_obj):
         path = str(path_obj.resolve())
