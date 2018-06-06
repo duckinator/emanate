@@ -105,12 +105,14 @@ def resolve(config, cwd=None):
     result = config.copy()
 
     for key in CONFIG_PATHS:
-        if key in result:
-            if isinstance(result[key], str):
-                result[key] = Path(result[key])
+        if key not in result:
+            continue
 
-            if not result[key].is_absolute():
-                result[key] = cwd / result[key].expanduser()
+        if isinstance(result[key], str):
+            result[key] = Path(result[key])
+
+        if not result[key].is_absolute():
+            result[key] = cwd / result[key].expanduser()
 
     return result
 
