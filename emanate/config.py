@@ -34,6 +34,9 @@ class AttrDict(dict):
         return self[name]
 
 def merge(*configs, strict_resolve=True):
+    """Merges a sequence of configuration dict-like objects.
+    Later configs overide previous ones, and the `ignore` attributes are
+    merged (according to set union)."""
     result = AttrDict()
     for config in configs:
         if config is not None:
@@ -62,6 +65,8 @@ def is_resolved(config):
     return True
 
 def resolve(config, cwd=Path.cwd()):
+    """Returns a new config dict-like, similar to its input,
+    with all relative paths resolved relatively to `cwd`."""
     assert isinstance(cwd, Path)
     assert cwd.is_absolute()
     result = config.copy()
@@ -77,5 +82,7 @@ def resolve(config, cwd=Path.cwd()):
     return result
 
 def from_json(path):
+    """Takes a pathlib.Path object designating a JSON configuration for Emanate,
+    loads it, and resolve paths relative to the configuration file."""
     assert isinstance(path, Path)
     return resolve(json.load(path.open()), cwd=path.parent)
