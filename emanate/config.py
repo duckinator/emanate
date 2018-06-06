@@ -4,6 +4,7 @@ emanate.config defines Emanate's defaults, along with helpers for working with
 config objects, loading them from JSON files, and dealing with relative paths.
 """
 
+import functools
 import json
 from pathlib import Path
 
@@ -41,25 +42,37 @@ class AttrDict(dict):
 
         return self[name]
 
+    def copy(self):
+        return AttrDict(self)
+
+
+def _merge_one(config, dict_like):
+    assert isinstance(config, AttrDict)
+    if dict_like is None:
+        return config
+
+    config = config.copy()
+    for key, value in dict_like.items():
+        if value is None:
+            continue
+
+        if key == 'ignore':
+            config[key] = config.get(key, frozenset()).union(value)
+        else:
+            config[key] = value
+
+    return config
+
 
 def merge(*configs, strict_resolve=True):
     """Merges a sequence of configuration dict-like objects.
     Later configs overide previous ones, and the `ignore` attributes are
     merged (according to set union)."""
-    result = AttrDict()
-    for config in configs:
-        if config is not None:
-            if strict_resolve:
-                assert is_resolved(config)
 
-            for key, value in config.items():
-                if value is not None:
-                    if key == 'ignore':
-                        result[key] = result.get(key, frozenset()).union(value)
-                    else:
-                        result[key] = value
+    if strict_resolve:
+        assert all(map(is_resolved, configs))
 
-    return result
+    return functools.reduce(_merge_one, configs, AttrDict())
 
 
 CONFIG_PATHS = ('destination', 'source')
