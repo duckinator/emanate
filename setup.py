@@ -23,7 +23,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'emanate=emanate:main',
+            'emanate=emanate.cli:main',
         ],
     },
     packages=['emanate'],
