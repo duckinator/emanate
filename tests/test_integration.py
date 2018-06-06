@@ -28,7 +28,7 @@ def test_config_relative_path():
 
         with src.joinpath('emanate.json').open(mode='w') as config:
             json.dump({
-                'destination': '../dest'
+                'destination': '../dest',
             }, config)
 
         assert not dest.joinpath('foo').exists()

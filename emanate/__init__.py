@@ -92,7 +92,7 @@ class Emanate:
 def parse_args(args=None):
     argparser = ArgumentParser(
         description="symlink files from one directory to another",
-        argument_default=SUPPRESS
+        argument_default=SUPPRESS,
     )
     argparser.add_argument("--clean", help="Remove symlinks.")
     argparser.add_argument("--destination",
@@ -132,7 +132,7 @@ def main(args=None):
 
     return Emanate(
         config.from_json(args.config) if args.config.exists() else None,
-        config.resolve(vars(args))
+        config.resolve(vars(args)),
     ).run()
 
 
