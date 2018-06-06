@@ -4,7 +4,7 @@
 # TODO
 
 from . import config
-from argparse import ArgumentParser
+from argparse import ArgumentParser, SUPPRESS
 from fnmatch import fnmatch
 from pathlib import Path
 import sys
@@ -85,7 +85,9 @@ class Emanate:
 
 def parse_args(args=None):
     argparser = ArgumentParser(
-        description="symlink files from one directory to another")
+        description="symlink files from one directory to another",
+        argument_default=SUPPRESS
+    )
     argparser.add_argument("--clean", help="Remove symlinks.")
     argparser.add_argument("--destination",
                            metavar="DESTINATION",
@@ -95,10 +97,12 @@ def parse_args(args=None):
                            type=Path,
                            help="Directory holding the files to symlink.")
     argparser.add_argument("--no-confirm",
-                           action="store_true",
+                           action="store_false",
+                           dest="confirm",
                            help="Don't prompt before replacing a file.")
     argparser.add_argument("--config",
                            metavar="CONFIG_FILE",
+                           default=None,
                            type=Path,
                            help="Configuration file to use.")
 
@@ -111,18 +115,12 @@ def main():
     - the configuration file overrides defaults;
     - command-line arguments override everything."""
     args = parse_args()
-    cli_config = {
-        'clean': args.clean,
-        'destination': args.destination,
-        'confirm': not args.no_confirm,
-        'source': args.source,
-    }
     if args.config is None:
         args.config = args.source / "emanate.json"
 
     return Emanate(
         config.from_json(args.config.open()) if args.config.exists() else None,
-        cli_config
+        vars(args)
     ).run()
 
 if __name__ == '__main__':
