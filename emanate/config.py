@@ -90,13 +90,16 @@ def is_resolved(config):
     return True
 
 
-def resolve(config, cwd=Path.cwd()):
+def resolve(config, cwd=None):
     """Convert path options to pathlib.Path objects, and resolve relative paths.
 
     Returns a new config dict-like, similar to its input, with all paths
     attributes converted to pathlib objects, and relative paths resolved
     relatively to `cwd`.
     """
+    if cwd is None:
+        cwd = Path.cwd()
+
     assert isinstance(cwd, Path)
     assert cwd.is_absolute()
     result = config.copy()
