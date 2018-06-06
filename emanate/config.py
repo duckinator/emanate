@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 
-DEFAULT_SETTINGS = {
+DEFAULTS = {
     'ignore': frozenset((
         "*~",
         ".*~",
@@ -25,45 +25,7 @@ DEFAULT_SETTINGS = {
     'source': Path.cwd(),
 }
 
-
-# Boilerplate stolen from Cumin:
-#   https://github.com/astronouth7303/cumin/blob/master/cumin/config.py
-class Config(collections.abc.MutableMapping):
-    """
-    Configuration that just initializes itself from default values.
-    """
-
-    def __init__(self, **kwargs):
-        if not kwargs:
-            self._data = {}
-        else:
-            self._data = {
-                k: v
-                for k, v in kwargs.items()
-                if v is not None
-            }
-
-    def __getitem__(self, key):
-        return self._data.get(key, DEFAULT_SETTINGS.get(key))
-
-    def __setitem__(self, key, data):
-        self._data[key] = data
-
-    def __delitem__(self, key):
-        del self._data[key]
-
-    def __iter__(self):
-        yield from self._data
-        for k in DEFAULT_SETTINGS:
-            if k not in self._data:
-                yield k
-
-    def __len__(self):
-        return len(self._data) + len(
-            k for k in DEFAULT_SETTINGS
-            if k not in self._data
-        )
-
+class AttrDict(dict):
     def __getattr__(self, name):
         if name not in self:
             raise AttributeError("{!r} object has no attribute {!r}".
@@ -71,33 +33,21 @@ class Config(collections.abc.MutableMapping):
 
         return self[name]
 
-    @staticmethod
-    def merge(*pargs):
-        result = Config()
-        for arg in pargs:
-            if arg is not None:
-                result.update(arg)
+def merge(*configs):
+    result = AttrDict()
+    for config in configs:
+        if config is not None:
+            for key, value in config.items():
+                if value is not None:
+                    if key == 'ignore':
+                        result[key] = result.get(key, frozenset()).union(value)
+                    else:
+                        result[key] = value
 
-        return result
+    return result
 
-    def update(self, other):
-        for key, value in other.items():
-            if key == 'ignore':
-                self[key] = self[key].union(value)
-            else:
-                self[key] = value
-
-    @staticmethod
-    def from_defaults():
-        return Config()
-
-    @staticmethod
-    def from_json(file):
-        if isinstance(file, str):
-            data = json.loads(file)
-        else:
-            data = json.load(file)
-
-        result = Config()
-        result.update(data)
-        return result
+def from_json(file):
+    if isinstance(file, str):
+        return json.loads(file)
+    else:
+        return json.load(file)

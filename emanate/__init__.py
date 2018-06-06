@@ -3,21 +3,17 @@
 # Example usage:
 # TODO
 
-from .config import Config
+from . import config
 from argparse import ArgumentParser
 from fnmatch import fnmatch
 from pathlib import Path
 import sys
 
 class Emanate:
-    def __init__(self, config=None):
-        if config is None:
-            self.config = Config()
-        else:
-            self.config = config
-
+    def __init__(self, *configs):
+        self.config   = config.merge(config.DEFAULTS, *configs)
         self.dest     = Path(self.config.destination).expanduser().resolve()
-        self.function = self.del_symlink if config.clean else self.add_symlink
+        self.function = self.del_symlink if self.config.clean else self.add_symlink
 
     def valid_file(self, path_obj):
         path = str(path_obj.resolve())
@@ -115,21 +111,19 @@ def main():
     - the configuration file overrides defaults;
     - command-line arguments override everything."""
     args = parse_args()
-    cli_config = Config(
-        clean=args.clean,
-        destination=args.destination,
-        confirm=not args.no_confirm,
-        source=args.source,
-    )
+    cli_config = {
+        'clean': args.clean,
+        'destination': args.destination,
+        'confirm': not args.no_confirm,
+        'source': args.source,
+    }
     if args.config is None:
         args.config = args.source / "emanate.json"
 
-    config = Config.merge(
-        Config.from_json(args.config.open()) if args.config.exists() else None,
+    return Emanate(
+        config.from_json(args.config.open()) if args.config.exists() else None,
         cli_config
-    )
-
-    return Emanate(config).run()
+    ).run()
 
 if __name__ == '__main__':
     exit(main())
