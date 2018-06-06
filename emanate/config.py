@@ -33,10 +33,13 @@ class AttrDict(dict):
 
         return self[name]
 
-def merge(*configs):
+def merge(*configs, strict_resolve=True):
     result = AttrDict()
     for config in configs:
         if config is not None:
+            if strict_resolve:
+                assert is_resolved(config)
+
             for key, value in config.items():
                 if value is not None:
                     if key == 'ignore':

@@ -15,8 +15,6 @@ class Emanate:
         self.dest     = self.config.destination.resolve()
         self.function = self.del_symlink if self.config.clean else self.add_symlink
 
-        assert(config.is_resolved(self.config))
-
     def valid_file(self, path_obj):
         path = str(path_obj.resolve())
         if any(fnmatch(path, pattern) for pattern in self.config.ignore):
