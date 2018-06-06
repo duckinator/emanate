@@ -3,11 +3,12 @@
 # Example usage:
 # TODO
 
-from . import config
 from argparse import ArgumentParser, SUPPRESS
 from fnmatch import fnmatch
 from pathlib import Path
 import sys
+from . import config
+
 
 class Emanate:
     def __init__(self, *configs):
@@ -37,13 +38,14 @@ class Emanate:
             return True
 
         result = None
-        while not result in ["y", "n", "\n"]:
+        while result not in ["y", "n", "\n"]:
             print("{} [Y/n] ".format(prompt), end="", flush=True)
             result = sys.stdin.read(1).lower()
 
-        return (result != "n")
+        return result != "n"
 
-    def backup(self, dest_file):
+    @staticmethod
+    def backup(dest_file):
         # Rename the file so we can safely write to the original path.
         new_name = str(dest_file) + ".emanate"
         dest_file.rename(new_name)
@@ -62,7 +64,7 @@ class Emanate:
             # If the user said no, skip the file.
             if not self.confirm_replace(dest_file):
                 return False
-            self.backup(dest_file)
+            Emanate.backup(dest_file)
 
         print("{!r} -> {!r}".format(str(src_file), str(dest_file)))
 
@@ -90,7 +92,7 @@ class Emanate:
 def parse_args(args=None):
     argparser = ArgumentParser(
         description="symlink files from one directory to another",
-        argument_default=SUPPRESS
+        argument_default=SUPPRESS,
     )
     argparser.add_argument("--clean", help="Remove symlinks.")
     argparser.add_argument("--destination",
@@ -113,12 +115,15 @@ def parse_args(args=None):
     return argparser.parse_args(args)
 
 
-def main():
-    """Emanate prioritizes configuration sources in the following order:
+def main(args=None):
+    """Invoke Emanate from command-line arguments.
+
+    Emanate prioritizes configuration sources in the following order:
     - default values have lowest priority;
     - the configuration file overrides defaults;
-    - command-line arguments override everything."""
-    args = parse_args()
+    - command-line arguments override everything.
+    """
+    args = parse_args(args)
     if args.config is None:
         if 'source' in args:
             args.config = args.source / "emanate.json"
@@ -127,8 +132,9 @@ def main():
 
     return Emanate(
         config.from_json(args.config) if args.config.exists() else None,
-        config.resolve(vars(args))
+        config.resolve(vars(args)),
     ).run()
+
 
 if __name__ == '__main__':
     exit(main())
