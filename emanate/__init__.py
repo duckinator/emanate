@@ -103,7 +103,7 @@ def main(args=None):
     - default values have lowest priority;
     - the configuration file overrides defaults;
     - command-line arguments override everything."""
-    args = cli.parse_args()
+    args = cli.parse_args(args)
     if args.config is None:
         if 'source' in args:
             args.config = args.source / "emanate.json"
