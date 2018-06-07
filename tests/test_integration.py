@@ -30,18 +30,7 @@ def directory_tree(obj):
 
 
 def test_config_relative_path():
-    """Test paths relative to the configuration file.
-
-    Creates the following hierarchy, and calls `emanate --source tmpdir/src`:
-    tmpdir
-    ├── dest
-    └── src
-        ├── foo
-        └── emanate.json
-
-    This test then asserts that tmpdir/dest/foo exists, and that
-    tmpdir/dest/emanate.json does not.
-    """
+    """Test paths relative to the configuration file."""
     with directory_tree({
             'src': {
                 'foo': '',
@@ -51,23 +40,15 @@ def test_config_relative_path():
     }) as tmpdir:
         dest_foo = tmpdir / 'dest' / 'foo'
 
-        assert not dest_foo.exists()
         main(['--source', str(tmpdir / 'src')])
         assert dest_foo.samefile(tmpdir / 'src'  / 'foo')
         assert not (tmpdir / 'dest' / 'emanate.json').exists()
 
 
 def test_no_config():
-    """Test emanate without configuration file. (See issue #8)
+    """Test emanate without configuration file.
 
-    Creates the following hierarchy, and calls
-    `emanate --source tmpdir/src --dest tmpdir/dest`:
-    tmpdir
-    ├── dest
-    └── src
-        └── foo
-
-    This test then asserts that tmpdir/dest/foo exists.
+    This is a reproducing testcase for issue #8.
     """
     with directory_tree({
             'src': {
@@ -77,7 +58,6 @@ def test_no_config():
     }) as tmpdir:
         dest_foo = tmpdir / 'dest' / 'foo'
 
-        assert not dest_foo.exists()
         main([
             '--source', str(tmpdir / 'src'),
             '--dest', str(tmpdir / 'dest'),
@@ -86,19 +66,7 @@ def test_no_config():
 
 
 def test_empty_config():
-    """Test emanate with an empty configuration file.
-
-    Creates the following hierarchy, and calls
-    `emanate --source tmpdir/src --dest tmpdir/dest`:
-    tmpdir
-    ├── dest
-    └── src
-        ├── foo
-        └── emanate.json
-
-    This test then asserts that tmpdir/dest/foo exists, and that
-    tmpdir/dest/emanate.json does not.
-    """
+    """Test emanate with an empty configuration file."""
     with directory_tree({
             'src': {
                 'foo': '',
@@ -108,7 +76,6 @@ def test_empty_config():
     }) as tmpdir:
         dest_foo = tmpdir / 'dest' / 'foo'
 
-        assert not dest_foo.exists()
         main([
             '--source', str(tmpdir / 'src'),
             '--dest', str(tmpdir / 'dest'),
