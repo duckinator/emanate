@@ -55,3 +55,31 @@ def test_config_relative_path():
         main(['--source', str(tmpdir / 'src')])
         assert dest_foo.samefile(tmpdir / 'src'  / 'foo')
         assert not (tmpdir / 'dest' / 'emanate.json').exists()
+
+
+def test_no_config():
+    """Test emanate without configuration file. (See issue #8)
+
+    Creates the following hierarchy, and calls
+    `emanate --source tmpdir/src --dest tmpdir/dest`:
+    tmpdir
+    ├── dest
+    └── src
+        └── foo
+
+    This test then asserts that tmpdir/dest/foo exists.
+    """
+    with directory_tree({
+            'src': {
+                'foo': '',
+            },
+            'dest': {},
+    }) as tmpdir:
+        dest_foo = tmpdir / 'dest' / 'foo'
+
+        assert not dest_foo.exists()
+        main([
+            '--source', str(tmpdir / 'src'),
+            '--dest', str(tmpdir / 'dest'),
+        ])
+        assert dest_foo.samefile(tmpdir / 'src'  / 'foo')
