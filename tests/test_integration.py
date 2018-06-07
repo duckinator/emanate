@@ -6,7 +6,7 @@ from emanate import main
 
 
 @contextmanager
-def directory_tree(**kwargs):
+def directory_tree(obj):
     def mktree(path, obj):
         assert isinstance(path, Path)
         # File by content
@@ -25,7 +25,7 @@ def directory_tree(**kwargs):
 
     with TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        mktree(tmpdir, kwargs)
+        mktree(tmpdir, obj)
         yield tmpdir
 
 
@@ -42,13 +42,13 @@ def test_config_relative_path():
     This test then asserts that tmpdir/dest/foo exists, and that
     tmpdir/dest/emanate.json does not.
     """
-    with directory_tree(
-            src={
+    with directory_tree({
+            'src': {
                 'foo': '',
                 'emanate.json': json.dumps({'destination': '../dest'}),
             },
-            dest={},
-    ) as tmpdir:
+            'dest': {},
+    }) as tmpdir:
         dest_foo = tmpdir / 'dest' / 'foo'
 
         assert not dest_foo.exists()
