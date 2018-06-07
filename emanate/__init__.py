@@ -78,7 +78,7 @@ class Emanate:
 
         return not dest_file.exists()
 
-    def get_files(self, path_obj):
+    def get_files(self):
         all_files = Path(".").glob("**/*")
         files = filter(self.valid_file, all_files)
         return files
