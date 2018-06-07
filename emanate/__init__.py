@@ -3,10 +3,10 @@
 # Example usage:
 # TODO
 
-from argparse import ArgumentParser, SUPPRESS
 from fnmatch import fnmatch
 from pathlib import Path
 import sys
+from . import cli
 from . import config
 
 
@@ -14,11 +14,6 @@ class Emanate:
     def __init__(self, *configs):
         self.config   = config.merge(config.DEFAULTS, *configs)
         self.dest     = self.config.destination.resolve()
-
-        if self.config.clean:
-            self.function = self.del_symlink
-        else:
-            self.function = self.add_symlink
 
     def valid_file(self, path_obj):
         path = str(path_obj.resolve())
@@ -83,36 +78,22 @@ class Emanate:
 
         return not dest_file.exists()
 
-    def run(self):
-        all_files = Path(self.config.source).glob("**/*")
+    def get_files(self):
+        all_files = Path(".").glob("**/*")
         files = filter(self.valid_file, all_files)
-        list(map(self.function, files))
+        return files
 
+    def clean(self):
+        list(map(self.del_symlink, self.get_files()))
 
-def parse_args(args=None):
-    argparser = ArgumentParser(
-        description="symlink files from one directory to another",
-        argument_default=SUPPRESS,
-    )
-    argparser.add_argument("--clean", help="Remove symlinks.")
-    argparser.add_argument("--destination",
-                           metavar="DESTINATION",
-                           help="Directory to create and remove symlinks in.")
-    argparser.add_argument("--source",
-                           metavar="SOURCE",
-                           type=Path,
-                           help="Directory holding the files to symlink.")
-    argparser.add_argument("--no-confirm",
-                           action="store_false",
-                           dest="confirm",
-                           help="Don't prompt before replacing a file.")
-    argparser.add_argument("--config",
-                           metavar="CONFIG_FILE",
-                           default=None,
-                           type=Path,
-                           help="Configuration file to use.")
+    def apply(self):
+        list(map(self.add_symlink, self.get_files()))
 
-    return argparser.parse_args(args)
+    def run(self):
+        if self.config.clean:
+            self.clean()
+        else:
+            self.apply()
 
 
 def main(args=None):
@@ -121,9 +102,8 @@ def main(args=None):
     Emanate prioritizes configuration sources in the following order:
     - default values have lowest priority;
     - the configuration file overrides defaults;
-    - command-line arguments override everything.
-    """
-    args = parse_args(args)
+    - command-line arguments override everything."""
+    args = cli.parse_args(args)
     if args.config is None:
         if 'source' in args:
             args.config = args.source / "emanate.json"
