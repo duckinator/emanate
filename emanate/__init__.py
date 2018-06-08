@@ -12,7 +12,7 @@ from . import config
 
 class Emanate:
     def __init__(self, *configs):
-        self.config   = config.merge(config.DEFAULTS, *configs)
+        self.config   = config.merge(config.defaults(), *configs)
         self.dest     = self.config.destination.resolve()
 
         if self.config.clean:

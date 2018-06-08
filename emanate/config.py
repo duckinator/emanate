@@ -9,27 +9,28 @@ import json
 from pathlib import Path
 
 
-DEFAULTS = {
-    'ignore': frozenset((
-        "*~",
-        ".*~",
-        ".*.sw?",
-        "*/emanate.json",
-        "*.emanate",
-        ".*.emanate",
-        "*/.git",
-        "*/.git/*",
-        "*/.gitignore",
-        "*/.gitmodules",
-        "*/__pycache__",
-        "*/__pycache__/*",
-    )),
+def defaults():
+    return {
+        'ignore': frozenset((
+            "*~",
+            ".*~",
+            ".*.sw?",
+            "*/emanate.json",
+            "*.emanate",
+            ".*.emanate",
+            "*/.git",
+            "*/.git/*",
+            "*/.gitignore",
+            "*/.gitmodules",
+            "*/__pycache__",
+            "*/__pycache__/*",
+        )),
 
-    'clean': False,
-    'confirm': True,
-    'destination': Path.home(),
-    'source': Path.cwd(),
-}
+        'clean': False,
+        'confirm': True,
+        'destination': Path.home(),
+        'source': Path.cwd(),
+    }
 
 
 class AttrDict(dict):
