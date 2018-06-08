@@ -7,6 +7,7 @@ import emanate
 
 
 def main(*pargs):
+    """Converts arguments, prints them and the cwd, then calls emanate.main."""
     args = [x if isinstance(x, str) else str(x) for x in pargs]
     print('cwd:', Path.cwd())
     print('emanate', *args)
@@ -15,6 +16,7 @@ def main(*pargs):
 
 @contextmanager
 def cd(path):
+    """Context manager for temporarily changing directory."""
     if isinstance(path, Path):
         path = str(path)
 
@@ -28,7 +30,9 @@ def cd(path):
 
 @contextmanager
 def directory_tree(obj):
+    """Provide a temporary directory populated with configurable contents."""
     def mktree(path, obj):
+        """Populate a directory from a dict-like description of its contents."""
         assert isinstance(path, Path)
         # File by content
         if isinstance(obj, str):
@@ -52,6 +56,14 @@ def directory_tree(obj):
 
 
 def helper(tree=None, source='src', options=lambda _: []):
+    """Run main in clean environments, with various '--source' options.
+
+    Each invocation is done against a separate, temporary directory.
+    main is currently run 3 times:
+    - from the current working directory, with `--source tmpdir/src`;
+    - from `tmpdir`, with `--source src`;
+    - from `tmpdir/src`, without --source argument.
+    """
     with directory_tree(tree) as tmpdir:
         main('--source', tmpdir / source, *options(tmpdir))
         yield tmpdir
