@@ -44,11 +44,12 @@ def directory_tree(obj):
 
     with TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        mktree(tmpdir, obj)
+        if obj:
+            mktree(tmpdir, obj)
         yield tmpdir
 
 
-def helper(tree={}, source='src', options=lambda _: []):
+def helper(tree=None, source='src', options=lambda _: []):
     with directory_tree(tree) as tmpdir:
         main('--source', tmpdir / source, *options(tmpdir))
         yield tmpdir
