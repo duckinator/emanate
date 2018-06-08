@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from contextlib import contextmanager
@@ -8,6 +9,20 @@ import emanate
 def main(*pargs):
     args = map(lambda x: x if isinstance(x, str) else str(x), pargs)
     emanate.main(args)
+
+
+@contextmanager
+def cd(path):
+    if isinstance(path, Path):
+        path = str(path)
+
+    cwd = Path.cwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(str(cwd))
+
 
 @contextmanager
 def directory_tree(obj):
@@ -37,6 +52,16 @@ def helper(tree={}, source='src', options=lambda _: []):
     with directory_tree(tree) as tmpdir:
         main('--source', tmpdir / source, *options(tmpdir))
         yield tmpdir
+
+    with directory_tree(tree) as tmpdir:
+        with cd(tmpdir):
+            main('--source', source, *options(tmpdir))
+            yield tmpdir
+
+    with directory_tree(tree) as tmpdir:
+        with cd(tmpdir / source):
+            main(*options(tmpdir))
+            yield tmpdir
 
 
 def test_config_relative_path():
