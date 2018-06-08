@@ -2,8 +2,12 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from contextlib import contextmanager
-from emanate import main
+import emanate
 
+
+def main(*pargs):
+    args = map(lambda x: x if isinstance(x, str) else str(x), pargs)
+    emanate.main(args)
 
 @contextmanager
 def directory_tree(obj):
@@ -29,19 +33,23 @@ def directory_tree(obj):
         yield tmpdir
 
 
+def helper(tree={}, source='src', options=lambda _: []):
+    with directory_tree(tree) as tmpdir:
+        main('--source', tmpdir / source, *options(tmpdir))
+        yield tmpdir
+
+
 def test_config_relative_path():
     """Test paths relative to the configuration file."""
-    with directory_tree({
-            'src': {
-                'foo': '',
-                'emanate.json': json.dumps({'destination': '../dest'}),
-            },
-            'dest': {},
-    }) as tmpdir:
-        dest_foo = tmpdir / 'dest' / 'foo'
-
-        main(['--source', str(tmpdir / 'src')])
-        assert dest_foo.samefile(tmpdir / 'src'  / 'foo')
+    for tmpdir in helper(
+            tree={
+                'src': {
+                    'foo': '',
+                    'emanate.json': json.dumps({'destination': '../dest'}),
+                },
+                'dest': {},
+            }):
+        assert (tmpdir / 'dest' / 'foo').samefile(tmpdir / 'src'  / 'foo')
         assert not (tmpdir / 'dest' / 'emanate.json').exists()
 
 
@@ -50,35 +58,29 @@ def test_no_config():
 
     This is a reproducing testcase for issue #8.
     """
-    with directory_tree({
-            'src': {
-                'foo': '',
+    for tmpdir in helper(
+            tree={
+                'src': {
+                    'foo': '',
+                },
+                'dest': {},
             },
-            'dest': {},
-    }) as tmpdir:
-        dest_foo = tmpdir / 'dest' / 'foo'
-
-        main([
-            '--source', str(tmpdir / 'src'),
-            '--dest', str(tmpdir / 'dest'),
-        ])
-        assert dest_foo.samefile(tmpdir / 'src'  / 'foo')
+            options=lambda tmpdir: ['--dest', tmpdir / 'dest'],
+    ):
+        assert (tmpdir / 'dest' / 'foo').samefile(tmpdir / 'src'  / 'foo')
 
 
 def test_empty_config():
     """Test emanate with an empty configuration file."""
-    with directory_tree({
-            'src': {
-                'foo': '',
-                'emanate.json': '{}',
+    for tmpdir in helper(
+            tree={
+                'src': {
+                    'foo': '',
+                    'emanate.json': '{}',
+                },
+                'dest': {},
             },
-            'dest': {},
-    }) as tmpdir:
-        dest_foo = tmpdir / 'dest' / 'foo'
-
-        main([
-            '--source', str(tmpdir / 'src'),
-            '--dest', str(tmpdir / 'dest'),
-        ])
-        assert dest_foo.samefile(tmpdir / 'src'  / 'foo')
+            options=lambda tmpdir: ['--dest', tmpdir / 'dest'],
+    ):
+        assert (tmpdir / 'dest' / 'foo').samefile(tmpdir / 'src'  / 'foo')
         assert not (tmpdir / 'dest'  / 'emanate.json').exists()
