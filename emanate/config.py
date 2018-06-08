@@ -70,7 +70,7 @@ def merge(*configs, strict_resolve=True):
     Later configs overide previous ones, and the `ignore` attributes are
     merged (according to set union).
     """
-    configs = tuple(c for c in configs if c is not None)
+    configs = [c for c in configs if c is not None]
 
     if strict_resolve:
         assert all(map(is_resolved, configs))

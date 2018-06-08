@@ -7,7 +7,7 @@ import emanate
 
 
 def main(*pargs):
-    args = tuple(map(lambda x: x if isinstance(x, str) else str(x), pargs))
+    args = [x if isinstance(x, str) else str(x) for x in pargs]
     print('cwd:', Path.cwd())
     print('emanate', *args)
     emanate.main(args)
