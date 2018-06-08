@@ -125,4 +125,4 @@ def from_json(path):
     loads it, and resolve paths relative to the filepath.
     """
     assert isinstance(path, Path)
-    return resolve(json.load(path.open()), cwd=path.parent)
+    return resolve(json.load(path.open()), cwd=path.parent.resolve())
