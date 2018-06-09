@@ -12,7 +12,7 @@ from . import config
 
 class Emanate:
     def __init__(self, *configs):
-        self.config   = config.merge(config.DEFAULTS, *configs)
+        self.config   = config.merge(config.defaults(), *configs)
         self.dest     = self.config.destination.resolve()
 
         if self.config.clean:
@@ -85,8 +85,8 @@ class Emanate:
 
     def run(self):
         all_files = Path(self.config.source).glob("**/*")
-        files = filter(self.valid_file, all_files)
-        list(map(self.function, files))
+        for file in filter(self.valid_file, all_files):
+            self.function(file)
 
 
 def parse_args(args=None):

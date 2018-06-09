@@ -9,27 +9,28 @@ import json
 from pathlib import Path
 
 
-DEFAULTS = {
-    'ignore': frozenset((
-        "*~",
-        ".*~",
-        ".*.sw?",
-        "*/emanate.json",
-        "*.emanate",
-        ".*.emanate",
-        "*/.git",
-        "*/.git/*",
-        "*/.gitignore",
-        "*/.gitmodules",
-        "*/__pycache__",
-        "*/__pycache__/*",
-    )),
+def defaults():
+    return {
+        'ignore': frozenset((
+            "*~",
+            ".*~",
+            ".*.sw?",
+            "*/emanate.json",
+            "*.emanate",
+            ".*.emanate",
+            "*/.git",
+            "*/.git/*",
+            "*/.gitignore",
+            "*/.gitmodules",
+            "*/__pycache__",
+            "*/__pycache__/*",
+        )),
 
-    'clean': False,
-    'confirm': True,
-    'destination': Path.home(),
-    'source': Path.cwd(),
-}
+        'clean': False,
+        'confirm': True,
+        'destination': Path.home(),
+        'source': Path.cwd(),
+    }
 
 
 class AttrDict(dict):
@@ -48,8 +49,7 @@ class AttrDict(dict):
 
 def _merge_one(config, dict_like):
     assert isinstance(config, AttrDict)
-    if dict_like is None:
-        return config
+    assert dict_like is not None
 
     config = config.copy()
     for key, value in dict_like.items():
@@ -70,6 +70,8 @@ def merge(*configs, strict_resolve=True):
     Later configs overide previous ones, and the `ignore` attributes are
     merged (according to set union).
     """
+    configs = [c for c in configs if c is not None]
+
     if strict_resolve:
         assert all(map(is_resolved, configs))
 
@@ -124,4 +126,4 @@ def from_json(path):
     loads it, and resolve paths relative to the filepath.
     """
     assert isinstance(path, Path)
-    return resolve(json.load(path.open()), cwd=path.parent)
+    return resolve(json.load(path.open()), cwd=path.parent.resolve())
