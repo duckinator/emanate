@@ -27,3 +27,12 @@ def test_json_resolution():
         assert config_cwd == config_tmp == config_src
         assert config_cwd.destination.is_absolute()
         assert config_cwd.source.is_absolute()
+
+
+def test_defaults():
+    assert config.defaults().destination == Path.home()
+    assert config.defaults().source == Path.cwd()
+
+    with directory_tree({}) as tmpdir:
+        with cd(tmpdir):
+            assert config.defaults().source == Path.cwd() == tmpdir
