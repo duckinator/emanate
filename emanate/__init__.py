@@ -11,7 +11,21 @@ from . import config
 
 
 class Emanate:
+    """Provide the core functionality of Emanate.
+
+    This class is configurable at initialization-time, by passing it a number
+    of configuration objects, supporting programmatic use (from a configuration
+    management tool, for instance) as well as wrapping it in a human interface
+    (see emanate.main for a simple example).
+    """
+
     def __init__(self, *configs):
+        """Construct an Emanate instance from configuration dictionaries.
+
+        The default values (as provided by config.defaults()) are implicitely
+        the first configuration object; latter configurations override earlier
+        configurations (see config.merge).
+        """
         self.config   = config.merge(config.defaults(), *configs)
         self.dest     = self.config.destination.resolve()
 
@@ -21,6 +35,11 @@ class Emanate:
             self.function = self._add_symlink
 
     def valid_file(self, path_obj):
+        """Check whether a given path is covered by an ignore glob.
+
+        As a side effect, if the path is a directory, is it created
+        in the destination directory.
+        """
         path = str(path_obj.resolve())
         if any(fnmatch(path, pattern) for pattern in self.config.ignore):
             return False
@@ -32,6 +51,10 @@ class Emanate:
         return True
 
     def confirm_replace(self, dest_file):
+        """Prompt the user before replacing a file.
+
+        The prompt is skipped if the `confirm` configuration option is False.
+        """
         prompt = "{!r} already exists. Replace it?".format(str(dest_file))
 
         if not self.config.confirm:
@@ -46,7 +69,7 @@ class Emanate:
 
     @staticmethod
     def backup(dest_file):
-        # Rename the file so we can safely write to the original path.
+        """Rename the file so we can safely write to the original path."""
         new_name = str(dest_file) + ".emanate"
         dest_file.rename(new_name)
 
@@ -84,6 +107,7 @@ class Emanate:
         return not dest_file.exists()
 
     def run(self):
+        """Execute Emanate as configured."""
         all_files = Path(self.config.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
             self.function(file)
