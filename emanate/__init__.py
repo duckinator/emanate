@@ -16,9 +16,9 @@ class Emanate:
         self.dest     = self.config.destination.resolve()
 
         if self.config.clean:
-            self.function = self.del_symlink
+            self.function = self._del_symlink
         else:
-            self.function = self.add_symlink
+            self.function = self._add_symlink
 
     def valid_file(self, path_obj):
         path = str(path_obj.resolve())
@@ -50,7 +50,7 @@ class Emanate:
         new_name = str(dest_file) + ".emanate"
         dest_file.rename(new_name)
 
-    def add_symlink(self, path_obj):
+    def _add_symlink(self, path_obj):
         src_file  = path_obj.resolve()
         dest_file = self.dest / path_obj.relative_to(self.config.source)
 
@@ -72,7 +72,7 @@ class Emanate:
 
         return src_file.samefile(dest_file)
 
-    def del_symlink(self, path_obj):
+    def _del_symlink(self, path_obj):
         src_file  = path_obj.resolve()
         dest_file = Path(self.dest, path_obj)
 
