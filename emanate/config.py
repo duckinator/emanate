@@ -16,7 +16,7 @@ def defaults():
     config.defaults() resolves the default using the values
     of Path.home() and Path.cwd() at the time it was called.
     """
-    return {
+    return AttrDict({
         'ignore': frozenset((
             "*~",
             ".*~",
@@ -36,7 +36,7 @@ def defaults():
         'confirm': True,
         'destination': Path.home(),
         'source': Path.cwd(),
-    }
+    })
 
 
 class AttrDict(dict):
