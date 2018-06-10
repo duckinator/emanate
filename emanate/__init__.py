@@ -89,7 +89,7 @@ class Emanate:
             self.function(file)
 
 
-def parse_args(args=None):
+def _parse_args(args=None):
     argparser = ArgumentParser(
         description="symlink files from one directory to another",
         argument_default=SUPPRESS,
@@ -123,7 +123,7 @@ def main(args=None):
     - the configuration file overrides defaults;
     - command-line arguments override everything.
     """
-    args = parse_args(args)
+    args = _parse_args(args)
     if args.config is None:
         if 'source' in args:
             args.config = args.source / "emanate.json"
