@@ -112,7 +112,7 @@ def resolve(config, cwd=None):
 
     assert isinstance(cwd, Path)
     assert cwd.is_absolute()
-    result = config.copy()
+    result = AttrDict(config)
 
     for key in CONFIG_PATHS:
         if key not in result:
