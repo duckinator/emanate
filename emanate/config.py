@@ -10,6 +10,11 @@ from pathlib import Path
 
 
 def defaults():
+    """Return Emanate's default configuration.
+
+    config.defaults() resolves the default using the values
+    of Path.home() and Path.cwd() at the time it was called.
+    """
     return {
         'ignore': frozenset((
             "*~",
@@ -37,6 +42,7 @@ class AttrDict(dict):
     """Simple wrapper around dict, allowing accessing values as attributes."""
 
     def __getattr__(self, name):
+        """Provide the contents of self as attributes."""
         if name not in self:
             raise AttributeError("{!r} object has no attribute {!r}".
                                  format(type(self).__name__, name))
@@ -44,6 +50,7 @@ class AttrDict(dict):
         return self[name]
 
     def copy(self):
+        """Return a new AttrDict, with the same contents as self."""
         return AttrDict(self)
 
 
