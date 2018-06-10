@@ -1,7 +1,34 @@
 #!/usr/bin/env python3
+"""Emanate symlink manager.
 
-# Example usage:
-# TODO
+Emanate is a command-line utility and Python library for managing symlinks
+in a fashion similaw to `stow` or `infuse`_.
+
+Given a `source` and `destination` directory, `emanate` creates (or removes)
+symlinks from the destination to each file in the source, mirroring the
+directory structure (and creating directories as needed).
+
+In `clean` mode, emanate instead removes such symlinks.
+
+Examples:
+    Emanate defaults to using the current directory as source,
+    and the current user's home directory as destination::
+
+        ~/.dotfiles $ emanate  # Create symlinks in ~ for files in ~/.dotfiles
+
+    Emanate also defaults to looking for a configuration file in the source
+    directory, allowing usages such as::
+
+        $ cat software/foo/emanate.json
+        { 'destination': '/usr/local' }
+
+        $ emanate --source software/foo
+        ${PWD}/software/foo/bin/foo -> /usr/local/bin/foo
+        ${PWD}/software/foo/lib/libfoo.so -> /usr/local/lib/libfoo.so
+
+    See `emanate --help` for all command-line options.
+
+"""
 
 from argparse import ArgumentParser, SUPPRESS
 from fnmatch import fnmatch
