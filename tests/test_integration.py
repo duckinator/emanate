@@ -102,6 +102,7 @@ def test_no_config():
             tree={
                 'src': {
                     'foo': '',
+                    'bar': {'baz': ''},
                 },
                 'dest': {},
             },
