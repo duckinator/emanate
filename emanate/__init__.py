@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
-"""Emanate symlink manager.
+"""Emanate symbolic link manager.
 
-Emanate is a command-line utility and Python library for managing symlinks
-in a fashion similaw to `stow` or `infuse`_.
+Emanate is a command-line utility and Python library for managing symbolic
+links in a fashion similar to `stow` or `infuse`_.
 
 Given a `source` and `destination` directory, `emanate` creates (or removes)
-symlinks from the destination to each file in the source, mirroring the
+symbolic links from the destination to each file in the source, mirroring the
 directory structure (and creating directories as needed).
 
-In `clean` mode, emanate instead removes such symlinks.
+In `clean` mode, emanate instead removes such symbolic links.
 
 Examples:
     Emanate defaults to using the current directory as source,
     and the current user's home directory as destination::
 
-        ~/.dotfiles $ emanate  # Create symlinks in ~ for files in ~/.dotfiles
+        ~/.dotfiles $ emanate
+
+    would create symbolic links in ~ for files in ~/.dotfiles
 
     Emanate also defaults to looking for a configuration file in the source
     directory, allowing usages such as::
@@ -24,7 +26,7 @@ Examples:
 
         $ emanate --source software/foo
         ${PWD}/software/foo/bin/foo -> /usr/local/bin/foo
-        ${PWD}/software/foo/lib/libfoo.so -> /usr/local/lib/libfoo.so
+        ${PWD}/software/foo/lib/library.so -> /usr/local/lib/library.so
 
     See `emanate --help` for all command-line options.
 
@@ -49,7 +51,7 @@ class Emanate:
     def __init__(self, *configs):
         """Construct an Emanate instance from configuration dictionaries.
 
-        The default values (as provided by config.defaults()) are implicitely
+        The default values (as provided by config.defaults()) are implicitly
         the first configuration object; latter configurations override earlier
         configurations (see config.merge).
         """
@@ -104,12 +106,12 @@ class Emanate:
         src_file  = path_obj.resolve()
         dest_file = self.dest / path_obj.relative_to(self.config.source)
 
-        # If the symlink is already in place, skip it.
+        # If the symbolic link is already in place, skip it.
         if dest_file.exists() and src_file.samefile(dest_file):
             return True
 
-        # If the file exists and _isn't_ the symlink we're trying to make,
-        # prompt the user to determine what to do.
+        # If the file exists and _isn't_ the symbolic link we're
+        # trying to make, prompt the user to determine what to do.
         if dest_file.exists():
             # If the user said no, skip the file.
             if not self.confirm_replace(dest_file):
@@ -142,13 +144,13 @@ class Emanate:
 
 def _parse_args(args=None):
     argparser = ArgumentParser(
-        description="symlink files from one directory to another",
+        description="Link files from one directory to another",
         argument_default=SUPPRESS,
     )
-    argparser.add_argument("--clean", help="Remove symlinks.")
+    argparser.add_argument("--clean", help="Remove symbolic links.")
     argparser.add_argument("--destination",
                            metavar="DESTINATION",
-                           help="Directory to create and remove symlinks in.")
+                           help="Directory containing the symbolic links.")
     argparser.add_argument("--source",
                            metavar="SOURCE",
                            type=Path,
