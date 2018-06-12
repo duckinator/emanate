@@ -1,7 +1,8 @@
 """Emanate's configuration module.
 
-emanate.config defines Emanate's defaults, along with helpers for working with
-config objects, loading them from JSON files, and dealing with relative paths.
+`emanate.config` defines Emanate's defaults, along with helpers for working
+with configuration objects, loading them from JSON files, and dealing with
+relative paths.
 """
 
 import functools
@@ -10,6 +11,11 @@ from pathlib import Path
 
 
 def defaults():
+    """Return Emanate's default configuration.
+
+    config.defaults() resolves the default using the values
+    of Path.home() and Path.cwd() at the time it was called.
+    """
     return {
         'ignore': frozenset((
             "*~",
@@ -37,6 +43,7 @@ class AttrDict(dict):
     """Simple wrapper around dict, allowing accessing values as attributes."""
 
     def __getattr__(self, name):
+        """Provide the contents of self as attributes."""
         if name not in self:
             raise AttributeError("{!r} object has no attribute {!r}".
                                  format(type(self).__name__, name))
@@ -44,6 +51,7 @@ class AttrDict(dict):
         return self[name]
 
     def copy(self):
+        """Return a new AttrDict, with the same contents as self."""
         return AttrDict(self)
 
 
@@ -67,8 +75,8 @@ def _merge_one(config, dict_like):
 def merge(*configs, strict_resolve=True):
     """Merge a sequence of configuration dict-like objects.
 
-    Later configs overide previous ones, and the `ignore` attributes are
-    merged (according to set union).
+    Later configurations override previous ones,
+    and the `ignore` attributes are merged (according to set union).
     """
     configs = [c for c in configs if c is not None]
 
@@ -82,7 +90,7 @@ CONFIG_PATHS = ('destination', 'source')
 
 
 def is_resolved(config):
-    """Check that all path options in a config object are absolute Paths."""
+    """Check that all path options in a configuration object are absolute."""
     for key in CONFIG_PATHS:
         if key in config:
             value = config[key]
@@ -95,8 +103,8 @@ def is_resolved(config):
 def resolve(config, cwd=None):
     """Convert path options to pathlib.Path objects, and resolve relative paths.
 
-    Returns a new config dict-like, similar to its input, with all paths
-    attributes converted to pathlib objects, and relative paths resolved
+    Returns a new configuration dict-like, similar to its input, with all paths
+    attributes converted to `pathlib` objects, and relative paths resolved
     relatively to `cwd`.
     """
     if cwd is None:
@@ -122,8 +130,8 @@ def resolve(config, cwd=None):
 def from_json(path):
     """Load an Emanate configuration from a file.
 
-    Takes a pathlib.Path object designating a JSON configuration file,
-    loads it, and resolve paths relative to the filepath.
+    Takes a `pathlib.Path` object designating a JSON configuration file,
+    loads it, and resolve paths relative to the file.
     """
     assert isinstance(path, Path)
     return resolve(json.load(path.open()), cwd=path.parent.resolve())

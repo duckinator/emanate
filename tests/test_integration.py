@@ -32,7 +32,7 @@ def cd(path):
 def directory_tree(obj):
     """Provide a temporary directory populated with configurable contents."""
     def mktree(path, obj):
-        """Populate a directory from a dict-like description of its contents."""
+        """Populate a directory from a dict-like describing its contents."""
         assert isinstance(path, Path)
         # File by content
         if isinstance(obj, str):
