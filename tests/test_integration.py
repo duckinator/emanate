@@ -102,12 +102,16 @@ def test_no_config():
             tree={
                 'src': {
                     'foo': '',
+                    'bar': {'baz': ''},
                 },
                 'dest': {},
             },
             options=lambda tmpdir: ['--dest', tmpdir / 'dest'],
     ):
         assert (tmpdir / 'dest' / 'foo').samefile(tmpdir / 'src'  / 'foo')
+        assert (tmpdir / 'dest' / 'bar' / 'baz').samefile(
+            tmpdir / 'src'  / 'bar' / 'baz'
+        )
 
 
 def test_empty_config():

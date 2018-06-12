@@ -26,7 +26,8 @@ class Emanate:
             return False
 
         if path_obj.is_dir():
-            Path(self.dest, path_obj).mkdir(exist_ok=True)
+            dir = self.dest / path_obj.relative_to(self.config.source)
+            dir.mkdir(exist_ok=True)
             return False
 
         return True
