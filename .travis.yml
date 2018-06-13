@@ -25,6 +25,10 @@ matrix:
     - os: linux
       python: 3.6
       env: TOXENV=lint
+      addons:
+        apt:
+          packages:
+            - enchant
 
     # Dirty hacks to make OSX builds work on Travis
     # Inspired by https://pythonhosted.org/CodeChat/.travis.yml.html
