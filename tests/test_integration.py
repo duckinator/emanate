@@ -110,7 +110,7 @@ def test_no_config():
     ):
         assert (tmpdir / 'dest' / 'foo').samefile(tmpdir / 'src'  / 'foo')
         assert (tmpdir / 'dest' / 'bar' / 'baz').samefile(
-            tmpdir / 'src'  / 'bar' / 'baz'
+            tmpdir / 'src'  / 'bar' / 'baz',
         )
 
 
