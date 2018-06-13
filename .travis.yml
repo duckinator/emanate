@@ -2,9 +2,6 @@ language: python
 sudo: False
 
 python:
-  - "3.2"
-  - "3.3"
-  - "3.4"
   - "3.5"
   - "3.6"
 
@@ -32,9 +29,6 @@ matrix:
 
     # Dirty hacks to make OSX builds work on Travis
     # Inspired by https://pythonhosted.org/CodeChat/.travis.yml.html
-    - os: osx
-      language: generic
-      env: TOXENV=test PYENV_VERSION=3.4.8 PATH="${HOME}/.pyenv/shims:${PATH}"
     - os: osx
       language: generic
       env: TOXENV=test PYENV_VERSION=3.5.5 PATH="${HOME}/.pyenv/shims:${PATH}"
