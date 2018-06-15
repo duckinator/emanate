@@ -1,9 +1,8 @@
 import json
-import os
-from pathlib import Path
-from tempfile import TemporaryDirectory
-from contextlib import contextmanager
 import emanate
+import tempfile
+from pathlib import Path
+from utils import cd, directory_tree, home
 
 
 def main(*pargs):
@@ -12,47 +11,6 @@ def main(*pargs):
     print('cwd:', Path.cwd())
     print('emanate', *args)
     emanate.main(args)
-
-
-@contextmanager
-def cd(path):
-    """Context manager for temporarily changing directory."""
-    if isinstance(path, Path):
-        path = str(path)
-
-    cwd = Path.cwd()
-    try:
-        os.chdir(path)
-        yield
-    finally:
-        os.chdir(str(cwd))
-
-
-@contextmanager
-def directory_tree(obj):
-    """Provide a temporary directory populated with configurable contents."""
-    def mktree(path, obj):
-        """Populate a directory from a dict-like describing its contents."""
-        assert isinstance(path, Path)
-        # File by content
-        if isinstance(obj, str):
-            with path.open(mode='w') as file:
-                file.write(obj)
-
-        # Directory
-        elif 'type' not in obj:
-            path.mkdir(exist_ok=True)
-            for name, child in obj.items():
-                mktree(path / name, child)
-
-        elif obj['type'] == 'link':
-            path.symlink_to(obj['target'])
-
-    with TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
-        if obj:
-            mktree(tmpdir, obj)
-        yield tmpdir
 
 
 def helper(tree=None, source='src', options=lambda _: []):
@@ -64,19 +22,24 @@ def helper(tree=None, source='src', options=lambda _: []):
     - from `tmpdir`, with `--source src`;
     - from `tmpdir/src`, without --source argument.
     """
-    with directory_tree(tree) as tmpdir:
-        main('--source', tmpdir / source, *options(tmpdir))
-        yield tmpdir
-
-    with directory_tree(tree) as tmpdir:
-        with cd(tmpdir):
-            main('--source', source, *options(tmpdir))
+    homedir = Path(tempfile.mkdtemp())
+    with home(homedir):
+        with directory_tree(tree) as tmpdir:
+            main('--source', tmpdir / source, *options(tmpdir))
             yield tmpdir
 
-    with directory_tree(tree) as tmpdir:
-        with cd(tmpdir / source):
-            main(*options(tmpdir))
-            yield tmpdir
+        with directory_tree(tree) as tmpdir:
+            with cd(tmpdir):
+                main('--source', source, *options(tmpdir))
+                yield tmpdir
+
+        with directory_tree(tree) as tmpdir:
+            with cd(tmpdir / source):
+                main(*options(tmpdir))
+                yield tmpdir
+
+    # Implicitely asserts that `homedir` is empty
+    homedir.rmdir()
 
 
 def test_config_relative_path():
