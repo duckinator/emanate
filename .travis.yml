@@ -1,6 +1,16 @@
 language: python
 sudo: False
 
+# The "branches" section is for bors.
+branches:
+  only:
+    # This is where pull requests from "bors r+" are built.
+    - staging
+    # This is where pull requests from "bors try" are built.
+    - trying
+    # Build pull requests.
+    - master
+
 python:
   - "3.5"
   - "3.6"
