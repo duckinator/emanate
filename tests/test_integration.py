@@ -1,7 +1,8 @@
 import json
 import emanate
+import tempfile
 from pathlib import Path
-from utils import cd, directory_tree
+from utils import cd, directory_tree, home
 
 
 def main(*pargs):
@@ -21,19 +22,24 @@ def helper(tree=None, source='src', options=lambda _: []):
     - from `tmpdir`, with `--source src`;
     - from `tmpdir/src`, without --source argument.
     """
-    with directory_tree(tree) as tmpdir:
-        main('--source', tmpdir / source, *options(tmpdir))
-        yield tmpdir
-
-    with directory_tree(tree) as tmpdir:
-        with cd(tmpdir):
-            main('--source', source, *options(tmpdir))
+    homedir = Path(tempfile.mkdtemp())
+    with home(homedir):
+        with directory_tree(tree) as tmpdir:
+            main('--source', tmpdir / source, *options(tmpdir))
             yield tmpdir
 
-    with directory_tree(tree) as tmpdir:
-        with cd(tmpdir / source):
-            main(*options(tmpdir))
-            yield tmpdir
+        with directory_tree(tree) as tmpdir:
+            with cd(tmpdir):
+                main('--source', source, *options(tmpdir))
+                yield tmpdir
+
+        with directory_tree(tree) as tmpdir:
+            with cd(tmpdir / source):
+                main(*options(tmpdir))
+                yield tmpdir
+
+    # Implicitely asserts that `homedir` is empty
+    homedir.rmdir()
 
 
 def test_config_relative_path():
