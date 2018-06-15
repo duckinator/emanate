@@ -1,7 +1,7 @@
 import json
 from emanate import config
 from pathlib import Path
-from utils import cd, directory_tree
+from utils import cd, directory_tree, home
 
 
 def test_json_resolution():
@@ -36,3 +36,6 @@ def test_defaults():
     with directory_tree({}) as tmpdir:
         with cd(tmpdir):
             assert config.defaults().source == Path.cwd() == tmpdir
+
+        with home(tmpdir):
+            assert config.defaults().destination == Path.home() == tmpdir
