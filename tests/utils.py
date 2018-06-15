@@ -45,3 +45,19 @@ def directory_tree(obj):
         if obj:
             mktree(tmpdir, obj)
         yield tmpdir
+
+
+@contextmanager
+def home(path):
+    """Temporarily set the HOME environment variable."""
+    home = os.getenv('HOME', None)
+
+    try:
+        os.environ['HOME'] = str(path)
+        yield
+
+    finally:
+        if home is not None:
+            os.environ['HOME'] = home
+        else:
+            del os.environ['HOME']
