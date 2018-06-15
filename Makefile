@@ -1,4 +1,4 @@
-release: build
+release: test build
 	twine upload dist/*
 
 build:
