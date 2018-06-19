@@ -122,9 +122,11 @@ class Emanate:
 
     @staticmethod
     def _del_symlink(src, dest):
-        print("{!r}".format(str(dest)))
+        if not dest.exists():
+            return True
 
-        if dest.exists() and src.samefile(dest):
+        print("{!r}".format(str(dest)))
+        if dest.samefile(src):
             dest.unlink()
 
         return not dest.exists()
