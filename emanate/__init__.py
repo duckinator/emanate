@@ -148,7 +148,9 @@ def _parse_args(args=None):
         description="Link files from one directory to another",
         argument_default=SUPPRESS,
     )
-    argparser.add_argument("--clean", help="Remove symbolic links.")
+    argparser.add_argument("--clean",
+                           action="store_true",
+                           help="Remove symbolic links.")
     argparser.add_argument("--destination",
                            metavar="DESTINATION",
                            help="Directory containing the symbolic links.")
