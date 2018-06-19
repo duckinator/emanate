@@ -35,7 +35,9 @@ def test_defaults():
 
     with directory_tree({}) as tmpdir:
         with cd(tmpdir):
-            assert config.defaults().source == Path.cwd() == tmpdir
+            assert config.defaults().source.samefile(tmpdir)
+            assert Path.cwd().samefile(tmpdir)
 
         with home(tmpdir):
-            assert config.defaults().destination == Path.home() == tmpdir
+            assert config.defaults().destination.samefile(tmpdir)
+            assert Path.home().samefile(tmpdir)
