@@ -103,44 +103,39 @@ class Emanate:
         new_name = str(dest_file) + ".emanate"
         dest_file.rename(new_name)
 
-    def _add_symlink(self, path_obj):
-        src_file  = path_obj.resolve()
-        dest_file = self.dest / path_obj.relative_to(self.config.source)
-
+    def _add_symlink(self, src, dest):
         # If the symbolic link is already in place, skip it.
-        if dest_file.exists() and src_file.samefile(dest_file):
+        if dest.exists() and src.samefile(dest):
             return True
 
         # If the file exists and _isn't_ the symbolic link we're
         # trying to make, prompt the user to determine what to do.
-        if dest_file.exists():
+        if dest.exists():
             # If the user said no, skip the file.
-            if not self.confirm_replace(dest_file):
+            if not self.confirm_replace(dest):
                 return False
-            Emanate.backup(dest_file)
+            Emanate.backup(dest)
 
-        print("{!r} -> {!r}".format(str(src_file), str(dest_file)))
+        print("{!r} -> {!r}".format(str(src), str(dest)))
+        dest.symlink_to(src)
+        return src.samefile(dest)
 
-        dest_file.symlink_to(src_file)
+    @staticmethod
+    def _del_symlink(src, dest):
+        print("{!r}".format(str(dest)))
 
-        return src_file.samefile(dest_file)
+        if dest.exists() and src.samefile(dest):
+            dest.unlink()
 
-    def _del_symlink(self, path_obj):
-        src_file  = path_obj.resolve()
-        dest_file = self.dest / path_obj.relative_to(self.config.source)
-
-        print("{!r}".format(str(dest_file)))
-
-        if dest_file.exists() and src_file.samefile(dest_file):
-            dest_file.unlink()
-
-        return not dest_file.exists()
+        return not dest.exists()
 
     def run(self):
         """Execute Emanate as configured."""
         all_files = Path(self.config.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
-            self.function(file)
+            src  = file.resolve()
+            dest = self.dest / file.relative_to(self.config.source)
+            self.function(src, dest)
 
 
 def _parse_args(args=None):
