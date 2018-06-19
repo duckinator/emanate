@@ -24,21 +24,22 @@ def helper(tree=None, source='src', options=lambda _: []):
     """
     homedir = Path(tempfile.mkdtemp())
     with home(homedir):
-        with directory_tree(tree) as tmpdir:
-            main('--source', tmpdir / source, *options(tmpdir))
-            yield tmpdir
-
-        with directory_tree(tree) as tmpdir:
-            with cd(tmpdir):
-                main('--source', source, *options(tmpdir))
+        with cd(homedir):
+            with directory_tree(tree) as tmpdir:
+                main('--source', tmpdir / source, *options(tmpdir))
                 yield tmpdir
 
-        with directory_tree(tree) as tmpdir:
-            with cd(tmpdir / source):
-                main(*options(tmpdir))
-                yield tmpdir
+            with directory_tree(tree) as tmpdir:
+                with cd(tmpdir):
+                    main('--source', source, *options(tmpdir))
+                    yield tmpdir
 
-    # Implicitely asserts that `homedir` is empty
+            with directory_tree(tree) as tmpdir:
+                with cd(tmpdir / source):
+                    main(*options(tmpdir))
+                    yield tmpdir
+
+    # Implicitely asserts that `homedir` == `cwd` is empty
     homedir.rmdir()
 
 
