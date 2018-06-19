@@ -127,7 +127,7 @@ class Emanate:
 
     def _del_symlink(self, path_obj):
         src_file  = path_obj.resolve()
-        dest_file = Path(self.dest, path_obj)
+        dest_file = self.dest / path_obj.relative_to(self.config.source)
 
         print("{!r}".format(str(dest_file)))
 
