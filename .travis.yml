@@ -26,7 +26,7 @@ cache:
     - $HOME/Library/Caches/Homebrew
     - $HOME/.pyenv_cache
 
-install: pip install tox-travis
+install: pip install tox
 script:  tox
 env:
   - TOXENV=test
