@@ -22,6 +22,10 @@ cache:
     - .tox
     - $HOME/.cache/pip
 
+    # Cache the Homebrew downloads and the built Python versions
+    - $HOME/Library/Caches/Homebrew
+    - $HOME/.pyenv_cache
+
 install: pip install tox-travis
 script:  tox
 env:
@@ -60,6 +64,7 @@ before_install:
       brew update
       # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
       brew upgrade openssl readline pyenv
+      brew cleanup -s
       # See https://docs.travis-ci.com/user/osx-ci-environment/#A-note-on-upgrading-packages.
       pyenv install $PYENV_VERSION
     fi
