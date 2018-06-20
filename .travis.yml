@@ -59,15 +59,14 @@ matrix:
 
 
 before_install:
-  - |
-    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      brew update
-      # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
-      brew upgrade openssl readline pyenv
-      brew cleanup -s
-      # See https://docs.travis-ci.com/user/osx-ci-environment/#A-note-on-upgrading-packages.
-      pyenv install $PYENV_VERSION
-    fi
+  # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || brew update'
+  # See https://docs.travis-ci.com/user/osx-ci-environment/#A-note-on-upgrading-packages.
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || brew upgrade openssl readline pyenv'
+  # Remove everything unneeded from the brew cache
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || brew cleanup -s'
+  # Install the desired python version
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || pyenv install $PYENV_VERSION'
 
   - python --version
   - pip    --version
