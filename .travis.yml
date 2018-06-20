@@ -15,6 +15,13 @@ python:
   - "3.5"
   - "3.6"
 
+cache:
+  directories:
+    # Caching .tox can spell trouble for checkers which save state. Technically,
+    # pylint saves the previous build's score, but we don't use that value.
+    - .tox
+    - $HOME/.cache/pip
+
 install: pip install tox-travis
 script:  tox
 env:
