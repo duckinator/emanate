@@ -27,5 +27,5 @@ setup(
         ],
     },
     packages=['emanate'],
-    python_requires='>=3.0',
+    python_requires='>=3.5',
 )
