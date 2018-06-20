@@ -92,3 +92,24 @@ def test_empty_config():
     ):
         assert (tmpdir / 'dest' / 'foo').samefile(tmpdir / 'src'  / 'foo')
         assert not (tmpdir / 'dest'  / 'emanate.json').exists()
+
+
+def test_clean():
+    """Test cleaning an existing destination directory."""
+    for tmpdir in helper(
+            tree={
+                'src': {
+                    'bar': '',
+                    'foo': '',
+                    'emanate.json': json.dumps({'destination': '../dest'}),
+                },
+                'dest': {
+                    'foo': {'type': 'link', 'target': '../src/foo'},
+                },
+            },
+            options=lambda _: ['--clean']):
+        for f in ['bar', 'foo']:
+            assert not (tmpdir / 'dest' / f).exists()
+            assert (tmpdir / 'src' / f).exists()
+
+        assert (tmpdir / 'src' / 'emanate.json').exists()
