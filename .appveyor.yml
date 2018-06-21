@@ -1,3 +1,13 @@
+# The "branches" section is for bors.
+branches:
+  only:
+    # This is where pull requests from "bors r+" are built.
+    - staging
+    # This is where pull requests from "bors try" are built.
+    - trying
+    # Build pull requests.
+    - master
+
 # adapted from https://tahoe-lafs.org/trac/tahoe-lafs/browser/trunk/.appveyor.yml
 # adapted from https://packaging.python.org/en/latest/appveyor/
 environment:
