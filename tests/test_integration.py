@@ -49,7 +49,9 @@ def test_config_relative_path():
             tree={
                 'src': {
                     'foo': '',
-                    'emanate.json': json.dumps({'destination': '../dest'}),
+                    'emanate.json': json.dumps({
+                        'destination': str(Path('..') / 'dest'),
+                    }),
                 },
                 'dest': {},
             }):
@@ -101,10 +103,15 @@ def test_clean():
                 'src': {
                     'bar': '',
                     'foo': '',
-                    'emanate.json': json.dumps({'destination': '../dest'}),
+                    'emanate.json': json.dumps({
+                        'destination': str(Path('..') / 'dest'),
+                    }),
                 },
                 'dest': {
-                    'foo': {'type': 'link', 'target': '../src/foo'},
+                    'foo': {
+                        'type': 'link',
+                        'target': str(Path('..') / 'src' / 'foo'),
+                    },
                 },
             },
             options=lambda _: ['--clean']):
