@@ -72,6 +72,7 @@ before_install:
       pyenv install $PYENV_VERSION
     fi
   - '[ "$TRAVIS_OS_NAME" != "osx" ] || pyenv global $PYENV_VERSION'
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || pyenv rehash'
 
   - python --version
   - pip    --version
