@@ -26,6 +26,7 @@ cache:
     - $HOME/Library/Caches/Homebrew
     - $HOME/.pyenv/cache
     - $HOME/.pyenv/versions
+    - $HOME/.pyenv/shims
 
 install: pip install tox
 script:  tox
@@ -61,15 +62,17 @@ matrix:
 
 before_install:
   - |
-    if [ "$TRAVIS_OS_NAME" == "osx" ] && [ ! -d "$HOME/.pyenv/versions/$PYENV_VERSION" ]; then
-      # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
-      brew update
-      # See https://docs.travis-ci.com/user/osx-ci-environment/#A-note-on-upgrading-packages.
-      brew upgrade openssl readline pyenv
-      # Remove everything unneeded from the brew cache
-      brew cleanup -s
-      # Install the desired python version
-      pyenv install $PYENV_VERSION
+    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      if [ ! -d "$HOME/.pyenv/versions/$PYENV_VERSION" ] || [ ! -d "$HOME/.pyenv/shims" ]; then
+        # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
+        brew update
+        # See https://docs.travis-ci.com/user/osx-ci-environment/#A-note-on-upgrading-packages.
+        brew upgrade openssl readline pyenv
+        # Remove everything unneeded from the brew cache
+        brew cleanup -s
+        # Install the desired python version
+        pyenv install $PYENV_VERSION
+      fi
     fi
   - '[ "$TRAVIS_OS_NAME" != "osx" ] || pyenv global $PYENV_VERSION'
   - '[ "$TRAVIS_OS_NAME" != "osx" ] || pyenv rehash'
