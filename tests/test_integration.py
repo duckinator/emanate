@@ -114,7 +114,7 @@ def test_clean():
                     },
                 },
             },
-            options=lambda _: ['--clean']):
+            options=lambda _: ['clean']):
         for f in ['bar', 'foo']:
             assert not (tmpdir / 'dest' / f).exists()
             assert (tmpdir / 'src' / f).exists()

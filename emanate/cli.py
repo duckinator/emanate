@@ -31,10 +31,6 @@ def _parse_args(args=None):
         description="Link files from one directory to another",
         argument_default=SUPPRESS,
     )
-    argparser.add_argument("--clean",
-                           action="store_true",
-                           default=False,
-                           help="Remove symbolic links.")
     argparser.add_argument("--destination",
                            metavar="DESTINATION",
                            help="Directory containing the symbolic links.")
@@ -51,6 +47,10 @@ def _parse_args(args=None):
                            default=None,
                            type=Path,
                            help="Configuration file to use.")
+
+    subcommands = argparser.add_subparsers(dest='command')
+    subcommands.add_parser('clean')
+    subcommands.add_parser('create')
 
     return argparser.parse_args(args)
 
@@ -75,7 +75,9 @@ def main(args=None):
         config.resolve(vars(args)),
     )
 
-    if args.clean:
+    if args.command is None or args.command == 'create':
+        emanate.create()
+    elif args.command == 'clean':
         emanate.clean()
     else:
-        emanate.create()
+        assert False
