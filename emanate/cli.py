@@ -33,6 +33,7 @@ def _parse_args(args=None):
     )
     argparser.add_argument("--clean",
                            action="store_true",
+                           default=False,
                            help="Remove symbolic links.")
     argparser.add_argument("--destination",
                            metavar="DESTINATION",
@@ -69,7 +70,12 @@ def main(args=None):
         else:
             args.config = Path.cwd() / "emanate.json"
 
-    return Emanate(
+    emanate = Emanate(
         config.from_json(args.config) if args.config.exists() else None,
         config.resolve(vars(args)),
-    ).run()
+    )
+
+    if args.clean:
+        emanate.clean()
+    else:
+        emanate.create()

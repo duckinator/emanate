@@ -32,7 +32,6 @@ def defaults():
             "*/__pycache__/*",
         )),
 
-        'clean': False,
         'confirm': True,
         'destination': Path.home(),
         'source': Path.cwd(),

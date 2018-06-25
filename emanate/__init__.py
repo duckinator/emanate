@@ -37,11 +37,6 @@ class Emanate:
         self.config   = config.merge(config.defaults(), *configs)
         self.dest     = self.config.destination.resolve()
 
-        if self.config.clean:
-            self.function = self._del_symlink
-        else:
-            self.function = self._add_symlink
-
     def valid_file(self, path_obj):
         """Check whether a given path is covered by an ignore glob.
 
@@ -110,10 +105,19 @@ class Emanate:
 
         return not dest.exists()
 
-    def run(self):
-        """Execute Emanate as configured."""
+    def _files(self):
         all_files = Path(self.config.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
             src  = file.resolve()
             dest = self.dest / file.relative_to(self.config.source)
-            self.function(src, dest)
+            yield src, dest
+
+    def create(self):
+        """Create symbolic links."""
+        for src, dest in self._files():
+            self._add_symlink(src, dest)
+
+    def clean(self):
+        """Remove symbolic links."""
+        for src, dest in self._files():
+            self._del_symlink(src, dest)
