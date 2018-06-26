@@ -15,7 +15,19 @@ python:
   - "3.5"
   - "3.6"
 
-install: pip install tox-travis
+cache:
+  directories:
+    # Caching .tox can spell trouble for checkers which save state. Technically,
+    # pylint saves the previous build's score, but we don't use that value.
+    - .tox
+    - $HOME/.cache/pip
+
+    # Cache the Homebrew downloads and the built Python versions
+    - $HOME/Library/Caches/Homebrew
+    - $HOME/.pyenv/cache
+    - $HOME/.pyenv/versions
+
+install: pip install tox
 script:  tox
 env:
   - TOXENV=test
@@ -48,14 +60,19 @@ matrix:
 
 
 before_install:
-  - |
-    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      brew update
-      # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
-      brew upgrade openssl readline pyenv
-      # See https://docs.travis-ci.com/user/osx-ci-environment/#A-note-on-upgrading-packages.
-      pyenv install $PYENV_VERSION
-    fi
+  # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || [ -d "$HOME/.pyenv/versions/$PYENV_VERSION" ] || brew update'
+  # See https://docs.travis-ci.com/user/osx-ci-environment/#A-note-on-upgrading-packages.
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || [ -d "$HOME/.pyenv/versions/$PYENV_VERSION" ] || brew upgrade openssl readline pyenv'
+  # Remove everything unneeded from the brew cache.
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || [ -d "$HOME/.pyenv/versions/$PYENV_VERSION" ] || brew cleanup -s'
+  # Install the desired python version, if needed.
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || [ -d "$HOME/.pyenv/versions/$PYENV_VERSION" ] || pyenv install $PYENV_VERSION'
+
+  # Switch to the desired python version.
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || pyenv global $PYENV_VERSION'
+  # Generate appropriate shims.
+  - '[ "$TRAVIS_OS_NAME" != "osx" ] || pyenv rehash'
 
   - python --version
   - pip    --version
