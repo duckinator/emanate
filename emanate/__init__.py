@@ -12,10 +12,14 @@ In `clean` mode, emanate instead removes such symbolic links.
 
 """
 
+from collections import namedtuple
 from fnmatch import fnmatch
 from pathlib import Path
 import sys
 from . import config
+
+
+FilePair = namedtuple('FilePair', ['src', 'dest'])
 
 
 class Emanate:
@@ -120,12 +124,12 @@ class Emanate:
         for file in filter(self.valid_file, all_files):
             src  = file.resolve()
             dest = self.dest / file.relative_to(self.config.source)
-            yield src, dest
+            yield FilePair(src, dest)
 
     def create(self):
         """Create symbolic links."""
         # Ignore files that are already linked.
-        gen = filter(lambda p: not (p[1].exists() and p[0].samefile(p[1])),
+        gen = filter(lambda p: not (p.dest.exists() and p.src.samefile(p.dest)),
                      self._files())
 
         return Emanate.Execution(self._add_symlink, gen)
@@ -133,6 +137,6 @@ class Emanate:
     def clean(self):
         """Remove symbolic links."""
         # Skip non-existing files.
-        gen = filter(lambda p: p[1].exists(), self._files())
+        gen = filter(lambda p: p.dest.exists(), self._files())
 
         return Emanate.Execution(self._del_symlink, gen)
