@@ -105,6 +105,23 @@ class Emanate:
 
         return not dest.exists()
 
+    class Execution(list):
+        """Describe an Emanate execution.
+
+        Callable once, useful to provide “dry-run”
+        functionality or report changes back to the user.
+        """
+
+        def __init__(self, func, iterable):
+            """Prepare an Emanate execution."""
+            self.func = func
+            super().__init__(iterable)
+
+        def run(self):
+            """Run a prepared execution."""
+            for args in self:
+                self.func(*args)
+
     def _files(self):
         all_files = Path(self.config.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
@@ -114,10 +131,8 @@ class Emanate:
 
     def create(self):
         """Create symbolic links."""
-        for src, dest in self._files():
-            self._add_symlink(src, dest)
+        return Emanate.Execution(self._add_symlink, self._files())
 
     def clean(self):
         """Remove symbolic links."""
-        for src, dest in self._files():
-            self._del_symlink(src, dest)
+        return Emanate.Execution(self._del_symlink, self._files())

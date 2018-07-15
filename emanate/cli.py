@@ -76,8 +76,8 @@ def main(args=None):
     )
 
     if args.command is None or args.command == 'create':
-        emanate.create()
+        emanate.create().run()
     elif args.command == 'clean':
-        emanate.clean()
+        emanate.clean().run()
     else:
         assert False
