@@ -19,7 +19,28 @@ import sys
 from . import config
 
 
-FilePair = namedtuple('FilePair', ['src', 'dest'])
+class FilePair(namedtuple('FilePair', ['src', 'dest'])):
+    """Pairs of source/destination file paths."""
+
+    def print_add(self):
+        """Print a message when creating a link."""
+        print("{!r} -> {!r}".format(str(self.src), str(self.dest)))
+
+    def print_del(self):
+        """Print a message when deleting a link."""
+        print("{!r}".format(str(self.dest)))
+
+    def del_symlink(self):
+        """Delete a link."""
+        if self.dest.samefile(self.src):
+            self.dest.unlink()
+
+        return not self.dest.exists()
+
+    def add_symlink(self):
+        """Add a link."""
+        self.dest.symlink_to(self.src)
+        return self.src.samefile(self.dest)
 
 
 class Execution(list):
@@ -100,17 +121,9 @@ class Emanate:
 
         return result != "n"
 
-    @staticmethod
-    def backup(dest_file):
-        """Rename the file so we can safely write to the original path."""
-        new_name = str(dest_file) + ".emanate"
-        dest_file.rename(new_name)
+    def _add_symlink(self, pair):
+        _, dest = pair
 
-    @staticmethod
-    def _print_add(src, dest):
-        print("{!r} -> {!r}".format(str(src), str(dest)))
-
-    def _add_symlink(self, src, dest):
         # If the file exists and _isn't_ the symbolic link we're
         # trying to make, prompt the user to determine what to do.
         if dest.exists():
@@ -119,19 +132,13 @@ class Emanate:
                 return False
             Emanate.backup(dest)
 
-        dest.symlink_to(src)
-        return src.samefile(dest)
+        return pair.add_symlink()
 
     @staticmethod
-    def _print_del(_, dest):
-        print("{!r}".format(str(dest)))
-
-    @staticmethod
-    def _del_symlink(src, dest):
-        if dest.samefile(src):
-            dest.unlink()
-
-        return not dest.exists()
+    def backup(dest_file):
+        """Rename the file so we can safely write to the original path."""
+        new_name = str(dest_file) + ".emanate"
+        dest_file.rename(new_name)
 
     def _files(self):
         all_files = Path(self.config.source).glob("**/*")
@@ -147,7 +154,7 @@ class Emanate:
                      self._files())
 
         return Execution(self._add_symlink,
-                         self._print_add,
+                         FilePair.print_add,
                          gen)
 
     def clean(self):
@@ -155,6 +162,6 @@ class Emanate:
         # Skip non-existing files.
         gen = filter(lambda p: p.dest.exists(), self._files())
 
-        return Execution(self._del_symlink,
-                         self._print_del,
+        return Execution(FilePair.del_symlink,
+                         FilePair.print_del,
                          gen)
