@@ -34,6 +34,11 @@ def _parse_args(args=None):
     argparser.add_argument("--destination",
                            metavar="DESTINATION",
                            help="Directory containing the symbolic links.")
+    argparser.add_argument("--dry-run",
+                           action="store_false",
+                           default=True,
+                           dest="exec",
+                           help="Only display the actions that would be taken.")
     argparser.add_argument("--source",
                            metavar="SOURCE",
                            type=Path,
@@ -76,8 +81,13 @@ def main(args=None):
     )
 
     if args.command is None or args.command == 'create':
-        emanate.create().run()
+        execute = emanate.create()
     elif args.command == 'clean':
-        emanate.clean().run()
+        execute = emanate.clean()
     else:
         assert False
+
+    if args.exec:
+        execute.run()
+    else:
+        execute.dry()
