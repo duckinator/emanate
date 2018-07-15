@@ -78,10 +78,6 @@ class Emanate:
         dest_file.rename(new_name)
 
     def _add_symlink(self, src, dest):
-        # If the symbolic link is already in place, skip it.
-        if dest.exists() and src.samefile(dest):
-            return True
-
         # If the file exists and _isn't_ the symbolic link we're
         # trying to make, prompt the user to determine what to do.
         if dest.exists():
@@ -96,9 +92,6 @@ class Emanate:
 
     @staticmethod
     def _del_symlink(src, dest):
-        if not dest.exists():
-            return True
-
         print("{!r}".format(str(dest)))
         if dest.samefile(src):
             dest.unlink()
@@ -131,8 +124,15 @@ class Emanate:
 
     def create(self):
         """Create symbolic links."""
-        return Emanate.Execution(self._add_symlink, self._files())
+        # Ignore files that are already linked.
+        gen = filter(lambda p: not (p[1].exists() and p[0].samefile(p[1])),
+                     self._files())
+
+        return Emanate.Execution(self._add_symlink, gen)
 
     def clean(self):
         """Remove symbolic links."""
-        return Emanate.Execution(self._del_symlink, self._files())
+        # Skip non-existing files.
+        gen = filter(lambda p: p[1].exists(), self._files())
+
+        return Emanate.Execution(self._del_symlink, gen)
