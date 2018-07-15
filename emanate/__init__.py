@@ -22,6 +22,31 @@ from . import config
 FilePair = namedtuple('FilePair', ['src', 'dest'])
 
 
+class Execution(list):
+    """Describe an Emanate execution.
+
+    Callable once, useful to provide “dry-run”
+    functionality or report changes back to the user.
+    """
+
+    def __init__(self, func, printer, iterable):
+        """Prepare an Emanate execution."""
+        self.func = func
+        self.printer = printer
+        super().__init__(iterable)
+
+    def run(self):
+        """Run a prepared execution."""
+        for args in self:
+            if self.func(args):
+                self.printer(args)
+
+    def dry(self):
+        """Print a dry-run of an execution."""
+        for args in self:
+            self.printer(args)
+
+
 class Emanate:
     """Provide the core functionality of Emanate.
 
@@ -108,30 +133,6 @@ class Emanate:
 
         return not dest.exists()
 
-    class Execution(list):
-        """Describe an Emanate execution.
-
-        Callable once, useful to provide “dry-run”
-        functionality or report changes back to the user.
-        """
-
-        def __init__(self, func, printer, iterable):
-            """Prepare an Emanate execution."""
-            self.func = func
-            self.printer = printer
-            super().__init__(iterable)
-
-        def run(self):
-            """Run a prepared execution."""
-            for args in self:
-                if self.func(*args):
-                    self.printer(*args)
-
-        def dry(self):
-            """Print a dry-run of an execution."""
-            for args in self:
-                self.printer(*args)
-
     def _files(self):
         all_files = Path(self.config.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
@@ -145,15 +146,15 @@ class Emanate:
         gen = filter(lambda p: not (p.dest.exists() and p.src.samefile(p.dest)),
                      self._files())
 
-        return Emanate.Execution(self._add_symlink,
-                                 self._print_add,
-                                 gen)
+        return Execution(self._add_symlink,
+                         self._print_add,
+                         gen)
 
     def clean(self):
         """Remove symbolic links."""
         # Skip non-existing files.
         gen = filter(lambda p: p.dest.exists(), self._files())
 
-        return Emanate.Execution(self._del_symlink,
-                                 self._print_del,
-                                 gen)
+        return Execution(self._del_symlink,
+                         self._print_del,
+                         gen)
