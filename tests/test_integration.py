@@ -1,16 +1,16 @@
 import json
-import emanate
 import tempfile
+from emanate import cli
 from pathlib import Path
 from utils import cd, directory_tree, home
 
 
 def main(*pargs):
-    """Converts arguments, prints them and the cwd, then calls emanate.main."""
+    """Converts arguments, prints them and the cwd, then calls emanate's main"""
     args = [x if isinstance(x, str) else str(x) for x in pargs]
     print('cwd:', Path.cwd())
     print('emanate', *args)
-    emanate.main(args)
+    cli.main(args)
 
 
 def helper(tree=None, source='src', options=lambda _: []):
@@ -114,7 +114,7 @@ def test_clean():
                     },
                 },
             },
-            options=lambda _: ['--clean']):
+            options=lambda _: ['clean']):
         for f in ['bar', 'foo']:
             assert not (tmpdir / 'dest' / f).exists()
             assert (tmpdir / 'src' / f).exists()

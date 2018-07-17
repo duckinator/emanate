@@ -10,33 +10,62 @@ directory structure (and creating directories as needed).
 
 In `clean` mode, emanate instead removes such symbolic links.
 
-Examples:
-    Emanate defaults to using the current directory as source,
-    and the current user's home directory as destination::
-
-        ~/.dotfiles $ emanate
-
-    would create symbolic links in ~ for files in ~/.dotfiles
-
-    Emanate also defaults to looking for a configuration file in the source
-    directory, allowing usages such as::
-
-        $ cat software/foo/emanate.json
-        { 'destination': '/usr/local' }
-
-        $ emanate --source software/foo
-        ${PWD}/software/foo/bin/foo -> /usr/local/bin/foo
-        ${PWD}/software/foo/lib/library.so -> /usr/local/lib/library.so
-
-    See `emanate --help` for all command-line options.
-
 """
 
-from argparse import ArgumentParser, SUPPRESS
+from collections import namedtuple
 from fnmatch import fnmatch
 from pathlib import Path
 import sys
 from . import config
+
+
+class FilePair(namedtuple('FilePair', ['src', 'dest'])):
+    """Pairs of source/destination file paths."""
+
+    def print_add(self):
+        """Print a message when creating a link."""
+        print("{!r} -> {!r}".format(str(self.src), str(self.dest)))
+
+    def print_del(self):
+        """Print a message when deleting a link."""
+        print("{!r}".format(str(self.dest)))
+
+    def del_symlink(self):
+        """Delete a link."""
+        if self.dest.samefile(self.src):
+            self.dest.unlink()
+
+        return not self.dest.exists()
+
+    def add_symlink(self):
+        """Add a link."""
+        self.dest.symlink_to(self.src)
+        return self.src.samefile(self.dest)
+
+
+class Execution(list):
+    """Describe an Emanate execution.
+
+    Callable once, useful to provide “dry-run”
+    functionality or report changes back to the user.
+    """
+
+    def __init__(self, func, printer, iterable):
+        """Prepare an Emanate execution."""
+        self.func = func
+        self.printer = printer
+        super().__init__(iterable)
+
+    def run(self):
+        """Run a prepared execution."""
+        for args in self:
+            if self.func(args):
+                self.printer(args)
+
+    def dry(self):
+        """Print a dry-run of an execution."""
+        for args in self:
+            self.printer(args)
 
 
 class Emanate:
@@ -57,11 +86,6 @@ class Emanate:
         """
         self.config   = config.merge(config.defaults(), *configs)
         self.dest     = self.config.destination.resolve()
-
-        if self.config.clean:
-            self.function = self._del_symlink
-        else:
-            self.function = self._add_symlink
 
     def valid_file(self, path_obj):
         """Check whether a given path is covered by an ignore glob.
@@ -97,16 +121,8 @@ class Emanate:
 
         return result != "n"
 
-    @staticmethod
-    def backup(dest_file):
-        """Rename the file so we can safely write to the original path."""
-        new_name = str(dest_file) + ".emanate"
-        dest_file.rename(new_name)
-
-    def _add_symlink(self, src, dest):
-        # If the symbolic link is already in place, skip it.
-        if dest.exists() and src.samefile(dest):
-            return True
+    def _add_symlink(self, pair):
+        _, dest = pair
 
         # If the file exists and _isn't_ the symbolic link we're
         # trying to make, prompt the user to determine what to do.
@@ -116,78 +132,36 @@ class Emanate:
                 return False
             Emanate.backup(dest)
 
-        print("{!r} -> {!r}".format(str(src), str(dest)))
-        dest.symlink_to(src)
-        return src.samefile(dest)
+        return pair.add_symlink()
 
     @staticmethod
-    def _del_symlink(src, dest):
-        if not dest.exists():
-            return True
+    def backup(dest_file):
+        """Rename the file so we can safely write to the original path."""
+        new_name = str(dest_file) + ".emanate"
+        dest_file.rename(new_name)
 
-        print("{!r}".format(str(dest)))
-        if dest.samefile(src):
-            dest.unlink()
-
-        return not dest.exists()
-
-    def run(self):
-        """Execute Emanate as configured."""
+    def _files(self):
         all_files = Path(self.config.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
             src  = file.resolve()
             dest = self.dest / file.relative_to(self.config.source)
-            self.function(src, dest)
+            yield FilePair(src, dest)
 
+    def create(self):
+        """Create symbolic links."""
+        # Ignore files that are already linked.
+        gen = filter(lambda p: not (p.dest.exists() and p.src.samefile(p.dest)),
+                     self._files())
 
-def _parse_args(args=None):
-    argparser = ArgumentParser(
-        description="Link files from one directory to another",
-        argument_default=SUPPRESS,
-    )
-    argparser.add_argument("--clean",
-                           action="store_true",
-                           help="Remove symbolic links.")
-    argparser.add_argument("--destination",
-                           metavar="DESTINATION",
-                           help="Directory containing the symbolic links.")
-    argparser.add_argument("--source",
-                           metavar="SOURCE",
-                           type=Path,
-                           help="Directory holding the files to symlink.")
-    argparser.add_argument("--no-confirm",
-                           action="store_false",
-                           dest="confirm",
-                           help="Don't prompt before replacing a file.")
-    argparser.add_argument("--config",
-                           metavar="CONFIG_FILE",
-                           default=None,
-                           type=Path,
-                           help="Configuration file to use.")
+        return Execution(self._add_symlink,
+                         FilePair.print_add,
+                         gen)
 
-    return argparser.parse_args(args)
+    def clean(self):
+        """Remove symbolic links."""
+        # Skip non-existing files.
+        gen = filter(lambda p: p.dest.exists(), self._files())
 
-
-def main(args=None):
-    """Invoke Emanate from command-line arguments.
-
-    Emanate prioritizes configuration sources in the following order:
-    - default values have lowest priority;
-    - the configuration file overrides defaults;
-    - command-line arguments override everything.
-    """
-    args = _parse_args(args)
-    if args.config is None:
-        if 'source' in args:
-            args.config = args.source / "emanate.json"
-        else:
-            args.config = Path.cwd() / "emanate.json"
-
-    return Emanate(
-        config.from_json(args.config) if args.config.exists() else None,
-        config.resolve(vars(args)),
-    ).run()
-
-
-if __name__ == '__main__':
-    exit(main())
+        return Execution(FilePair.del_symlink,
+                         FilePair.print_del,
+                         gen)
