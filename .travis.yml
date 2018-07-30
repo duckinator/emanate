@@ -11,9 +11,9 @@ branches:
     # Build pull requests.
     - master
 
-python:
-  - "3.5"
-  - "3.6"
+#python:
+#  - "3.5"
+#  - "3.6"
 
 cache:
   directories:
