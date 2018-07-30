@@ -1,12 +1,11 @@
 release: test build
-	twine upload dist/*
+	python3 setup.py release
 
 build:
-	pip3 install wheel twine
-	python3 setup.py sdist bdist_wheel
+	python3 setup.py build
 
 clean:
-	rm -rf build release dist emanate.egg-info
+	python3 setup.py clean
 
 test:
 	tox
