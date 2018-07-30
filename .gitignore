@@ -1,7 +1,8 @@
+/.eggs/
 /.pytest_cache/
 /.tox/
 /build/
 /dist/
 /emanate.egg-info/
-__pycache__
 /venv
+__pycache__
