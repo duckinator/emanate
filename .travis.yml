@@ -17,9 +17,6 @@ python:
 
 cache:
   directories:
-    # Caching .tox can spell trouble for checkers which save state. Technically,
-    # pylint saves the previous build's score, but we don't use that value.
-    - .tox
     - $HOME/.cache/pip
 
     # Cache the Homebrew downloads and the built Python versions
@@ -27,23 +24,12 @@ cache:
     - $HOME/.pyenv/cache
     - $HOME/.pyenv/versions
 
-install: pip install tox
-script:  tox
-env:
-  - TOXENV=test
-
+script: python setup.py test
 
 matrix:
   include:
     - os: linux
       python: 3.6
-      env: TOXENV=docstyle
-    - os: linux
-      python: 3.6
-      env: TOXENV=flake8
-    - os: linux
-      python: 3.6
-      env: TOXENV=lint
       addons:
         apt:
           packages:
