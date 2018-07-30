@@ -3,7 +3,9 @@ Emanate's
 PWD
 config
 cwd
+dict
 dotfiles
+foo
 json
 pathlib
 symlink
