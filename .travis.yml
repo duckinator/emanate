@@ -69,3 +69,4 @@ before_install:
 
   - python --version
   - pip    --version
+  - pip install -U setuptools
