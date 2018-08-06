@@ -2,4 +2,5 @@
 
 from setuptools import setup
 
+# See setup.cfg for the actual configuration.
 setup()
