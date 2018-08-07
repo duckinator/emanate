@@ -1,7 +1,7 @@
 """Emanate symbolic link manager.
 
 Emanate is a command-line utility and Python library for managing symbolic
-links in a fashion similar to `stow` or `infuse`_.
+links in a fashion similar to `stow` or `effuse`.
 
 Given a `source` and `destination` directory, `emanate` creates (or removes)
 symbolic links from the destination to each file in the source, mirroring the
