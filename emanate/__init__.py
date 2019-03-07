@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Emanate symbolic link manager.
 
 Emanate is a command-line utility and Python library for managing symbolic
