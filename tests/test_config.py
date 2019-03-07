@@ -1,7 +1,8 @@
 import json
-from emanate import config
 from pathlib import Path
-from utils import cd, directory_tree, home
+
+from emanate import config
+from utils import chdir, directory_tree, home
 
 
 def test_json_resolution():
@@ -16,11 +17,11 @@ def test_json_resolution():
         config_cwd = config.from_json(tmpdir / 'src' / 'emanate.json')
         assert config.is_resolved(config_cwd)
 
-        with cd(tmpdir):
+        with chdir(tmpdir):
             config_tmp = config.from_json(Path('src') / 'emanate.json')
             assert config.is_resolved(config_tmp)
 
-        with cd(tmpdir / 'src'):
+        with chdir(tmpdir / 'src'):
             config_src = config.from_json(Path('emanate.json'))
             assert config.is_resolved(config_src)
 
@@ -34,7 +35,7 @@ def test_defaults():
     assert config.defaults().source == Path.cwd()
 
     with directory_tree({}) as tmpdir:
-        with cd(tmpdir):
+        with chdir(tmpdir):
             assert config.defaults().source.samefile(tmpdir)
             assert Path.cwd().samefile(tmpdir)
 

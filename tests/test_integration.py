@@ -1,8 +1,9 @@
 import json
 import tempfile
-from emanate import cli
 from pathlib import Path
-from utils import cd, directory_tree, home
+
+from emanate import cli
+from utils import chdir, directory_tree, home
 
 
 def main(*pargs):
@@ -24,18 +25,18 @@ def helper(tree=None, source='src', options=lambda _: []):
     """
     homedir = Path(tempfile.mkdtemp())
     with home(homedir):
-        with cd(homedir):
+        with chdir(homedir):
             with directory_tree(tree) as tmpdir:
                 main('--source', tmpdir / source, *options(tmpdir))
                 yield tmpdir
 
             with directory_tree(tree) as tmpdir:
-                with cd(tmpdir):
+                with chdir(tmpdir):
                     main('--source', source, *options(tmpdir))
                     yield tmpdir
 
             with directory_tree(tree) as tmpdir:
-                with cd(tmpdir / source):
+                with chdir(tmpdir / source):
                     main(*options(tmpdir))
                     yield tmpdir
 
@@ -115,8 +116,8 @@ def test_clean():
                 },
             },
             options=lambda _: ['clean']):
-        for f in ['bar', 'foo']:
-            assert not (tmpdir / 'dest' / f).exists()
-            assert (tmpdir / 'src' / f).exists()
+        for filename in ['bar', 'foo']:
+            assert not (tmpdir / 'dest' / filename).exists()
+            assert (tmpdir / 'src' / filename).exists()
 
         assert (tmpdir / 'src' / 'emanate.json').exists()
