@@ -7,7 +7,7 @@ from contextlib import contextmanager
 
 
 @contextmanager
-def cd(path):
+def chdir(path):
     """Context manager for temporarily changing directory."""
     if isinstance(path, Path):
         path = str(path)
@@ -50,14 +50,14 @@ def directory_tree(obj):
 @contextmanager
 def home(path):
     """Temporarily set the HOME environment variable."""
-    home = os.getenv('HOME', None)
+    home_dir = os.getenv('HOME', None)
 
     try:
         os.environ['HOME'] = str(path)
         yield
 
     finally:
-        if home is not None:
-            os.environ['HOME'] = home
+        if home_dir is not None:
+            os.environ['HOME'] = home_dir
         else:
             del os.environ['HOME']
