@@ -76,14 +76,17 @@ class Emanate:
     (see emanate.main for a simple example).
     """
 
-    def __init__(self, *configs):
+    def __init__(self, *configs, src=None):
         """Construct an Emanate instance from configuration dictionaries.
 
         The default values (as provided by config.defaults()) are implicitly
         the first configuration object; latter configurations override earlier
         configurations (see config.merge).
         """
-        self.config   = config.merge(config.defaults(), *configs)
+        self.config   = config.merge(
+            config.defaults(src),
+            *configs,
+        )
         self.dest     = self.config.destination.resolve()
 
     def valid_file(self, path_obj):
@@ -93,7 +96,9 @@ class Emanate:
         in the destination directory.
         """
         path = str(path_obj.resolve())
-        ignore_patterns = [pattern / "*" if pattern.is_dir() else pattern for pattern in self.config.ignore]
+        ignore_patterns = [
+            p / "*" if p.is_dir() else p for p in self.config.ignore
+        ]
         if any(fnmatch(path, pattern) for pattern in ignore_patterns):
             return False
 
