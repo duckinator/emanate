@@ -93,7 +93,8 @@ class Emanate:
         in the destination directory.
         """
         path = str(path_obj.resolve())
-        if any(fnmatch(path, pattern) for pattern in self.config.ignore):
+        ignore_patterns = [pattern / "*" if pattern.is_dir() else pattern for pattern in self.config.ignore]
+        if any(fnmatch(path, pattern) for pattern in ignore_patterns):
             return False
 
         if path_obj.is_dir():
