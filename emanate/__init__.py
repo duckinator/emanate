@@ -99,7 +99,7 @@ class Emanate:
         ignore_patterns = [
             p / "*" if p.is_dir() else p for p in self.config.ignore
         ]
-        if any(fnmatch(path, pattern) for pattern in ignore_patterns):
+        if any(fnmatch(path, str(pattern)) for pattern in ignore_patterns):
             return False
 
         if path_obj.is_dir():
