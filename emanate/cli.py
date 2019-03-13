@@ -78,6 +78,7 @@ def main(args=None):
     emanate = Emanate(
         config.from_json(args.config) if args.config.exists() else None,
         config.resolve(vars(args)),
+        src=vars(args).get("source", None),
     )
 
     if args.command is None or args.command == 'create':

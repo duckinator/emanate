@@ -8,30 +8,34 @@ relative paths.
 import functools
 import json
 from pathlib import Path
+from collections.abc import Iterable
 
 
-def defaults():
+def defaults(src=None):
     """Return Emanate's default configuration.
 
     config.defaults() resolves the default using the values
     of Path.home() and Path.cwd() at the time it was called.
     """
-    return AttrDict({
+    if src is None:
+        src = Path.cwd()
+    base_ignores = resolve({
         'ignore': frozenset((
             "*~",
             ".*~",
             ".*.sw?",
+            "emanate.json",
             "*/emanate.json",
-            "*.emanate",
+            ".emanate",
             ".*.emanate",
-            "*/.git",
-            "*/.git/*",
-            "*/.gitignore",
-            "*/.gitmodules",
-            "*/__pycache__",
-            "*/__pycache__/*",
+            ".git/",
+            ".gitignore",
+            ".gitmodules",
+            "__pycache__/",
         )),
-
+    }, cwd=src.resolve())
+    return AttrDict({
+        **base_ignores,
         'confirm': True,
         'destination': Path.home(),
         'source': Path.cwd(),
@@ -85,14 +89,17 @@ def merge(*configs, strict_resolve=True):
     return functools.reduce(_merge_one, configs, AttrDict())
 
 
-CONFIG_PATHS = ('destination', 'source')
+CONFIG_PATHS = ('destination', 'source', 'ignore')
 
 
 def is_resolved(config):
     """Check that all path options in a configuration object are absolute."""
     for key in CONFIG_PATHS:
         if key in config:
-            value = config[key]
+            if isinstance(config[key], (Path)):
+                value = config[key]
+            elif isinstance(config[key], Iterable):
+                return all([is_resolved({key: p}) for p in config[key]])
             if not isinstance(value, Path) or not value.is_absolute():
                 return False
 
@@ -120,7 +127,10 @@ def resolve(config, cwd=None):
         if isinstance(result[key], str):
             result[key] = Path(result[key])
 
-        if not result[key].is_absolute():
+        elif isinstance(result[key], Iterable):
+            result[key] = [resolve({key: p}, cwd)[key] for p in result[key]]
+
+        if isinstance(result[key], Path) and not result[key].is_absolute():
             result[key] = cwd / result[key].expanduser()
 
     return result
