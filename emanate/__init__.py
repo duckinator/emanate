@@ -89,6 +89,7 @@ class Emanate:
         )
         self.dest     = self.config.destination.resolve()
 
+    @staticmethod
     def _robust_is_dir(path_obj):
         """Check whether a given path is a directory, but never raise an
         exception (such as Path(x).is_dir() may do).
