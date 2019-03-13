@@ -89,6 +89,15 @@ class Emanate:
         )
         self.dest     = self.config.destination.resolve()
 
+    def _robust_is_dir(self, path_obj):
+        """Check whether a given path is a directory, but never raise an
+        exception (such as Path(x).is_dir() may do).
+        """
+        try:
+            return path_obj.is_dir()
+        except:
+            return False
+
     def valid_file(self, path_obj):
         """Check whether a given path is covered by an ignore glob.
 
@@ -97,7 +106,7 @@ class Emanate:
         """
         path = str(path_obj.resolve())
         ignore_patterns = [
-            p / "*" if p.is_dir() else p for p in self.config.ignore
+            p / "*" if self._robust_is_dir(p) else p for p in self.config.ignore
         ]
         if any(fnmatch(path, str(pattern)) for pattern in ignore_patterns):
             return False
