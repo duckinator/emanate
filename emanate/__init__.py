@@ -90,7 +90,7 @@ class Emanate:
         self.dest     = self.config.destination.resolve()
 
     @staticmethod
-    def _robust_is_dir(path_obj):
+    def _is_dir(path_obj):
         """Check whether a given path is a directory, but never raise an
         exception (such as Path(x).is_dir() may do).
         """
@@ -107,7 +107,7 @@ class Emanate:
         """
         path = str(path_obj.resolve())
         ignore_patterns = [
-            p / "*" if Emanate._robust_is_dir(p) else p for p in self.config.ignore
+            p / "*" if Emanate._is_dir(p) else p for p in self.config.ignore
         ]
         if any(fnmatch(path, str(pattern)) for pattern in ignore_patterns):
             return False
