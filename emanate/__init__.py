@@ -96,7 +96,7 @@ class Emanate:
         """
         try:
             return path_obj.is_dir()
-        except Exception:
+        except OSError:
             return False
 
     def valid_file(self, path_obj):
