@@ -29,6 +29,7 @@ script: python setup.py test
 matrix:
   include:
     - os: linux
+      dist: xenial
       python: 3.5
       addons:
         apt:
@@ -36,6 +37,7 @@ matrix:
             - enchant
 
     - os: linux
+      dist: xenial
       python: 3.6
       addons:
         apt:
@@ -43,6 +45,7 @@ matrix:
             - enchant
 
     - os: linux
+      dist: xenial
       python: 3.7
       addons:
         apt:
