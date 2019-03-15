@@ -12,10 +12,14 @@ branches:
 # adapted from https://packaging.python.org/en/latest/appveyor/
 environment:
   matrix:
-    - PYTHON: "C:\\Python35"
+    # ASSUMPTION: It's pretty unlikely for Emanate to have failures on
+    #             32-bit Python but not on 64-bit Python.
+    #- PYTHON: "C:\\Python35"
     - PYTHON: "C:\\Python35-x64"
-    - PYTHON: "C:\\Python36"
+    #- PYTHON: "C:\\Python36"
     - PYTHON: "C:\\Python36-x64"
+    #- PYTHON: "C:\\Python37"
+    - PYTHON: "C:\\Python37-x64"
 
 install:
   - |

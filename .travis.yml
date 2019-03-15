@@ -42,6 +42,14 @@ matrix:
           packages:
             - enchant
 
+    - os: linux
+      python: 3.7
+      addons:
+        apt:
+          packages:
+            - enchant
+
+
     # Dirty hacks to make OSX builds work on Travis
     # Inspired by https://pythonhosted.org/CodeChat/.travis.yml.html
     - os: osx
@@ -49,11 +57,14 @@ matrix:
       env: TOXENV=test PYENV_VERSION=3.5.5 PATH="${HOME}/.pyenv/shims:${PATH}"
     - os: osx
       language: generic
-      env: TOXENV=test PYENV_VERSION=3.6.5 PATH="${HOME}/.pyenv/shims:${PATH}"
+      env: TOXENV=test PYENV_VERSION=3.6.8 PATH="${HOME}/.pyenv/shims:${PATH}"
+    - os: osx
+      language: generic
+      env: TOXENV=test PYENV_VERSION=3.7.2 PATH="${HOME}/.pyenv/shims:${PATH}"
 
 
 before_install:
-  # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
+  # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`.
   - '[ "$TRAVIS_OS_NAME" != "osx" ] || [ -d "$HOME/.pyenv/versions/$PYENV_VERSION" ] || brew update'
   # See https://docs.travis-ci.com/user/osx-ci-environment/#A-note-on-upgrading-packages.
   - '[ "$TRAVIS_OS_NAME" != "osx" ] || [ -d "$HOME/.pyenv/versions/$PYENV_VERSION" ] || brew upgrade openssl readline pyenv'
