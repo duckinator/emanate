@@ -83,11 +83,11 @@ class Emanate:
         the first configuration object; latter configurations override earlier
         configurations (see config.merge).
         """
-        self.config   = config.merge(
+        self.config = config.merge(
             config.defaults(src),
             *configs,
         )
-        self.dest     = self.config.destination.absolute()
+        self.dest = self.config.destination.resolve()
 
     @staticmethod
     def _is_dir(path_obj):

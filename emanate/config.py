@@ -145,4 +145,4 @@ def from_json(path):
     assert isinstance(path, Path)
 
     with path.open() as file:
-        return resolve(json.load(file), cwd=path.parent.absolute())
+        return resolve(json.load(file), cwd=path.parent.resolve())
