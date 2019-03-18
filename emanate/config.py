@@ -33,7 +33,7 @@ def defaults(src=None):
             ".gitmodules",
             "__pycache__/",
         )),
-    }, cwd=src.resolve())
+    }, cwd=src.absolute())
     return AttrDict({
         **base_ignores,
         'confirm': True,

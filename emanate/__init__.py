@@ -83,11 +83,11 @@ class Emanate:
         the first configuration object; latter configurations override earlier
         configurations (see config.merge).
         """
-        self.config   = config.merge(
+        self.config = config.merge(
             config.defaults(src),
             *configs,
         )
-        self.dest     = self.config.destination.resolve()
+        self.dest = self.config.destination.resolve()
 
     @staticmethod
     def _is_dir(path_obj):
@@ -105,7 +105,7 @@ class Emanate:
         As a side effect, if the path is a directory, is it created
         in the destination directory.
         """
-        path = str(path_obj.resolve())
+        path = str(path_obj.absolute())
         ignore_patterns = [
             p / "*" if Emanate._is_dir(p) else p for p in self.config.ignore
         ]
@@ -158,7 +158,7 @@ class Emanate:
     def _files(self):
         all_files = Path(self.config.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
-            src  = file.resolve()
+            src  = file.absolute()
             dest = self.dest / file.relative_to(self.config.source)
             yield FilePair(src, dest)
 
