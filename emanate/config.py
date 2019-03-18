@@ -33,7 +33,7 @@ def defaults(src=None):
             ".gitmodules",
             "__pycache__/",
         )),
-    }, cwd=src.resolve())
+    }, cwd=src.absolute())
     return AttrDict({
         **base_ignores,
         'confirm': True,
@@ -145,4 +145,4 @@ def from_json(path):
     assert isinstance(path, Path)
 
     with path.open() as file:
-        return resolve(json.load(file), cwd=path.parent.resolve())
+        return resolve(json.load(file), cwd=path.parent.absolute())
