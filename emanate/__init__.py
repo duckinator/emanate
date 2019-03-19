@@ -1,14 +1,11 @@
 """Emanate symbolic link manager.
 
 Emanate is a command-line utility and Python library for managing symbolic
-links in a fashion similar to `stow` or `effuse`.
+links in a fashion similar to Stow or Effuse.
 
-Given a `source` and `destination` directory, `emanate` creates (or removes)
-symbolic links from the destination to each file in the source, mirroring the
-directory structure (and creating directories as needed).
-
-In `clean` mode, emanate instead removes such symbolic links.
-
+Given a `source` and `destination` directory, Emanate can create or remove
+symbolic links from the destination to each file in the source, mirroring
+the directory structure and creating directories as needed.
 """
 
 from collections import namedtuple
@@ -45,7 +42,7 @@ class FilePair(namedtuple('FilePair', ['src', 'dest'])):
 class Execution(list):
     """Describe an Emanate execution.
 
-    Callable once, useful to provide “dry-run”
+    Callable once, useful to provide "dry-run"
     functionality or report changes back to the user.
     """
 
@@ -102,7 +99,7 @@ class Emanate:
     def valid_file(self, path_obj):
         """Check whether a given path is covered by an ignore glob.
 
-        As a side effect, if the path is a directory, is it created
+        As a side effect, if the path is a directory, it is created
         in the destination directory.
         """
         path = str(path_obj.absolute())
