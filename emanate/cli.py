@@ -4,9 +4,9 @@ Examples:
     Emanate defaults to using the current directory as source,
     and the current user's home directory as destination::
 
-        ~/.dotfiles $ emanate
+        ~/dotfiles$ emanate
 
-    would create symbolic links in ~ for files in ~/.dotfiles
+    would create symbolic links in ~ for files in ~/dotfiles
 
     Emanate also defaults to looking for a configuration file in the source
     directory, allowing usages such as::

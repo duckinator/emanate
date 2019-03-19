@@ -5,12 +5,40 @@ Symlink files from one directory into another directory.
 Inspired by [effuse](https://github.com/programble/effuse) and
 [stow](https://www.gnu.org/software/stow/manual/stow.html).
 
+## Installation
+
+### Via Pip/PyPi
+
+If you prefer using virtualenv:
+
+```
+$ python3 -m venv ./venv
+$ # Activate venv
+$ pip3 install emanate
+```
+
+Otherwise, this is probably easier:
+
+```
+$ pip3 install emanate --user
+```
+
+### Via DNF (Fedora 29 only)
+
+If you're on Fedora 29, the [Puppy Technology](https://puppy.technology/)
+RPM repository contains the latest package for Emanate.
+
+```
+$ dnf install https://rpm.puppy.technology/repo.rpm
+$ dnf install emanate --refresh
+```
+
 ## Usage
 
 ```
 ~$ cat ~/.bashrc
 cat: /home/pup/.bashrc: No such file or directory
-~$ pip install emanate
+~$ pip3 install emanate
 ~$ cd ~/dotfiles
 ~/dotfiles$ ls -al
 drwxr-xr-x.  9 pup pup 4096 Jun  3 12:06 ./
