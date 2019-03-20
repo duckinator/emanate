@@ -1,4 +1,11 @@
 status = [
-  "continuous-integration/appveyor/branch",
-  "continuous-integration/travis-ci/push",
+  "FreeBSD PYTHON:3.6",
+  "FreeBSD PYTHON:3.7",
+  "Linux container:python:3.5-slim",
+  "Linux container:python:3.6-slim",
+  "Linux container:python:3.7-slim",
+  "Windows PYTHON:3.6.8",
+  "Windows PYTHON:3.7.2",
+  "macOS PYTHON:3.6.8",
+  "macOS PYTHON:3.7.2",
 ]
