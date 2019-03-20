@@ -1,9 +1,12 @@
-# emanate
+# emanate [![Build Status][build-status-link]][build-status-img]
 
 Symlink files from one directory into another directory.
 
 Inspired by [effuse](https://github.com/programble/effuse) and
 [stow](https://www.gnu.org/software/stow/manual/stow.html).
+
+[build-status-link]: https://api.cirrus-ci.com/github/duckinator/emanate.svg
+[build-status-img]: https://cirrus-ci.com/github/duckinator/emanate
 
 ## Installation
 
