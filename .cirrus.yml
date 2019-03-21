@@ -42,20 +42,11 @@ FreeBSD_task:
 
 Windows_task:
   windows_container:
-    image: cirrusci/windowsservercore:2019
     os_version: 2019
-  env:
     matrix:
-      - PYTHON: 3.6.8
-      - PYTHON: 3.7.2
-  install_script:
-    - choco install -y python3 --version %PYTHON% --params "/InstallDir:C:\python3"
-    # BEGIN: Hacky bullshit to work around certificate errors with Python.
-    # Download cacert.pem
-    - powershell -command "& { (New-Object Net.WebClient).DownloadFile('https://curl.haxx.se/ca/cacert.pem', 'C:\cacert.pem') }"
-    # Use it to install certifi
-    - C:\python3\python.exe -m pip --cert C:\cacert.pem install certifi
-    # END: Hacky bullshit.
+      - image: python:3.6-windowsservercore-1809
+      - image: python:3.7-windowsservercore-1809
+
   script:
-    - C:\python3\python.exe --version
-    - C:\python3\python.exe setup.py test
+    - C:\Python\python.exe --version
+    - C:\Python\python.exe setup.py test
