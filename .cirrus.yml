@@ -1,3 +1,11 @@
+Lint_task:
+  container:
+    image: python:3.7-slim
+  install_script:
+    - pip install -r lint-requirements.txt
+  script:
+    - ./lint.sh
+
 Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   container:
