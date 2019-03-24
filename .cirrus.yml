@@ -77,7 +77,6 @@ Windows_task:
     matrix:
       - image: python:3.6-windowsservercore-1809
       - image: python:3.7-windowsservercore-1809
-      - image: python:3.8-rc-windowsservercore-1809
   script:
     - C:\Python\python.exe --version
     - C:\Python\python.exe setup.py test
