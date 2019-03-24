@@ -3,14 +3,10 @@ Linux_Python_38:
   container:
     image: python:3.8-rc-slim
   install_script:
-    - pip3 install -r lint-requirements.txt
+    - pip3 install setuptools pytest
   script:
     - python3 --version
-    - flake8 --version
-    - flake8
-    - echo
-    - pylint --version
-    - pylint emanate
+    - ./setup.py pytest --addopts '--verbose'
 
 Windows_Python38_task:
   allow_failures: true
@@ -18,14 +14,10 @@ Windows_Python38_task:
     os_version: 2019
     image: python:3.8-rc-windowsservercore-1809
   install_script:
-    - pip3 install -r lint-requirements.txt
+    - pip3 install setuptools pytest
   script:
     - python3 --version
-    - flake8 --version
-    - flake8
-    - echo
-    - pylint --version
-    - pylint emanate
+    - ./setup.py pytest --addopts '--verbose'
 
 Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
