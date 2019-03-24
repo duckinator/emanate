@@ -1,7 +1,22 @@
-Python_3_8_rc:
+Linux_Python_38:
   allow_failures: true
   container:
     image: python:3.8-rc-slim
+  install_script:
+    - pip3 install -r lint-requirements.txt
+  script:
+    - python3 --version
+    - flake8 --version
+    - flake8
+    - echo
+    - pylint --version
+    - pylint emanate
+
+Windows_Python38_task:
+  allow_failures: true
+  windows_container:
+    os_version: 2019
+    image: python:3.8-rc-windowsservercore-1809
   install_script:
     - pip3 install -r lint-requirements.txt
   script:
@@ -19,7 +34,6 @@ Linux_task:
       - image: python:3.5-slim
       - image: python:3.6-slim
       - image: python:3.7-slim
-      - image: python:3.8-rc-slim
   script:
     - python3 --version
     - python3 setup.py test
@@ -64,7 +78,6 @@ Windows_task:
       - image: python:3.6-windowsservercore-1809
       - image: python:3.7-windowsservercore-1809
       - image: python:3.8-rc-windowsservercore-1809
-
   script:
     - C:\Python\python.exe --version
     - C:\Python\python.exe setup.py test
