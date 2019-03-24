@@ -52,8 +52,10 @@ FreeBSD_task:
       - PYTHON: 3.6
       - PYTHON: 3.7
   install_script:
-    - pkg install -y python`echo $PYTHON | tr -d '.'` py`echo $PYTHON | tr -d '.'`-setuptools
-    - pip install -e .[testing]
+    - PY=`echo $PYTHON | tr -d '.'`
+    - pkg install -y python${PY} py${PY}-setuptools
+    - python${PYTHON} -m ensurepip
+    - python${PYTHON} -m pip install -e .[testing]
   script:
     - python${PYTHON} --version
     - python${PYTHON} -m pytest --verbose
