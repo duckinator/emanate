@@ -1,4 +1,4 @@
-Linux_Python_38_task:
+Python38_Linux_task:
   allow_failures: true
   container:
     image: python:3.8-rc-slim
@@ -10,10 +10,10 @@ Linux_Python_38_task:
 
 # By default, we're limited to 2 Windows VMs/containers in parallel.
 # Having a third adds a noticeable overhead.
-# Un-comment Windows_Python38_task when @duckinator starts paying for more
+# Un-comment Python38_Windows_task when @duckinator starts paying for more
 # parallel compute power, basically.
 
-#Windows_Python38_task:
+#Python38_Windows_task:
 #  allow_failures: true
 #  windows_container:
 #    os_version: 2019
