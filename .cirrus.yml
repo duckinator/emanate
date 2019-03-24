@@ -1,4 +1,4 @@
-Linux_Python_38:
+Linux_Python_38_task:
   allow_failures: true
   container:
     image: python:3.8-rc-slim
