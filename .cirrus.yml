@@ -4,7 +4,10 @@ Lint_task:
   install_script:
     - pip install -r lint-requirements.txt
   script:
-    - ./lint.sh
+    - flake8 --version
+    - flake8
+    - pylint --version
+    - pylint emanate
 
 Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
