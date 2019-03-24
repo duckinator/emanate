@@ -3,21 +3,26 @@ Linux_Python_38_task:
   container:
     image: python:3.8-rc-slim
   install_script:
-    - pip3 install setuptools pytest
+    - pip3 install pytest
   script:
     - python3 --version
     - python3 -m pytest --verbose
 
-Windows_Python38_task:
-  allow_failures: true
-  windows_container:
-    os_version: 2019
-    image: python:3.8-rc-windowsservercore-1809
-  install_script:
-    - pip3 install setuptools pytest
-  script:
-    - python3 --version
-    - python3 -m pytest --verbose
+# By default, we're limited to 2 Windows VMs/containers in parallel.
+# Having a third adds a noticeable overhead.
+# Un-comment Windows_Python38_task when @duckinator starts paying for more
+# parallel compute power, basically.
+
+#Windows_Python38_task:
+#  allow_failures: true
+#  windows_container:
+#    os_version: 2019
+#    image: python:3.8-rc-windowsservercore-1809
+#  install_script:
+#    - pip3 install pytest
+#  script:
+#    - python3 --version
+#    - python3 -m pytest --verbose
 
 Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
