@@ -6,7 +6,7 @@ Linux_Python_38_task:
     - pip3 install setuptools pytest
   script:
     - python3 --version
-    - ./setup.py pytest --addopts '--verbose'
+    - python3 -m pytest --verbose
 
 Windows_Python38_task:
   allow_failures: true
@@ -17,7 +17,7 @@ Windows_Python38_task:
     - pip3 install setuptools pytest
   script:
     - python3 --version
-    - ./setup.py pytest --addopts '--verbose'
+    - python3 -m pytest --verbose
 
 Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
