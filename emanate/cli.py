@@ -86,7 +86,7 @@ def main(args=None):
     elif args.command == 'clean':
         execute = emanate.clean()
     else:
-        assert False
+        raise AssertionError("emanate.main: Unknown command")
 
     if args.exec:
         execute.run()
