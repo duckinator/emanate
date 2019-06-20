@@ -2,7 +2,7 @@ Lint_task:
   container:
     image: python:3.7-slim
   install_script:
-    - pip install -e .[linting]
+    - pip install .[linting]
   script:
     - flake8 --version
     - flake8
@@ -18,7 +18,7 @@ Linux_task:
       - image: python:3.7-slim
       - image: python:3.8-rc-slim
   install_script:
-    - pip install -e .[testing]
+    - pip install .[testing]
   script:
     - python3 --version
     - python3 -m pytest --verbose
@@ -39,7 +39,7 @@ macOS_task:
     - pyenv install ${PYTHON}
     - pyenv global ${PYTHON}
     - pyenv rehash
-    - pip install -e .[testing]
+    - pip install .[testing]
   script:
     - python3 --version
     - python3 -m pytest --verbose
@@ -55,7 +55,7 @@ FreeBSD_task:
     - PY=`echo $PYTHON | tr -d '.'`
     - pkg install -y python${PY} py${PY}-setuptools
     - python${PYTHON} -m ensurepip
-    - python${PYTHON} -m pip install -e .[testing]
+    - python${PYTHON} -m pip install .[testing]
   script:
     - python${PYTHON} --version
     - python${PYTHON} -m pytest --verbose
@@ -70,7 +70,7 @@ Windows_task:
       - image: python:3.8-rc-windowsservercore-1809
 
   install_script:
-    - C:\Python\python.exe -m pip install -e .[testing]
+    - C:\Python\python.exe -m pip install .[testing]
   script:
     - C:\Python\python.exe --version
     - C:\Python\python.exe -m pytest --verbose
