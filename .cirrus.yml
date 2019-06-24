@@ -2,6 +2,7 @@ Lint_task:
   container:
     image: python:3.7-slim
   install_script:
+    - pip install -U --upgrade-strategy eager pip setuptools wheel
     - pip install .[linting]
   script:
     - flake8 --version
@@ -18,6 +19,7 @@ Linux_task:
       - image: python:3.7-slim
       - image: python:3.8-rc-slim
   install_script:
+    - pip install -U --upgrade-strategy eager pip setuptools wheel
     - pip install .[testing]
   script:
     - python3 --version
@@ -39,6 +41,7 @@ macOS_task:
     - pyenv install ${PYTHON}
     - pyenv global ${PYTHON}
     - pyenv rehash
+    - pip install -U --upgrade-strategy eager pip setuptools wheel
     - pip install .[testing]
   script:
     - python3 --version
@@ -55,6 +58,7 @@ FreeBSD_task:
     - PY=`echo $PYTHON | tr -d '.'`
     - pkg install -y python${PY} py${PY}-setuptools
     - python${PYTHON} -m ensurepip
+    - python${PYTHON} -m pip install -U --upgrade-strategy eager pip setuptools wheel
     - python${PYTHON} -m pip install .[testing]
   script:
     - python${PYTHON} --version
@@ -70,6 +74,7 @@ Windows_task:
       - image: python:3.8-rc-windowsservercore-1809
 
   install_script:
+    - C:\Python\python.exe -m pip install -U --upgrade-strategy eager pip setuptools wheel
     - C:\Python\python.exe -m pip install .[testing]
   script:
     - C:\Python\python.exe --version
