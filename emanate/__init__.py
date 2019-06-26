@@ -15,6 +15,11 @@ import sys
 from . import config
 
 
+#: The running Emanate version.
+# TODO: document versionning conventions here and in README (is it semver?)
+__version__ = "6.0.1"
+
+
 class FilePair(namedtuple('FilePair', ['src', 'dest'])):
     """Pairs of source/destination file paths."""
 
