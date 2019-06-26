@@ -15,6 +15,9 @@ import sys
 from . import config
 
 
+#: Emanate's maintainer.
+__author__ = "Ellen Marie Dash"
+
 #: The running Emanate version.
 # TODO: document versionning conventions here and in README (is it semver?)
 __version__ = "6.0.1"
