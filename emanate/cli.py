@@ -62,7 +62,7 @@ def _parse_args(args=None):
 
 
 def version():
-    print(f"Emanate v{__version__} by {__author__}.")
+    print("Emanate v{} by {}.".format(__version__, __author__))
 
 
 def main(args=None):
