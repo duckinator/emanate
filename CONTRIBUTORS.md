@@ -15,9 +15,10 @@
 
 | Name     | Email                   |
 |----------|-------------------------|
-| Samuel   | <skullhead23@gmail.com> |
+| [Samuel] | <skullhead23@gmail.com> |
 | [kayila] | <arekuanubis@gmail.com> |
 
 Thank you everyone below for your contributions **(No matter how big or small)!**
 
 [kayila]: https://github.com/kayila
+[Samuel]: https://github.com/ritlew
