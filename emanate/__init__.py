@@ -19,7 +19,7 @@ from . import config
 __author__ = "Ellen Marie Dash"
 
 #: The running Emanate version.
-# TODO: document versionning conventions here and in README (is it semver?)
+#: Emanate follows the Semantic Versioning convention; see https://semver.org/
 __version__ = "6.0.1"
 
 
