@@ -26,6 +26,15 @@ Otherwise, this is probably easier:
 $ pip3 install emanate --user
 ```
 
+Emanate version numbers follow the [semantic versioning] convention.
+A [PEP 440] version specification for [compatible releases], like `~= 6.0`,
+is the recommended way to select appropriate versions.
+
+[semantic versioning]: https://semver.org/
+[PEP 440]: https://www.python.org/dev/peps/pep-0440/
+[compatible releases]: https://www.python.org/dev/peps/pep-0440/#compatible-release
+
+
 ### Via DNF (Fedora 29 only)
 
 If you're on Fedora 29, the [Puppy Technology](https://puppy.technology/)

@@ -15,6 +15,14 @@ import sys
 from . import config
 
 
+#: Emanate's maintainer.
+__author__ = "Ellen Marie Dash"
+
+#: The running Emanate version.
+#: Emanate follows the Semantic Versioning convention; see https://semver.org/
+__version__ = "6.0.1"
+
+
 class FilePair(namedtuple('FilePair', ['src', 'dest'])):
     """Pairs of source/destination file paths."""
 
