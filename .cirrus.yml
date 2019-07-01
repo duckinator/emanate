@@ -1,3 +1,6 @@
+# Allow compute credits usage.
+use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true'
+
 Lint_task:
   container:
     image: python:3.7-slim
