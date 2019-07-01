@@ -2,10 +2,14 @@
 
 ## Reviewers
 
-| Name                                              | Email              |
-|---------------------------------------------------|--------------------|
-| [Ellen Marie Dash](https://github.com/duckinator) | <the@smallest.dog> |
-| [nicoo](https://github.com/nbraud)                | <nicoo@mur.at>     |
+| Name               | Email              |
+|--------------------|--------------------|
+| [Ellen Marie Dash] | <the@smallest.dog> |
+| [nicoo]            | <nicoo@mur.at>     |
+
+[Ellen Marie Dash]: https://github.com/duckinator
+[nicoo]: https://github.com/nbraud
+
 
 ## Contributors
 
