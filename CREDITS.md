@@ -21,7 +21,7 @@ Software and libraries:
 - [Python](https://python.org)
 - [flake8](https://gitlab.com/pycqa/flake8)
 - [pip](https://pip.pypa.io/)
-- [pylint](https://www.pylint.org/)
+- [pylint](https://www.pylint.org/) and the [pytest-pylint](https://github.com/carsongee/pytest-pylint) integration
 - [pytest](https://pytest.org/)
 - [setuptools](https://github.com/pypa/setuptools)
 
