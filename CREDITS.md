@@ -9,6 +9,7 @@
 These are folks who aren't maintainers, but have contributed in some way. :)
 
 - [Samuel Lewis (@ritlew)](https://github.com/ritlew)
+- [@kayila](https://github.com/kayila)
 
 
 # Software and Services We Rely On ♥
