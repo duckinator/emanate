@@ -22,7 +22,7 @@ Software and libraries:
 - [flake8](https://gitlab.com/pycqa/flake8)
   - flake8 [bugbear](https://github.com/PyCQA/flake8-bugbear) plugin
   - flake8 [commas](https://github.com/PyCQA/flake8-commas/) plugin
-- [pydocstyle](https://github.com/PyCQA/pydocstyle/) through the [docstrings](https://gitlab.com/pycqa/flake8-docstrings) plugin for flake8
+  - [docstrings](https://gitlab.com/pycqa/flake8-docstrings) plugin to integrate with [pydocstyle](https://github.com/PyCQA/pydocstyle/)
 - [pip](https://pip.pypa.io/)
 - [pylint](https://www.pylint.org/) and the [pytest-pylint](https://github.com/carsongee/pytest-pylint) integration
 - [pytest](https://pytest.org/)
