@@ -24,7 +24,7 @@ Software and libraries:
 - [pip](https://pip.pypa.io/)
 - [pylint](https://www.pylint.org/) and the [pytest-pylint](https://github.com/carsongee/pytest-pylint) integration
 - [pytest](https://pytest.org/)
-- [setuptools](https://github.com/pypa/setuptools)
+- [setuptools](https://github.com/pypa/setuptools) and [wheel](https://github.com/pypa/wheel);
 
 Services:
 - [bors](https://bors.tech/)
