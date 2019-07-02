@@ -1,4 +1,4 @@
-# Emanate Maintainers
+# Maintainers
 
 - [Ellen Marie Dash (@duckinator)](https://github.com/duckinator)
 - [nicoo (@nbraud)](https://github.com/nbraud)
