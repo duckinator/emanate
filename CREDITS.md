@@ -4,7 +4,7 @@
 - [nicoo (@nbraud)](https://github.com/nbraud)
 
 
-# Emanate Contributors
+# Contributors
 
 These are folks who aren't maintainers, but have contributed in some way. :)
 
