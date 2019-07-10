@@ -20,7 +20,7 @@ __author__ = "Ellen Marie Dash"
 
 #: The running Emanate version.
 #: Emanate follows the Semantic Versioning convention; see https://semver.org/
-__version__ = "6.0.1"
+__version__ = "7.0.0"
 
 
 class FilePair(namedtuple('FilePair', ['src', 'dest'])):
