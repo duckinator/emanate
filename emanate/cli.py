@@ -23,7 +23,7 @@ Examples:
 """
 from argparse import ArgumentParser, SUPPRESS
 from pathlib import Path
-from . import Emanate, config
+from . import Emanate, config, __author__, __version__
 
 
 def _parse_args(args=None):
@@ -56,8 +56,13 @@ def _parse_args(args=None):
     subcommands = argparser.add_subparsers(dest='command')
     subcommands.add_parser('clean')
     subcommands.add_parser('create')
+    subcommands.add_parser('version')
 
     return argparser.parse_args(args)
+
+
+def version():
+    print("Emanate v{} by {}.".format(__version__, __author__))
 
 
 def main(args=None):
@@ -85,6 +90,9 @@ def main(args=None):
         execute = emanate.create()
     elif args.command == 'clean':
         execute = emanate.clean()
+    elif args.command == 'version':
+        version()
+        return
     else:
         raise AssertionError("emanate.main: Unknown command")
 

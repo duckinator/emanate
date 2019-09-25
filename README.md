@@ -10,31 +10,22 @@ Inspired by [effuse](https://github.com/programble/effuse) and
 
 ## Installation
 
-### Via Pip/PyPi
-
-If you prefer using virtualenv:
-
 ```
-$ python3 -m venv ./venv
-$ # Activate venv
 $ pip3 install emanate
 ```
 
-Otherwise, this is probably easier:
+Or find the [latest release](https://github.com/duckinator/emanate/releases)
+and grab the `emanate-<version>.pyz` file. This should work as a
+standalone executable. If it doesn't, try `python3 emanate-<version>.pyz`.
 
-```
-$ pip3 install emanate --user
-```
+Emanate version numbers follow the [semantic versioning] convention.
+A [PEP 440] version specification for [compatible releases], like `~= 6.0`,
+is the recommended way to select appropriate versions.
 
-### Via DNF (Fedora 29 only)
+[semantic versioning]: https://semver.org/
+[PEP 440]: https://www.python.org/dev/peps/pep-0440/
+[compatible releases]: https://www.python.org/dev/peps/pep-0440/#compatible-release
 
-If you're on Fedora 29, the [Puppy Technology](https://puppy.technology/)
-RPM repository contains the latest package for Emanate.
-
-```
-$ dnf install https://rpm.puppy.technology/repo.rpm
-$ dnf install emanate --refresh
-```
 
 ## Usage
 
