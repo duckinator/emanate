@@ -46,8 +46,8 @@ macOS_task:
     #- pyenv global ${PYTHON}
     #- pyenv rehash
     - brew install python3
-    - pip install -U --upgrade-strategy eager pip setuptools wheel
-    - pip install .[testing]
+    - pip3 install -U --upgrade-strategy eager pip setuptools wheel
+    - pip3 install .[testing]
   script:
     - python3 --version
     - python3 -m pytest --verbose
