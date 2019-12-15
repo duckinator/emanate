@@ -4,7 +4,7 @@ use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true' || $CIRRUS_BRANCH == 'm
 
 Lint_task:
   container:
-    image: python:3.7-slim
+    image: python:3.8-slim
   install_script:
     - pip install -U --upgrade-strategy eager pip setuptools wheel
     - pip install .[linting]
@@ -21,7 +21,7 @@ Linux_task:
       - image: python:3.5-slim
       - image: python:3.6-slim
       - image: python:3.7-slim
-      - image: python:3.8-rc-slim
+      - image: python:3.8-slim
   install_script:
     - pip install -U --upgrade-strategy eager pip setuptools wheel
     - pip install .[testing]
@@ -34,19 +34,20 @@ macOS_task:
     image: mojave-base
   env:
     PATH: ${HOME}/.pyenv/shims:${PATH}
-    matrix:
-      - PYTHON: 3.6.8
-      - PYTHON: 3.7.2
+  #  matrix:
+  #    - PYTHON: 3.6.8
+  #    - PYTHON: 3.7.5
   install_script:
     # Per the pyenv homebrew recommendations.
     # https://github.com/pyenv/pyenv/wiki#suggested-build-environment
-    - sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
-    - brew install openssl readline pyenv
-    - pyenv install ${PYTHON}
-    - pyenv global ${PYTHON}
-    - pyenv rehash
-    - pip install -U --upgrade-strategy eager pip setuptools wheel
-    - pip install .[testing]
+    #- sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+    #- brew install openssl readline pyenv
+    #- pyenv install ${PYTHON}
+    #- pyenv global ${PYTHON}
+    #- pyenv rehash
+    - brew install python3
+    - pip3 install -U --upgrade-strategy eager pip setuptools wheel
+    - pip3 install .[testing]
   script:
     - python3 --version
     - python3 -m pytest --verbose
@@ -75,8 +76,7 @@ Windows_task:
     matrix:
       - image: python:3.6-windowsservercore-1809
       - image: python:3.7-windowsservercore-1809
-      - image: python:3.8-rc-windowsservercore-1809
-
+      - image: python:3.8-windowsservercore-1809
   install_script:
     - C:\Python\python.exe -m pip install -U --upgrade-strategy eager pip setuptools wheel
     - C:\Python\python.exe -m pip install .[testing]
