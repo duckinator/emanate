@@ -21,7 +21,7 @@ Linux_task:
       - image: python:3.5-slim
       - image: python:3.6-slim
       - image: python:3.7-slim
-      - image: python:3.8-rc-slim
+      - image: python:3.8-slim
   install_script:
     - pip install -U --upgrade-strategy eager pip setuptools wheel
     - pip install .[testing]
