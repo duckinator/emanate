@@ -11,3 +11,5 @@ status = [
   "Windows container:python:3.8-windowsservercore-1809",
   "macOS",
 ]
+
+delete_merged_branches = true
