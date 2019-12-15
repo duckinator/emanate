@@ -59,7 +59,6 @@ FreeBSD_task:
     matrix:
       - PYTHON: 3.6
       - PYTHON: 3.7
-      - PYTHON: 3.8
   install_script:
     - PY=`echo $PYTHON | tr -d '.'`
     - pkg install -y python${PY} py${PY}-setuptools
