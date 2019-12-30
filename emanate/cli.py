@@ -1,24 +1,25 @@
 """Command-line interface for the Emanate symbolic link manager.
 
-Examples:
-    Emanate defaults to using the current directory as source,
-    and the current user's home directory as destination::
+## Examples
 
-        ~/dotfiles$ emanate
+Emanate defaults to using the current directory as source,
+and the current user's home directory as destination::
 
-    would create symbolic links in ~ for files in ~/dotfiles
+    ~/dotfiles$ emanate
 
-    Emanate also defaults to looking for a configuration file in the source
-    directory, allowing usages such as::
+would create symbolic links in ~ for files in ~/dotfiles
 
-        $ cat software/foo/emanate.json
-        { 'destination': '/usr/local' }
+Emanate also defaults to looking for a configuration file in the source
+directory, allowing usages such as::
 
-        $ emanate --source software/foo
-        ${PWD}/software/foo/bin/foo -> /usr/local/bin/foo
-        ${PWD}/software/foo/lib/library.so -> /usr/local/lib/library.so
+    $ cat software/foo/emanate.json
+    { 'destination': '/usr/local' }
 
-    See `emanate --help` for all command-line options.
+    $ emanate --source software/foo
+    ${PWD}/software/foo/bin/foo -> /usr/local/bin/foo
+    ${PWD}/software/foo/lib/library.so -> /usr/local/lib/library.so
+
+See `emanate --help` for all command-line options.
 
 """
 from argparse import ArgumentParser, SUPPRESS
@@ -69,6 +70,7 @@ def main(args=None):
     """Invoke Emanate from command-line arguments.
 
     Emanate prioritizes configuration sources in the following order:
+
     - default values have lowest priority;
     - the configuration file overrides defaults;
     - command-line arguments override everything.
