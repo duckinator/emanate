@@ -1,4 +1,16 @@
 [build-system]
 # Specify the required build system.
-requires = ["setuptools"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.bork.zipapp]
+# bork can not build a functional zipapp of Emanate yet.
+enabled = false
+main = "emanate.cli:main"
+
+[tool.bork.aliases]
+# Runs *only* pylint and flake8. (Not the actual tests.)
+lint = "pytest -k 'flake8 or pylint' --pylint --flake8 --verbose"
+# Runs tests, pylint, and flake8.
+test = "pytest --pylint --flake8 --verbose"
+docs = "env PYTHONPATH=./ pdoc3 --html --output-dir ./html --force emanate"
