@@ -2,32 +2,45 @@
 # master, staging, and trying branches. (So bors can use them.)
 use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true' || $CIRRUS_BRANCH == 'master' || $CIRRUS_BRANCH == 'staging' || $CIRRUS_BRANCH == 'trying'
 
+# http://click.palletsprojects.com/en/5.x/python3/#python-3-surrogate-handling
+env:
+  LC_ALL: C.UTF-8
+  LANG: C.UTF-8
+
 Lint_task:
   container:
     image: python:3.8-slim
   install_script:
-    - pip install -U --upgrade-strategy eager pip setuptools wheel
-    - pip install .[linting]
+    - pip3 install -U bork .[testing]
   script:
     - flake8 --version
-    - flake8
     - pylint --version
-    - pylint emanate
+    - bork run lint
+
+# Bork requires Twine, which requires Python>3.5.
+# Remove Linux_Py35_task once Python 3.5 support is dropped.
+Linux_Py35_task:
+  container:
+    image: python:3.5-slim
+  install_script:
+    - pip3 install -U .[testing]
+  script:
+    - python3 --version
+    - pytest --pylint --flake8 --verbose
+
 
 Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   container:
     matrix:
-      - image: python:3.5-slim
       - image: python:3.6-slim
       - image: python:3.7-slim
       - image: python:3.8-slim
   install_script:
-    - pip install -U --upgrade-strategy eager pip setuptools wheel
-    - pip install .[testing]
+    - pip3 install -U bork .[testing]
   script:
     - python3 --version
-    - python3 -m pytest --verbose
+    - bork run test
 
 macOS_task:
   osx_instance:
@@ -46,11 +59,10 @@ macOS_task:
     #- pyenv global ${PYTHON}
     #- pyenv rehash
     - brew install python3
-    - pip3 install -U --upgrade-strategy eager pip setuptools wheel
-    - pip3 install .[testing]
+    - pip3 install -U bork .[testing]
   script:
     - python3 --version
-    - python3 -m pytest --verbose
+    - bork run test
 
 FreeBSD_task:
   freebsd_instance:
@@ -68,6 +80,7 @@ FreeBSD_task:
   script:
     - python${PYTHON} --version
     - python${PYTHON} -m pytest --verbose
+    # FIXME: Convert FreeBSD to use the normal setup.
 
 Windows_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
@@ -83,3 +96,4 @@ Windows_task:
   script:
     - C:\Python\python.exe --version
     - C:\Python\python.exe -m pytest --verbose
+    # FIXME: Convert Windows to use the normal setup
