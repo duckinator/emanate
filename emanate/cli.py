@@ -11,7 +11,7 @@ Emanate also defaults to looking for a configuration file in the source
 directory, allowing usages such as:
 
     $ cat software/foo/emanate.json
-    { 'destination': '/usr/local' }
+    { "destination": "/usr/local" }
 
     $ emanate --source software/foo
     ${PWD}/software/foo/bin/foo -> /usr/local/bin/foo
