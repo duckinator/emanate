@@ -45,19 +45,7 @@ Linux_task:
 macOS_task:
   osx_instance:
     image: mojave-base
-  env:
-    PATH: ${HOME}/.pyenv/shims:${PATH}
-  #  matrix:
-  #    - PYTHON: 3.6.8
-  #    - PYTHON: 3.7.5
   install_script:
-    # Per the pyenv homebrew recommendations.
-    # https://github.com/pyenv/pyenv/wiki#suggested-build-environment
-    #- sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
-    #- brew install openssl readline pyenv
-    #- pyenv install ${PYTHON}
-    #- pyenv global ${PYTHON}
-    #- pyenv rehash
     - brew install python3
     - pip3 install -U bork .[testing]
   script:
@@ -70,17 +58,20 @@ FreeBSD_task:
   env:
     matrix:
       - PYTHON: 3.6
+        # Python 3.6 on FreeBSD does not support the C.UTF-8 locale.
+        LC_ALL: en_US.UTF-8
+        LANG: en_US.UTF-8
       - PYTHON: 3.7
+      - PYTHON: 3.8
   install_script:
     - PY=`echo $PYTHON | tr -d '.'`
     - pkg install -y python${PY} py${PY}-setuptools
     - python${PYTHON} -m ensurepip
     - python${PYTHON} -m pip install -U --upgrade-strategy eager pip setuptools wheel
-    - python${PYTHON} -m pip install .[testing]
+    - python${PYTHON} -m pip install bork .[testing]
   script:
     - python${PYTHON} --version
-    - python${PYTHON} -m pytest --verbose
-    # FIXME: Convert FreeBSD to use the normal setup.
+    - bork run test
 
 Windows_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
@@ -92,8 +83,8 @@ Windows_task:
       - image: python:3.8-windowsservercore-1809
   install_script:
     - C:\Python\python.exe -m pip install -U --upgrade-strategy eager pip setuptools wheel
-    - C:\Python\python.exe -m pip install .[testing]
+    - C:\Python\python.exe -m pip install bork .[testing]
   script:
     - C:\Python\python.exe --version
-    - C:\Python\python.exe -m pytest --verbose
-    # FIXME: Convert Windows to use the normal setup
+    #- C:\Python\python.exe -m pytest --verbose
+    - bork run test
