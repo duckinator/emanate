@@ -1,6 +1,7 @@
 status = [
-  "FreeBSD PYTHON:3.6",
-  "FreeBSD PYTHON:3.7",
+  "FreeBSD LANG:en_US.UTF-8 LC_ALL:en_US.UTF-8 PYTHON:3.6",
+  "FreeBSD LANG:C.UTF-8 LC_ALL:C.UTF-8 PYTHON:3.7",
+  "FreeBSD LANG:C.UTF-8 LC_ALL:C.UTF-8 PYTHON:3.8",
   "Lint",
   "Linux_Py35",
   "Linux container:python:3.6-slim",
