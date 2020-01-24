@@ -86,5 +86,4 @@ Windows_task:
     - C:\Python\python.exe -m pip install bork .[testing]
   script:
     - C:\Python\python.exe --version
-    #- C:\Python\python.exe -m pytest --verbose
     - bork run test
