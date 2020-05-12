@@ -67,7 +67,7 @@ FreeBSD_task:
     - PY=`echo $PYTHON | tr -d '.'`
     - pkg install -y python${PY} py${PY}-setuptools
     - python${PYTHON} -m ensurepip
-    - python${PYTHON} -m pip install -U --upgrade-strategy eager .[build]
+    - python${PYTHON} -m pip install .[build]
     - python${PYTHON} -m pip install .[release] .[testing]
   script:
     - python${PYTHON} --version
@@ -80,9 +80,10 @@ Windows_task:
     matrix:
       - image: python:3.6-windowsservercore-1809
       - image: python:3.7-windowsservercore-1809
-      - image: python:3.8-windowsservercore-1809
+      # See https://github.com/duckinator/emanate/issues/115
+      #- image: python:3.8-windowsservercore-1809
   install_script:
-    - C:\Python\python.exe -m pip install -U --upgrade-strategy .[build]
+    - C:\Python\python.exe -m pip install .[build]
     - C:\Python\python.exe -m pip install .[release] .[testing] .[kludge]
   script:
     - C:\Python\python.exe --version
