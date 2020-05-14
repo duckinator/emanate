@@ -36,9 +36,13 @@ def test_defaults():
 
     with directory_tree({}) as tmpdir:
         with chdir(tmpdir):
-            assert config.defaults().source.samefile(tmpdir)
+            # The current working directory should have changed.
             assert Path.cwd().samefile(tmpdir)
+            # Emanate's default source should be the new CWD.
+            assert config.defaults().source.samefile(tmpdir)
 
         with home(tmpdir):
-            assert config.defaults().destination.samefile(tmpdir)
+            # The home directory should have changed.
             assert Path.home().samefile(tmpdir)
+            # Emanate's default destination should be the new home directory.
+            assert config.defaults().destination.samefile(tmpdir)
