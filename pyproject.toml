@@ -1,6 +1,18 @@
 [build-system]
 # Specify the required build system.
-# The version requirement is necessary to get rid of setup.py; see
+# Setuptools 40.9.0+ is necessary to get rid of setup.py; see
 #  https://github.com/pypa/setuptools/pull/1675
-requires = ["setuptools >= 40.9.0"]
+requires = ["setuptools >= 40.9.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.bork.zipapp]
+# bork can not build a functional zipapp of Emanate yet.
+enabled = false
+main = "emanate.cli:main"
+
+[tool.bork.aliases]
+# Runs *only* pylint and flake8. (Not the actual tests.)
+lint = "pytest -k 'flake8 or pylint' --pylint --flake8 --verbose"
+# Runs tests, pylint, and flake8.
+test = "pytest --pylint --flake8 --verbose"
+docs = "env PYTHONPATH=./ pdoc3 --html --output-dir ./html --force emanate"

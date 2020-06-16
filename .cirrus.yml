@@ -2,71 +2,76 @@
 # master, staging, and trying branches. (So bors can use them.)
 use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true' || $CIRRUS_BRANCH == 'master' || $CIRRUS_BRANCH == 'staging' || $CIRRUS_BRANCH == 'trying'
 
+# http://click.palletsprojects.com/en/5.x/python3/#python-3-surrogate-handling
+env:
+  LC_ALL: C.UTF-8
+  LANG: C.UTF-8
+
 Lint_task:
   container:
-    image: python:3.7-slim
+    image: python:3.8-slim
   install_script:
-    - pip install -U --upgrade-strategy eager pip setuptools wheel
-    - pip install .[linting]
+    - pip3 install -U .[release] .[testing]
   script:
     - flake8 --version
-    - flake8
     - pylint --version
-    - pylint emanate
+    - bork run lint
+
+# Bork requires Twine, which requires Python>3.5.
+# Remove Linux_Py35_task once Python 3.5 support is dropped.
+Linux_Py35_task:
+  container:
+    image: python:3.5-slim
+  install_script:
+    - pip3 install -U .[testing]
+  script:
+    - python3 --version
+    - pytest --pylint --flake8 --verbose
+
 
 Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   container:
     matrix:
-      - image: python:3.5-slim
       - image: python:3.6-slim
       - image: python:3.7-slim
-      - image: python:3.8-rc-slim
+      - image: python:3.8-slim
   install_script:
-    - pip install -U --upgrade-strategy eager pip setuptools wheel
-    - pip install .[testing]
+    - pip3 install -U .[release] .[testing]
   script:
     - python3 --version
-    - python3 -m pytest --verbose
+    - bork run test
 
 macOS_task:
   osx_instance:
     image: mojave-base
-  env:
-    PATH: ${HOME}/.pyenv/shims:${PATH}
-    matrix:
-      - PYTHON: 3.6.8
-      - PYTHON: 3.7.2
   install_script:
-    # Per the pyenv homebrew recommendations.
-    # https://github.com/pyenv/pyenv/wiki#suggested-build-environment
-    - sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
-    - brew install openssl readline pyenv
-    - pyenv install ${PYTHON}
-    - pyenv global ${PYTHON}
-    - pyenv rehash
-    - pip install -U --upgrade-strategy eager pip setuptools wheel
-    - pip install .[testing]
+    - brew install python3
+    - pip3 install -U .[release] .[testing]
   script:
     - python3 --version
-    - python3 -m pytest --verbose
+    - bork run test
 
 FreeBSD_task:
   freebsd_instance:
-    image: freebsd-12-0-release-amd64
+    image_family: freebsd-12-1
   env:
     matrix:
       - PYTHON: 3.6
+        # Python 3.6 on FreeBSD does not support the C.UTF-8 locale.
+        LC_ALL: en_US.UTF-8
+        LANG: en_US.UTF-8
       - PYTHON: 3.7
+      - PYTHON: 3.8
   install_script:
     - PY=`echo $PYTHON | tr -d '.'`
     - pkg install -y python${PY} py${PY}-setuptools
     - python${PYTHON} -m ensurepip
-    - python${PYTHON} -m pip install -U --upgrade-strategy eager pip setuptools wheel
-    - python${PYTHON} -m pip install .[testing]
+    - python${PYTHON} -m pip install .[build]
+    - python${PYTHON} -m pip install .[release] .[testing]
   script:
     - python${PYTHON} --version
-    - python${PYTHON} -m pytest --verbose
+    - bork run test
 
 Windows_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
@@ -75,11 +80,11 @@ Windows_task:
     matrix:
       - image: python:3.6-windowsservercore-1809
       - image: python:3.7-windowsservercore-1809
-      - image: python:3.8-rc-windowsservercore-1809
-
+      # See https://github.com/duckinator/emanate/issues/115
+      #- image: python:3.8-windowsservercore-1809
   install_script:
-    - C:\Python\python.exe -m pip install -U --upgrade-strategy eager pip setuptools wheel
-    - C:\Python\python.exe -m pip install .[testing]
+    - C:\Python\python.exe -m pip install .[build]
+    - C:\Python\python.exe -m pip install .[release] .[testing] .[kludge]
   script:
     - C:\Python\python.exe --version
-    - C:\Python\python.exe -m pytest --verbose
+    - bork run test
