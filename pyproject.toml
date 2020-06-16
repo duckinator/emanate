@@ -4,8 +4,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.bork.zipapp]
-# bork can not build a functional zipapp of Emanate yet.
-enabled = false
+enabled = true
 main = "emanate.cli:main"
 
 [tool.bork.aliases]
