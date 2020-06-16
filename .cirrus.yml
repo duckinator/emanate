@@ -67,6 +67,7 @@ FreeBSD_task:
     - PY=`echo $PYTHON | tr -d '.'`
     - pkg install -y python${PY} py${PY}-setuptools
     - python${PYTHON} -m ensurepip
+    - python${PYTHON} -m pip install -U 'pip>=19' # Hard requirement for no setup.py.
     - python${PYTHON} -m pip install .[build]
     - python${PYTHON} -m pip install .[release] .[testing]
   script:
