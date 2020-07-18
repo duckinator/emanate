@@ -88,6 +88,9 @@ def test_empty_config():
                 'src': {
                     'foo': '',
                     'emanate.json': '{}',
+                    '.git': {
+                        'a': 'b',
+                    },
                 },
                 'dest': {},
             },
@@ -95,6 +98,8 @@ def test_empty_config():
     ):
         assert (tmpdir / 'dest' / 'foo').samefile(tmpdir / 'src'  / 'foo')
         assert not (tmpdir / 'dest'  / 'emanate.json').exists()
+        # This catches issue #144.
+        assert not (tmpdir / 'dest'  / '.git').exists()
 
 
 def test_clean():

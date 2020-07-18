@@ -111,9 +111,13 @@ class Emanate:
         in the destination directory.
         """
         path = str(path_obj.absolute())
-        ignore_patterns = [
-            p / "*" if Emanate._is_dir(p) else p for p in self.config.ignore
-        ]
+        ignore_patterns = []
+        for pattern in self.config.ignore:
+            ignore_patterns.append(pattern)
+            # If it's a directory, also ignore its contents.
+            if Emanate._is_dir(pattern):
+                ignore_patterns.append(pattern / "*")
+
         if any(fnmatch(path, str(pattern)) for pattern in ignore_patterns):
             return False
 
