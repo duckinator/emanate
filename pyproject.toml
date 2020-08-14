@@ -14,4 +14,5 @@ main = "emanate.cli:main"
 lint = "pytest -k 'flake8 or pylint' --pylint --flake8 --verbose"
 # Runs tests, pylint, and flake8.
 test = "pytest --pylint --flake8 --verbose"
+test-only = "pytest --verbose"
 docs = "env PYTHONPATH=./ pdoc3 --html --output-dir ./html --force emanate"

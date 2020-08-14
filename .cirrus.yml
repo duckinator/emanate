@@ -11,23 +11,11 @@ Lint_task:
   container:
     image: python:3.8-slim
   install_script:
-    - pip3 install -U .[release] .[testing]
+    - pip3 install -U .[testing]
   script:
     - flake8 --version
     - pylint --version
     - bork run lint
-
-# Bork requires Twine, which requires Python>3.5.
-# Remove Linux_Py35_task once Python 3.5 support is dropped.
-Linux_Py35_task:
-  container:
-    image: python:3.5-slim
-  install_script:
-    - pip3 install -U .[testing]
-  script:
-    - python3 --version
-    - pytest --pylint --flake8 --verbose
-
 
 Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
@@ -37,7 +25,7 @@ Linux_task:
       - image: python:3.7-slim
       - image: python:3.8-slim
   install_script:
-    - pip3 install -U .[release] .[testing]
+    - pip3 install -U .[testing]
   script:
     - python3 --version
     - bork run test
@@ -47,7 +35,7 @@ macOS_task:
     image: mojave-base
   install_script:
     - brew install python3
-    - pip3 install -U .[release] .[testing]
+    - pip3 install -U .[testing]
   script:
     - python3 --version
     - bork run test
@@ -65,15 +53,13 @@ FreeBSD_task:
       - PYTHON: 3.8
   install_script:
     - PY=`echo $PYTHON | tr -d '.'`
-    # py${PY}lazy-object is included to avoid build errors.
-    - pkg install -y python${PY} py${PY}-setuptools py${PY}-lazy-object-proxy
-    - python${PYTHON} -m ensurepip
+    - pkg install -y python${PY} py${PY}-setuptools
+    - python${PYTHON} -m ensurepip --upgrade
     - python${PYTHON} -m pip install -U 'pip>=19' # Hard requirement for no setup.py.
-    - python${PYTHON} -m pip install .[build]
-    - python${PYTHON} -m pip install .[release] .[testing]
+    - python${PYTHON} -m pip install .[build] .[testing_only]
   script:
     - python${PYTHON} --version
-    - bork run test
+    - bork run test-only
 
 Windows_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
@@ -85,8 +71,7 @@ Windows_task:
       # See https://github.com/duckinator/emanate/issues/115
       #- image: python:3.8-windowsservercore-1809
   install_script:
-    - C:\Python\python.exe -m pip install .[build]
-    - C:\Python\python.exe -m pip install .[release] .[testing] .[kludge]
+    - C:\Python\python.exe -m pip install .[testing]
   script:
     - C:\Python\python.exe --version
     - bork run test
