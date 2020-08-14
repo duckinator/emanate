@@ -10,8 +10,9 @@ enabled = true
 main = "emanate.cli:main"
 
 [tool.bork.aliases]
-# Runs *only* pylint and flake8. (Not the actual tests.)
-lint = "pytest -k 'flake8 or pylint' --pylint --flake8 --verbose"
-# Runs tests, pylint, and flake8.
-test = "pytest --pylint --flake8 --verbose"
+# Runs *only* pylint. (Not the actual tests.)
+lint = "pytest -k 'pylint' --pylint --verbose"
+# Runs tests and pylint.
+test = "pytest --pylint --verbose"
+test-only = "pytest --verbose"
 docs = "env PYTHONPATH=./ pdoc3 --html --output-dir ./html --force emanate"
