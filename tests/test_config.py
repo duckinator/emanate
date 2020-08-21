@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from emanate import config
 from utils import chdir, directory_tree, home
+from emanate import config
 
 
 def test_json_resolution():

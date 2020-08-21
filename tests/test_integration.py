@@ -2,8 +2,8 @@ import json
 import tempfile
 from pathlib import Path
 
-from emanate import cli
 from utils import chdir, directory_tree, home
+from emanate import cli
 
 
 def main(*pargs):
