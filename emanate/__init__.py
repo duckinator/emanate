@@ -14,13 +14,14 @@ from pathlib import Path
 import sys
 from . import config
 
+# Expose `emanate.version.__version__` as `emanate.__version__`.
+from .version import __version__  # noqa: F401
+
 
 #: Emanate's maintainer.
 __author__ = "Ellen Marie Dash"
 
-#: The running Emanate version.
-#: Emanate follows the Semantic Versioning convention; see https://semver.org/
-__version__ = "7.0.0"
+# __version__ is defined in version.py.
 
 
 class FilePair(namedtuple('FilePair', ['src', 'dest'])):
