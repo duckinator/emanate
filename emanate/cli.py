@@ -52,6 +52,12 @@ def _parse_args(args=None):
                            type=Path,
                            help="Configuration file to use.")
 
+    argparser.add_argument("--version",
+                           action="store_true",
+                           default=False,
+                           dest="version",
+                           help="Show version information and exit.")
+
     subcommands = argparser.add_subparsers(dest='command')
     subcommands.add_parser('clean')
     subcommands.add_parser('create')
@@ -74,6 +80,11 @@ def main(args=None):
     - command-line arguments override everything.
     """
     args = _parse_args(args)
+
+    if args.command == "version" or args.version:
+        version()
+        return
+
     if args.config is None:
         if 'source' in args:
             args.config = args.source / "emanate.json"
@@ -90,9 +101,6 @@ def main(args=None):
         execute = emanate.create()
     elif args.command == 'clean':
         execute = emanate.clean()
-    elif args.command == 'version':
-        version()
-        return
     else:
         raise AssertionError("emanate.main: Unknown command")
 
