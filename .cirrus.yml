@@ -74,3 +74,31 @@ Windows_task:
   script:
     - C:\Python\python.exe --version
     - bork run test
+
+
+# If emanate/version.py is modified on the master branch, make a release.
+Release_task:
+  only_if: "changesInclude('emanate/version.py') && $BRANCH == 'master' && $CIRRUS_CRON == ''"
+  depends_on:
+    - Lint
+    - Linux
+    - macOS
+    - FreeBSD
+    - Windows
+  env:
+    TWINE_USERNAME: "__token__"
+    TWINE_PASSWORD: ENCRYPTED[93940c854f7cb146391fdb3ef75ab7f8e229e83837f49fbcb52472bcf3f1d0265ed8629fd57204152e019af4c6b9354c]
+    BORK_GITHUB_TOKEN: ENCRYPTED[679e9111a081ade5978676e60c885be6d9fd08a1d37c73237686b575bd3a21892c8ca1dc29e99d6ed1e611915d7dc52b]
+  container:
+    image: python:3.8-slim
+  install_script:
+    - apt-get update
+    - apt-get install -y git
+    - pip3 install . .[testing]
+  build_script:
+    - bork clean
+    - bork build
+  test_script:
+    - bork run test
+  release_script:
+    - bork release
