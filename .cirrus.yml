@@ -64,13 +64,16 @@ FreeBSD_task:
 Windows_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   windows_container:
-    os_version: 1809
+    os_version: 2019
+    image: cirrusci/windowsservercore:2019
+  env:
     matrix:
-      - image: python:3.6-windowsservercore-1809
-      - image: python:3.7-windowsservercore-1809
-      # See https://github.com/duckinator/emanate/issues/115
-      #- image: python:3.8-windowsservercore-1809
-      - image: python:3.9-windowsservercore-1809
+      - PYTHON: 3.6
+      - PYTHON: 3.7
+      - PYTHON: 3.8
+      - PYTHON: 3.9
+  python_install_script:
+    - choco install -y python --version=%VERSION%
   install_script:
     - C:\Python\python.exe -m pip install .[testing]
   script:
