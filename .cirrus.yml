@@ -64,13 +64,13 @@ FreeBSD_task:
 Windows_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   windows_container:
-    os_version: 2019
+    os_version: 1809
     matrix:
       - image: python:3.6-windowsservercore-1809
       - image: python:3.7-windowsservercore-1809
       # See https://github.com/duckinator/emanate/issues/115
       #- image: python:3.8-windowsservercore-1809
-      - image: python:3.9-windowsservercore
+      - image: python:3.9-windowsservercore-1809
   install_script:
     - C:\Python\python.exe -m pip install .[testing]
   script:
