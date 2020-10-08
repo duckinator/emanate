@@ -73,7 +73,7 @@ Windows_task:
       - PYTHON: 3.8
       - PYTHON: 3.9
   python_install_script:
-    - choco install -y python3 --version=%VERSION% --params "/InstallDir:C:\Python"
+    - choco install -y python3 --version=%PYTHON% --params "/InstallDir:C:\Python"
   install_script:
     - C:\Python\python.exe -m pip install .[testing]
   script:
