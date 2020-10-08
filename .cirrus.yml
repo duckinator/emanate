@@ -68,10 +68,10 @@ Windows_task:
     image: cirrusci/windowsservercore:2019
   env:
     matrix:
-      - PYTHON: 3.6
-      - PYTHON: 3.7
-      - PYTHON: 3.8
-      - PYTHON: 3.9
+      - PYTHON: 3.6.8
+      - PYTHON: 3.7.9
+      - PYTHON: 3.8.6
+      - PYTHON: 3.9.0
   python_install_script:
     - choco install -y python3 --version=%PYTHON% --params "/InstallDir:C:\Python"
   update_pip_script:
@@ -80,6 +80,8 @@ Windows_task:
     - C:\Python\python.exe -m pip install .[testing]
   script:
     - C:\Python\python.exe --version
+    - C:\Python\python.exe -m pip --version
+    #- C:\Python\python.exe -m bork --version
     - bork run test
 
 
