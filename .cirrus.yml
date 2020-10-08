@@ -23,6 +23,7 @@ Linux_task:
       - image: python:3.6-slim
       - image: python:3.7-slim
       - image: python:3.8-slim
+      - image: python:3.9-slim
   install_script:
     - pip3 install -U .[testing]
   script:
@@ -69,6 +70,7 @@ Windows_task:
       - image: python:3.7-windowsservercore-1809
       # See https://github.com/duckinator/emanate/issues/115
       #- image: python:3.8-windowsservercore-1809
+      - image: python:3.9-windowsservercore
   install_script:
     - C:\Python\python.exe -m pip install .[testing]
   script:
