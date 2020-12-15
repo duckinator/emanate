@@ -23,6 +23,7 @@ Linux_task:
       - image: python:3.6-slim
       - image: python:3.7-slim
       - image: python:3.8-slim
+      - image: python:3.9-slim
   install_script:
     - pip3 install -U .[testing]
   script:
@@ -64,16 +65,25 @@ Windows_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   windows_container:
     os_version: 2019
+    image: cirrusci/windowsservercore:2019
+  env:
     matrix:
-      - image: python:3.6-windowsservercore-1809
-      - image: python:3.7-windowsservercore-1809
-      # See https://github.com/duckinator/emanate/issues/115
-      #- image: python:3.8-windowsservercore-1809
+      - PYTHON: 3.6.8
+      - PYTHON: 3.7.9
+      - PYTHON: 3.8.6
+      - PYTHON: 3.9.0
+  python_install_script:
+    - choco install -y python3 --version=%PYTHON% --params "/InstallDir:C:\Python"
+  update_pip_script:
+    - C:\Python\python.exe -m pip install -U pip
   install_script:
     - C:\Python\python.exe -m pip install .[testing]
   script:
     - C:\Python\python.exe --version
-    - bork run test
+    - C:\Python\python.exe -m pip --version
+    - C:\Python\python.exe -m bork --version
+    #- C:\Python\python.exe -m bork run test
+    - C:\Python\python.exe -m pytest
 
 
 # If emanate/version.py is modified on the master branch, make a release.
