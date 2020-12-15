@@ -82,7 +82,8 @@ Windows_task:
     - C:\Python\python.exe --version
     - C:\Python\python.exe -m pip --version
     - C:\Python\python.exe -m bork --version
-    - C:\Python\python.exe -m bork run test
+    #- C:\Python\python.exe -m bork run test
+    - C:\Python\python.exe -m pytest
 
 
 # If emanate/version.py is modified on the master branch, make a release.
