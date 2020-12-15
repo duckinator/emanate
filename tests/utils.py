@@ -51,9 +51,10 @@ def directory_tree(obj):
 def home(path):
     """Temporarily set the HOME environment variable."""
     home_dir = os.getenv('HOME', None)
+    user_dir = os.getenv('USERPROFILE', None)
 
     try:
-        os.environ['HOME'] = str(path)
+        os.environ['HOME'] = os.environ['USERPROFILE'] = str(path)
         yield
 
     finally:
@@ -61,3 +62,8 @@ def home(path):
             os.environ['HOME'] = home_dir
         else:
             del os.environ['HOME']
+
+        if user_dir is not None:
+            os.environ['USERPROFILE']= user_dir
+        else:
+            del os.environ['USERPROFILE']
