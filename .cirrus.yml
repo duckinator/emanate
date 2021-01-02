@@ -92,6 +92,8 @@ Test_task:
     - macOS
     - FreeBSD
     - Windows
+  container:
+    image: busybox
   script: "exit 0"
 
 # If emanate/version.py is modified on the master branch, make a release.
