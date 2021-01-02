@@ -82,19 +82,23 @@ Windows_task:
     - C:\Python\python.exe --version
     - C:\Python\python.exe -m pip --version
     - C:\Python\python.exe -m bork --version
-    #- C:\Python\python.exe -m bork run test
     - C:\Python\python.exe -m pytest
 
-
-# If emanate/version.py is modified on the master branch, make a release.
-Release_task:
-  only_if: "changesInclude('emanate/version.py') && $BRANCH == 'master' && $CIRRUS_CRON == ''"
+# Meta-task which depends on every other test/lint task to finish.
+Test_task:
   depends_on:
     - Lint
     - Linux
     - macOS
     - FreeBSD
     - Windows
+  script: "exit 0"
+
+# If emanate/version.py is modified on the master branch, make a release.
+Release_task:
+  only_if: "changesInclude('emanate/version.py') && $BRANCH == 'master' && $CIRRUS_CRON == ''"
+  depends_on:
+    - Test
   env:
     TWINE_USERNAME: "__token__"
     TWINE_PASSWORD: ENCRYPTED[93940c854f7cb146391fdb3ef75ab7f8e229e83837f49fbcb52472bcf3f1d0265ed8629fd57204152e019af4c6b9354c]

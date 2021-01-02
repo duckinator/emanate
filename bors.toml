@@ -1,16 +1,7 @@
 status = [
-  "FreeBSD LANG:en_US.UTF-8 LC_ALL:en_US.UTF-8 PYTHON:3.6",
-  "FreeBSD LANG:C.UTF-8 LC_ALL:C.UTF-8 PYTHON:3.7",
-  "FreeBSD LANG:C.UTF-8 LC_ALL:C.UTF-8 PYTHON:3.8",
-  "Lint",
-  "Linux container:python:3.6-slim",
-  "Linux container:python:3.7-slim",
-  "Linux container:python:3.8-slim",
-  "Windows PYTHON:3.6.8",
-  "Windows PYTHON:3.7.9",
-  "Windows PYTHON:3.8.6",
-  "Windows PYTHON:3.9.0",
-  "macOS",
+  # The "Test" task is a meta-task that depends on all test/lint tasks
+  # to pass, then exits successfully.
+  "Test",
 ]
 
 delete_merged_branches = true
