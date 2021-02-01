@@ -82,16 +82,17 @@ class Emanate:
     (see emanate.main for a simple example).
     """
 
-    def __init__(self, *configs, src=None):
+    def __init__(self, *configs):
         """Construct an Emanate instance from configuration dictionaries.
 
         The default values (as provided by config.defaults()) are implicitly
         the first configuration object; latter configurations override earlier
         configurations (see config.merge).
         """
+        explicit_configs = config.merge(*configs)
         self.config = config.merge(
-            config.defaults(src),
-            *configs,
+            config.defaults(explicit_configs.get('source')),
+            explicit_configs,
         )
         self.dest = self.config.destination.resolve()
 
