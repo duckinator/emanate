@@ -58,23 +58,6 @@ class AttrDict(dict):
         return AttrDict(self)
 
 
-def _merge_one(config, dict_like):
-    assert isinstance(config, AttrDict)
-    assert dict_like is not None
-
-    config = config.copy()
-    for key, value in dict_like.items():
-        if value is None:
-            continue
-
-        if key == 'ignore':
-            config[key] = config.get(key, frozenset()).union(value)
-        else:
-            config[key] = value
-
-    return config
-
-
 def merge(*configs, strict_resolve=True):
     """Merge a sequence of configuration dict-like objects.
 
@@ -85,6 +68,22 @@ def merge(*configs, strict_resolve=True):
 
     if strict_resolve:
         assert all(map(is_resolved, configs))
+
+    def _merge_one(config, dict_like):
+        assert isinstance(config, AttrDict)
+        assert dict_like is not None
+
+        config = config.copy()
+        for key, value in dict_like.items():
+            if value is None:
+                continue
+
+            if key == 'ignore':
+                config[key] = config.get(key, frozenset()).union(value)
+            else:
+                config[key] = value
+
+        return config
 
     return functools.reduce(_merge_one, configs, AttrDict())
 
