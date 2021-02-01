@@ -101,13 +101,13 @@ class Emanate:
         The configs must define a source directory.
         """
         explicit_configs = Config.merge(*configs)
-        self.config = Config.defaults(explicit_configs.get('source')).merge(
-                explicit_configs,
+        self.conf = Config.defaults(explicit_configs.get('source')).merge(
+            explicit_configs,
         )
 
     @property
     def dest(self):
-        return self.config.destination
+        return self.conf.destination
 
     @staticmethod
     def _is_dir(path_obj):
@@ -127,7 +127,7 @@ class Emanate:
         """
         path = str(path_obj.absolute())
         ignore_patterns = []
-        for pattern in self.config.ignore:
+        for pattern in self.conf.ignore:
             ignore_patterns.append(pattern)
             # If it's a directory, also ignore its contents.
             if Emanate._is_dir(pattern):
@@ -137,7 +137,7 @@ class Emanate:
             return False
 
         if path_obj.is_dir():
-            dest_path = self.dest / path_obj.relative_to(self.config.source)
+            dest_path = self.dest / path_obj.relative_to(self.conf.source)
             dest_path.mkdir(exist_ok=True)
             return False
 
@@ -150,7 +150,7 @@ class Emanate:
         """
         prompt = f"{str(dest_file)!r} already exists. Replace it?"
 
-        if not self.config.confirm:
+        if not self.conf.confirm:
             return True
 
         result = None
@@ -178,10 +178,10 @@ class Emanate:
         dest_file.rename(new_name)
 
     def _files(self):
-        all_files = Path(self.config.source).glob("**/*")
+        all_files = Path(self.conf.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
             src  = file.absolute()
-            dest = self.dest / file.relative_to(self.config.source)
+            dest = self.dest / file.relative_to(self.conf.source)
             yield FilePair(src, dest)
 
     def create(self):
