@@ -38,7 +38,7 @@ def defaults(src=None):
         **base_ignores,
         'confirm': True,
         'destination': Path.home(),
-        'source': Path.cwd(),
+        'source': src,
     })
 
 
