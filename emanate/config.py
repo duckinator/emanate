@@ -11,14 +11,12 @@ from pathlib import Path
 from collections.abc import Iterable
 
 
-def defaults(src=None):
+def defaults(src):
     """Return Emanate's default configuration.
 
     config.defaults() resolves the default using the values
     of Path.home() and Path.cwd() at the time it was called.
     """
-    if src is None:
-        src = Path.cwd()
     base_ignores = resolve({
         'ignore': frozenset((
             "*~",
@@ -38,7 +36,6 @@ def defaults(src=None):
         **base_ignores,
         'confirm': True,
         'destination': Path.home(),
-        'source': src,
     })
 
 

@@ -88,6 +88,8 @@ class Emanate:
         The default values (as provided by config.defaults()) are implicitly
         the first configuration object; latter configurations override earlier
         configurations (see config.merge).
+
+        The configs must define a source directory.
         """
         explicit_configs = config.merge(*configs)
         self.config = config.merge(
