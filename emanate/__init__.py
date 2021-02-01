@@ -8,9 +8,11 @@ symbolic links from the destination to each file in the source, mirroring
 the directory structure and creating directories as needed.
 """
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from fnmatch import fnmatch
 from pathlib import Path
+from typing import Any, Callable
 import sys
 from .config import Config
 
@@ -52,28 +54,31 @@ class FilePair:
         return self.src.samefile(self.dest)
 
 
-class Execution(list):
+@dataclass(frozen=True)
+class Execution:
     """Describe an Emanate execution.
 
-    Callable once, useful to provide "dry-run"
+    The user passes functions defining the operation that is applied, and a
+    “printer” that's called upon changes; this is useful to provide "dry-run"
     functionality or report changes back to the user.
     """
 
-    def __init__(self, func, printer, iterable):
-        """Prepare an Emanate execution."""
-        self.func = func
-        self.printer = printer
-        super().__init__(iterable)
+    func: Callable[[FilePair], bool]
+    printer: Callable[[FilePair], Any]
+    ops: Iterable[FilePair]
 
     def run(self):
-        """Run a prepared execution."""
-        for args in self:
+        """Run a prepared execution.
+
+        Callable only once per Execution object.
+        """
+        for args in self.ops:
             if self.func(args):
                 self.printer(args)
 
     def dry(self):
         """Print a dry-run of an execution."""
-        for args in self:
+        for args in self.ops:
             self.printer(args)
 
 
