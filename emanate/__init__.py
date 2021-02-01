@@ -8,11 +8,10 @@ symbolic links from the destination to each file in the source, mirroring
 the directory structure and creating directories as needed.
 """
 
-from collections.abc import Iterable
 from dataclasses import dataclass
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 import sys
 from .config import Config
 
@@ -48,7 +47,7 @@ class FilePair:
 
         return not self.dest.exists()
 
-    def add_symlink(self):
+    def add_symlink(self) -> bool:
         """Add a link."""
         self.dest.symlink_to(self.src)
         return self.src.samefile(self.dest)
@@ -63,9 +62,9 @@ class Execution:
     functionality or report changes back to the user.
     """
 
-    func: Callable[[FilePair], bool]
-    printer: Callable[[FilePair], Any]
-    ops: Iterable[FilePair]
+    func: 'Callable[[FilePair], bool]'
+    printer: 'Callable[[FilePair], Any]'
+    ops: 'Iterable[FilePair]'
 
     def run(self):
         """Run a prepared execution.
@@ -91,7 +90,9 @@ class Emanate:
     (see emanate.main for a simple example).
     """
 
-    def __init__(self, *configs):
+    config: Config
+
+    def __init__(self, *configs: Config):
         """Construct an Emanate instance from configuration dictionaries.
 
         The default values (as provided by Config.defaults()) are implicitly
@@ -106,7 +107,7 @@ class Emanate:
         )
 
     @property
-    def dest(self):
+    def dest(self) -> Path:
         return self.conf.destination
 
     @staticmethod
@@ -119,7 +120,7 @@ class Emanate:
         except OSError:
             return False
 
-    def valid_file(self, path_obj):
+    def valid_file(self, path_obj: Path) -> bool:
         """Check whether a given path is covered by an ignore glob.
 
         As a side effect, if the path is a directory, it is created
@@ -143,7 +144,7 @@ class Emanate:
 
         return True
 
-    def confirm_replace(self, dest_file):
+    def confirm_replace(self, dest_file: Path) -> bool:
         """Prompt the user before replacing a file.
 
         The prompt is skipped if the `confirm` configuration option is False.
@@ -160,7 +161,7 @@ class Emanate:
 
         return result != "n"
 
-    def _add_symlink(self, pair):
+    def _add_symlink(self, pair: FilePair) -> bool:
         # If the file exists and _isn't_ the symbolic link we're
         # trying to make, prompt the user to determine what to do.
         if pair.dest.exists():
@@ -172,19 +173,19 @@ class Emanate:
         return pair.add_symlink()
 
     @staticmethod
-    def backup(dest_file):
+    def backup(dest_file: Path):
         """Rename the file so we can safely write to the original path."""
         new_name = str(dest_file) + ".emanate"
         dest_file.rename(new_name)
 
-    def _files(self):
+    def _files(self) -> Iterable[FilePair]:
         all_files = Path(self.conf.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
             src  = file.absolute()
             dest = self.dest / file.relative_to(self.conf.source)
             yield FilePair(src, dest)
 
-    def create(self):
+    def create(self) -> Execution:
         """Create symbolic links."""
         # Ignore files that are already linked.
         gen = filter(lambda p: not (p.dest.exists() and p.src.samefile(p.dest)),
@@ -194,7 +195,7 @@ class Emanate:
                          FilePair.print_add,
                          gen)
 
-    def clean(self):
+    def clean(self) -> Execution:
         """Remove symbolic links."""
         # Skip non-existing files.
         gen = filter(lambda p: p.dest.exists(), self._files())
