@@ -29,11 +29,11 @@ class FilePair(namedtuple('FilePair', ['src', 'dest'])):
 
     def print_add(self):
         """Print a message when creating a link."""
-        print("{!r} -> {!r}".format(str(self.src), str(self.dest)))
+        print(f"{str(self.src)!r} -> {str(self.dest)!r}")
 
     def print_del(self):
         """Print a message when deleting a link."""
-        print("{!r}".format(str(self.dest)))
+        print(f"{str(self.dest)!r}")
 
     def del_symlink(self):
         """Delete a link."""
@@ -139,14 +139,14 @@ class Emanate:
 
         The prompt is skipped if the `confirm` configuration option is False.
         """
-        prompt = "{!r} already exists. Replace it?".format(str(dest_file))
+        prompt = f"{str(dest_file)!r} already exists. Replace it?"
 
         if not self.config.confirm:
             return True
 
         result = None
         while result not in ["y", "n", "\n"]:
-            print("{} [Y/n] ".format(prompt), end="", flush=True)
+            print(f"{prompt} [Y/n] ", end="", flush=True)
             result = sys.stdin.read(1).lower()
 
         return result != "n"

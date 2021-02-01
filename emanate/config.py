@@ -20,8 +20,9 @@ class Config(dict):
     def __getattr__(self, name):
         """Provide the contents of self as attributes."""
         if name not in self:
-            raise AttributeError("{!r} object has no attribute {!r}".
-                                 format(type(self).__name__, name))
+            raise AttributeError(
+                f"{type(self).__name__!r} object has no attribute {name!r}",
+            )
 
         return self[name]
 

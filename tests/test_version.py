@@ -1,7 +1,7 @@
 from emanate import cli, __version__, __author__
 
 
-EXPECTED_VERSION = "Emanate v{} by {}.\n".format(__version__, __author__)
+EXPECTED_VERSION = f"Emanate v{__version__} by {__author__}.\n"
 
 
 def test_version_command(capsys):
