@@ -17,7 +17,9 @@ def defaults(src):
     config.defaults() resolves the default using the value
     of Path.home() at the time it was called.
     """
-    base_ignores = resolve({
+    return resolve({
+        'confirm': True,
+        'destination': Path.home(),
         'ignore': frozenset((
             "*~",
             ".*~",
@@ -32,11 +34,6 @@ def defaults(src):
             "__pycache__/",
         )),
     }, rel_to=src.absolute())
-    return AttrDict({
-        **base_ignores,
-        'confirm': True,
-        'destination': Path.home(),
-    })
 
 
 class AttrDict(dict):
