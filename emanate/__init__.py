@@ -8,7 +8,7 @@ symbolic links from the destination to each file in the source, mirroring
 the directory structure and creating directories as needed.
 """
 
-from collections import namedtuple
+from dataclasses import dataclass
 from fnmatch import fnmatch
 from pathlib import Path
 import sys
@@ -24,8 +24,12 @@ __author__ = "Ellen Marie Dash"
 # __version__ is defined in version.py.
 
 
-class FilePair(namedtuple('FilePair', ['src', 'dest'])):
+@dataclass(frozen=True)
+class FilePair:
     """Pairs of source/destination file paths."""
+
+    src: Path
+    dest: Path
 
     def print_add(self):
         """Print a message when creating a link."""
@@ -152,15 +156,13 @@ class Emanate:
         return result != "n"
 
     def _add_symlink(self, pair):
-        _, dest = pair
-
         # If the file exists and _isn't_ the symbolic link we're
         # trying to make, prompt the user to determine what to do.
-        if dest.exists():
+        if pair.dest.exists():
             # If the user said no, skip the file.
-            if not self.confirm_replace(dest):
+            if not self.confirm_replace(pair.dest):
                 return False
-            Emanate.backup(dest)
+            Emanate.backup(pair.dest)
 
         return pair.add_symlink()
 
