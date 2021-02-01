@@ -96,12 +96,13 @@ def is_resolved(config):
     """Check that all path options in a configuration object are absolute."""
     for key in CONFIG_PATHS:
         if key in config:
-            if isinstance(config[key], (Path)):
-                value = config[key]
-            elif isinstance(config[key], Iterable):
-                return all([is_resolved({key: p}) for p in config[key]])
-            if not isinstance(value, Path) or not value.is_absolute():
-                return False
+            if isinstance(config[key], Path):
+                return config[key].is_absolute()
+            if isinstance(config[key], Iterable):
+                return all((isinstance(p, Path) and p.is_absolute()
+                            for p in config[key]))
+
+            return False
 
     return True
 
