@@ -99,10 +99,19 @@ def is_resolved(config):
             if isinstance(config[key], Path):
                 return config[key].is_absolute()
             if isinstance(config[key], Iterable):
-                return all((isinstance(p, Path) and p.is_absolute()
-                            for p in config[key]))
+                for path in config[key]:
+                    if not isinstance(path, Path):
+                        raise TypeError(
+                            f"Configuration key '{key}' should contain Paths, "
+                            f"got a '{type(path).__name__}': '{path!r}'"
+                        )
+                    if not path.is_absolute():
+                        return False
 
-            return False
+            raise TypeError(
+                f"Configuration key '{key}' should be a (list of) Path(s), "
+                f"got a '{type(key).__name__}': '{config[key]!r}'"
+            )
 
     return True
 
