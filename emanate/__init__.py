@@ -83,7 +83,7 @@ class Execution:
 
 
 class Emanate:
-    """Provide the core functionality of Emanate.
+    """Provides the core functionality of Emanate.
 
     This class is configurable at initialization-time, by passing it a number
     of configuration objects, supporting programmatic use (from a configuration
