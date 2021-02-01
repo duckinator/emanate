@@ -91,7 +91,7 @@ def main(args=None):
 
     emanate = Emanate(
         config.from_json(args.config) if args.config.exists() else None,
-        config.resolve(vars(args)),
+        config.resolve(vars(args), Path.cwd()),
     )
 
     if args.command is None or args.command == 'create':

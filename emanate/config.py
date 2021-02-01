@@ -14,8 +14,8 @@ from collections.abc import Iterable
 def defaults(src):
     """Return Emanate's default configuration.
 
-    config.defaults() resolves the default using the values
-    of Path.home() and Path.cwd() at the time it was called.
+    config.defaults() resolves the default using the value
+    of Path.home() at the time it was called.
     """
     base_ignores = resolve({
         'ignore': frozenset((
@@ -31,7 +31,7 @@ def defaults(src):
             ".gitmodules",
             "__pycache__/",
         )),
-    }, cwd=src.absolute())
+    }, rel_to=src.absolute())
     return AttrDict({
         **base_ignores,
         'confirm': True,
@@ -112,18 +112,15 @@ def is_resolved(config):
     return True
 
 
-def resolve(config, cwd=None):
+def resolve(config, rel_to):
     """Convert path options to pathlib.Path objects, and resolve relative paths.
 
     Returns a new configuration dict-like, similar to its input, with all paths
     attributes converted to `pathlib` objects, and relative paths resolved
-    relatively to `cwd`.
+    relatively to `relative_to`.
     """
-    if cwd is None:
-        cwd = Path.cwd()
-
-    assert isinstance(cwd, Path)
-    assert cwd.is_absolute()
+    assert isinstance(rel_to, Path)
+    assert rel_to.is_absolute()
     result = AttrDict(config)
 
     for key in CONFIG_PATHS:
@@ -134,10 +131,10 @@ def resolve(config, cwd=None):
             result[key] = Path(result[key])
 
         elif isinstance(result[key], Iterable):
-            result[key] = [resolve({key: p}, cwd)[key] for p in result[key]]
+            result[key] = [resolve({key: p}, rel_to)[key] for p in result[key]]
 
         if isinstance(result[key], Path) and not result[key].is_absolute():
-            result[key] = cwd / result[key].expanduser()
+            result[key] = rel_to / result[key].expanduser()
 
     return result
 
@@ -151,4 +148,4 @@ def from_json(path):
     assert isinstance(path, Path)
 
     with path.open() as file:
-        return resolve(json.load(file), cwd=path.parent.resolve())
+        return resolve(json.load(file), rel_to=path.parent.resolve())
