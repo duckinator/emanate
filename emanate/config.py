@@ -87,9 +87,9 @@ class Config(dict):
         def _merge_one(config, other):
             assert isinstance(config, Config)
             assert isinstance(other, Config)
-            assert is_resolved(config)
+            assert config.resolved
 
-            if strict_resolve and not is_resolved(other):
+            if strict_resolve and not other.resolved:
                 raise ValueError("Merging a non-resolved configuration")
 
             config = config.copy()
@@ -118,28 +118,28 @@ class Config(dict):
         with path.open() as file:
             return cls(json.load(file)).resolve(path.parent.resolve())
 
+    @property
+    def resolved(self):
+        """Check that all path options in a configuration object are absolute."""
+        for key in CONFIG_PATHS:
+            if key not in self:
+                continue
 
-def is_resolved(config):
-    """Check that all path options in a configuration object are absolute."""
-    for key in CONFIG_PATHS:
-        if key not in config:
-            continue
+            if isinstance(self[key], Path):
+                return self[key].is_absolute()
+            if isinstance(self[key], Iterable):
+                for path in self[key]:
+                    if not isinstance(path, Path):
+                        raise TypeError(
+                            f"Configuration key '{key}' should contain Paths, "
+                            f"got a '{type(path).__name__}': '{path!r}'"
+                        )
+                    if not path.is_absolute():
+                        return False
 
-        if isinstance(config[key], Path):
-            return config[key].is_absolute()
-        if isinstance(config[key], Iterable):
-            for path in config[key]:
-                if not isinstance(path, Path):
-                    raise TypeError(
-                        f"Configuration key '{key}' should contain Paths, "
-                        f"got a '{type(path).__name__}': '{path!r}'"
-                    )
-                if not path.is_absolute():
-                    return False
+            raise TypeError(
+                f"Configuration key '{key}' should be a (list of) Path(s), "
+                f"got a '{type(key).__name__}': '{self[key]!r}'"
+            )
 
-        raise TypeError(
-            f"Configuration key '{key}' should be a (list of) Path(s), "
-            f"got a '{type(key).__name__}': '{config[key]!r}'"
-        )
-
-    return True
+        return True
