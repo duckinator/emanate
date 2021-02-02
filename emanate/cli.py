@@ -22,7 +22,8 @@ See `emanate --help` for all command-line options.
 """
 from argparse import ArgumentParser, SUPPRESS
 from pathlib import Path
-from . import Emanate, config, __author__, __version__
+from . import Emanate, __author__, __version__
+from .config import Config
 
 
 def _parse_args(args=None):
@@ -90,8 +91,8 @@ def main(args=None):
         args.config = args.source / "emanate.json"
 
     emanate = Emanate(
-        config.from_json(args.config) if args.config.exists() else None,
-        config.resolve(vars(args), Path.cwd()),
+        Config.from_json(args.config) if args.config.exists() else None,
+        Config(vars(args)).resolve(Path.cwd()),
     )
 
     if args.command is None or args.command == 'create':

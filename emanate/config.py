@@ -11,32 +11,10 @@ from pathlib import Path
 from collections.abc import Iterable
 
 
-def defaults(src):
-    """Return Emanate's default configuration.
-
-    config.defaults() resolves the default using the value
-    of Path.home() at the time it was called.
-    """
-    return resolve({
-        'confirm': True,
-        'destination': Path.home(),
-        'ignore': frozenset((
-            "*~",
-            ".*~",
-            ".*.sw?",
-            "emanate.json",
-            "*/emanate.json",
-            ".emanate",
-            ".*.emanate",
-            ".git/",
-            ".gitignore",
-            ".gitmodules",
-            "__pycache__/",
-        )),
-    }, rel_to=src.absolute())
+CONFIG_PATHS = ('destination', 'source', 'ignore')
 
 
-class AttrDict(dict):
+class Config(dict):
     """Simple wrapper around dict, allowing accessing values as attributes."""
 
     def __getattr__(self, name):
@@ -48,51 +26,109 @@ class AttrDict(dict):
         return self[name]
 
     def copy(self):
-        """Return a new AttrDict, with the same contents as self."""
-        return AttrDict(self)
+        """Return a new Config, with the same contents as self."""
+        return Config(self)
 
+    @classmethod
+    def defaults(cls, src):
+        """Return Emanate's default configuration.
 
-def merge(*configs, strict_resolve=True):
-    """Merge a sequence of configuration dict-like objects.
+        Config.defaults() resolves the default using the value
+        of Path.home() at the time it was called.
+        """
+        return cls({
+            'confirm': True,
+            'destination': Path.home(),
+            'ignore': frozenset((
+                "*~",
+                ".*~",
+                ".*.sw?",
+                "emanate.json",
+                "*/emanate.json",
+                ".emanate",
+                ".*.emanate",
+                ".git/",
+                ".gitignore",
+                ".gitmodules",
+                "__pycache__/",
+            )),
+        }).resolve(src.absolute())
 
-    Later configurations override previous ones,
-    and the `ignore` attributes are merged (according to set union).
-    """
-    configs = [c for c in configs if c is not None]
+    def resolve(self, rel_to):
+        """Convert path to absolute pathlib.Path objects.
 
-    if strict_resolve:
-        assert all(map(is_resolved, configs))
+        Returns a new Config object, similar to its input, with all
+        paths attributes converted to `pathlib` objects, and relative paths
+        resolved relatively to `relative_to`.
+        """
+        assert isinstance(rel_to, Path)
+        assert rel_to.is_absolute()
+        result = self.copy()
 
-    def _merge_one(config, dict_like):
-        assert isinstance(config, AttrDict)
-        assert dict_like is not None
-
-        config = config.copy()
-        for key, value in dict_like.items():
-            if value is None:
+        for key in CONFIG_PATHS:
+            if key not in result:
                 continue
 
-            if key == 'ignore':
-                config[key] = config.get(key, frozenset()).union(value)
-            else:
-                config[key] = value
+            if isinstance(result[key], (str, Path)):
+                result[key] = rel_to / Path(result[key]).expanduser()
 
-        return config
+            elif isinstance(result[key], Iterable):
+                result[key] = [rel_to / Path(p).expanduser() for p in result[key]]
 
-    return functools.reduce(_merge_one, configs, AttrDict())
-
-
-CONFIG_PATHS = ('destination', 'source', 'ignore')
+        return result
 
 
-def is_resolved(config):
-    """Check that all path options in a configuration object are absolute."""
-    for key in CONFIG_PATHS:
-        if key in config:
-            if isinstance(config[key], Path):
-                return config[key].is_absolute()
-            if isinstance(config[key], Iterable):
-                for path in config[key]:
+    def merge(*configs, strict_resolve=True):  # pylint: disable=no-method-argument
+        """Merge several Config objects.
+
+        Later configurations override previous ones,
+        and the `ignore` attributes are merged (according to set union).
+        """
+        def _merge_one(config, other):
+            assert isinstance(config, Config)
+            assert isinstance(other, Config)
+            assert config.resolved
+
+            if strict_resolve and not other.resolved:
+                raise ValueError("Merging a non-resolved configuration")
+
+            config = config.copy()
+            for key, value in other.items():
+                if value is None:
+                    continue
+
+                if key == 'ignore':
+                    config[key] = config.get(key, frozenset()).union(value)
+                else:
+                    config[key] = value
+
+            return config
+
+        return functools.reduce(_merge_one, filter(None, configs), Config())
+
+    @classmethod
+    def from_json(cls, path):
+        """Load an Emanate configuration from a file.
+
+        Takes a `pathlib.Path` object designating a JSON configuration file,
+        loads it, and resolve paths relative to the file.
+        """
+        assert isinstance(path, Path)
+
+        with path.open() as file:
+            return cls(json.load(file)).resolve(path.parent.resolve())
+
+    @property
+    def resolved(self):
+        """Check that all path options in a configuration object are absolute."""
+        for key in CONFIG_PATHS:
+            if key not in self:
+                continue
+
+            if isinstance(self[key], Path):
+                return self[key].is_absolute()
+            if isinstance(self[key], Iterable):
+                for path in self[key]:
                     if not isinstance(path, Path):
                         raise TypeError(
                             f"Configuration key '{key}' should contain Paths, "
@@ -103,46 +139,7 @@ def is_resolved(config):
 
             raise TypeError(
                 f"Configuration key '{key}' should be a (list of) Path(s), "
-                f"got a '{type(key).__name__}': '{config[key]!r}'"
+                f"got a '{type(key).__name__}': '{self[key]!r}'"
             )
 
-    return True
-
-
-def resolve(config, rel_to):
-    """Convert path options to pathlib.Path objects, and resolve relative paths.
-
-    Returns a new configuration dict-like, similar to its input, with all paths
-    attributes converted to `pathlib` objects, and relative paths resolved
-    relatively to `relative_to`.
-    """
-    assert isinstance(rel_to, Path)
-    assert rel_to.is_absolute()
-    result = AttrDict(config)
-
-    for key in CONFIG_PATHS:
-        if key not in result:
-            continue
-
-        if isinstance(result[key], str):
-            result[key] = Path(result[key])
-
-        elif isinstance(result[key], Iterable):
-            result[key] = [resolve({key: p}, rel_to)[key] for p in result[key]]
-
-        if isinstance(result[key], Path) and not result[key].is_absolute():
-            result[key] = rel_to / result[key].expanduser()
-
-    return result
-
-
-def from_json(path):
-    """Load an Emanate configuration from a file.
-
-    Takes a `pathlib.Path` object designating a JSON configuration file,
-    loads it, and resolve paths relative to the file.
-    """
-    assert isinstance(path, Path)
-
-    with path.open() as file:
-        return resolve(json.load(file), rel_to=path.parent.resolve())
+        return True
