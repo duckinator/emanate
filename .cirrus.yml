@@ -28,7 +28,7 @@ Linux_task:
     - pip3 install -U .[testing]
   script:
     - python3 --version
-    - bork run test
+    - pytest --verbose
 
 macOS_task:
   osx_instance:
@@ -38,7 +38,7 @@ macOS_task:
     - pip3 install -U .[testing]
   script:
     - python3 --version
-    - bork run test
+    - pytest --verbose
 
 FreeBSD_task:
   freebsd_instance:
@@ -59,7 +59,7 @@ FreeBSD_task:
     - python${PYTHON} -m pip install .[testing_only]
   script:
     - python${PYTHON} --version
-    - bork run test-only
+    - pytest --verbose
 
 Windows_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
