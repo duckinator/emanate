@@ -124,14 +124,11 @@ def resolve(config, rel_to):
         if key not in result:
             continue
 
-        if isinstance(result[key], str):
-            result[key] = Path(result[key])
+        if isinstance(result[key], (str, Path)):
+            result[key] = rel_to / Path(result[key]).expanduser()
 
         elif isinstance(result[key], Iterable):
-            result[key] = [resolve({key: p}, rel_to)[key] for p in result[key]]
-
-        if isinstance(result[key], Path) and not result[key].is_absolute():
-            result[key] = rel_to / result[key].expanduser()
+            result[key] = [rel_to / Path(p).expanduser() for p in result[key]]
 
     return result
 
