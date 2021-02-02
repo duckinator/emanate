@@ -11,15 +11,15 @@ from pathlib import Path
 from collections.abc import Iterable
 
 
-def defaults(src=None):
+def defaults(src):
     """Return Emanate's default configuration.
 
-    config.defaults() resolves the default using the values
-    of Path.home() and Path.cwd() at the time it was called.
+    config.defaults() resolves the default using the value
+    of Path.home() at the time it was called.
     """
-    if src is None:
-        src = Path.cwd()
-    base_ignores = resolve({
+    return resolve({
+        'confirm': True,
+        'destination': Path.home(),
         'ignore': frozenset((
             "*~",
             ".*~",
@@ -33,13 +33,7 @@ def defaults(src=None):
             ".gitmodules",
             "__pycache__/",
         )),
-    }, cwd=src.absolute())
-    return AttrDict({
-        **base_ignores,
-        'confirm': True,
-        'destination': Path.home(),
-        'source': Path.cwd(),
-    })
+    }, rel_to=src.absolute())
 
 
 class AttrDict(dict):
@@ -58,23 +52,6 @@ class AttrDict(dict):
         return AttrDict(self)
 
 
-def _merge_one(config, dict_like):
-    assert isinstance(config, AttrDict)
-    assert dict_like is not None
-
-    config = config.copy()
-    for key, value in dict_like.items():
-        if value is None:
-            continue
-
-        if key == 'ignore':
-            config[key] = config.get(key, frozenset()).union(value)
-        else:
-            config[key] = value
-
-    return config
-
-
 def merge(*configs, strict_resolve=True):
     """Merge a sequence of configuration dict-like objects.
 
@@ -86,6 +63,22 @@ def merge(*configs, strict_resolve=True):
     if strict_resolve:
         assert all(map(is_resolved, configs))
 
+    def _merge_one(config, dict_like):
+        assert isinstance(config, AttrDict)
+        assert dict_like is not None
+
+        config = config.copy()
+        for key, value in dict_like.items():
+            if value is None:
+                continue
+
+            if key == 'ignore':
+                config[key] = config.get(key, frozenset()).union(value)
+            else:
+                config[key] = value
+
+        return config
+
     return functools.reduce(_merge_one, configs, AttrDict())
 
 
@@ -96,28 +89,35 @@ def is_resolved(config):
     """Check that all path options in a configuration object are absolute."""
     for key in CONFIG_PATHS:
         if key in config:
-            if isinstance(config[key], (Path)):
-                value = config[key]
-            elif isinstance(config[key], Iterable):
-                return all([is_resolved({key: p}) for p in config[key]])
-            if not isinstance(value, Path) or not value.is_absolute():
-                return False
+            if isinstance(config[key], Path):
+                return config[key].is_absolute()
+            if isinstance(config[key], Iterable):
+                for path in config[key]:
+                    if not isinstance(path, Path):
+                        raise TypeError(
+                            f"Configuration key '{key}' should contain Paths, "
+                            f"got a '{type(path).__name__}': '{path!r}'"
+                        )
+                    if not path.is_absolute():
+                        return False
+
+            raise TypeError(
+                f"Configuration key '{key}' should be a (list of) Path(s), "
+                f"got a '{type(key).__name__}': '{config[key]!r}'"
+            )
 
     return True
 
 
-def resolve(config, cwd=None):
+def resolve(config, rel_to):
     """Convert path options to pathlib.Path objects, and resolve relative paths.
 
     Returns a new configuration dict-like, similar to its input, with all paths
     attributes converted to `pathlib` objects, and relative paths resolved
-    relatively to `cwd`.
+    relatively to `relative_to`.
     """
-    if cwd is None:
-        cwd = Path.cwd()
-
-    assert isinstance(cwd, Path)
-    assert cwd.is_absolute()
+    assert isinstance(rel_to, Path)
+    assert rel_to.is_absolute()
     result = AttrDict(config)
 
     for key in CONFIG_PATHS:
@@ -128,10 +128,10 @@ def resolve(config, cwd=None):
             result[key] = Path(result[key])
 
         elif isinstance(result[key], Iterable):
-            result[key] = [resolve({key: p}, cwd)[key] for p in result[key]]
+            result[key] = [resolve({key: p}, rel_to)[key] for p in result[key]]
 
         if isinstance(result[key], Path) and not result[key].is_absolute():
-            result[key] = cwd / result[key].expanduser()
+            result[key] = rel_to / result[key].expanduser()
 
     return result
 
@@ -145,4 +145,4 @@ def from_json(path):
     assert isinstance(path, Path)
 
     with path.open() as file:
-        return resolve(json.load(file), cwd=path.parent.resolve())
+        return resolve(json.load(file), rel_to=path.parent.resolve())

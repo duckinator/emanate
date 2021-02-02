@@ -41,6 +41,7 @@ def _parse_args(args=None):
     argparser.add_argument("--source",
                            metavar="SOURCE",
                            type=Path,
+                           default=Path.cwd(),
                            help="Directory holding the files to symlink.")
     argparser.add_argument("--no-confirm",
                            action="store_false",
@@ -86,15 +87,11 @@ def main(args=None):
         return
 
     if args.config is None:
-        if 'source' in args:
-            args.config = args.source / "emanate.json"
-        else:
-            args.config = Path.cwd() / "emanate.json"
+        args.config = args.source / "emanate.json"
 
     emanate = Emanate(
         config.from_json(args.config) if args.config.exists() else None,
-        config.resolve(vars(args)),
-        src=vars(args).get("source", None),
+        config.resolve(vars(args), Path.cwd()),
     )
 
     if args.command is None or args.command == 'create':
