@@ -100,7 +100,8 @@ def main(args=None):
     elif args.command == 'clean':
         execute = emanate.clean()
     else:
-        raise AssertionError("emanate.main: Unknown command")
+        # Should be unreachable, as argparse already validated the command.
+        raise AssertionError(f"emanate.main: Unknown command '{args.command}'")
 
     if args.exec:
         execute.run()
