@@ -84,17 +84,16 @@ class Config(dict):
         Later configurations override previous ones,
         and the `ignore` attributes are merged (according to set union).
         """
-        f_configs = [c for c in configs if c is not None]
-
-        if strict_resolve:
-            assert all(map(is_resolved, f_configs))
-
-        def _merge_one(config, dict_like):
+        def _merge_one(config, other):
             assert isinstance(config, Config)
-            assert dict_like is not None
+            assert isinstance(other, Config)
+            assert is_resolved(config)
+
+            if strict_resolve and not is_resolved(other):
+                raise ValueError("Merging a non-resolved configuration")
 
             config = config.copy()
-            for key, value in dict_like.items():
+            for key, value in other.items():
                 if value is None:
                     continue
 
@@ -105,7 +104,7 @@ class Config(dict):
 
             return config
 
-        return functools.reduce(_merge_one, f_configs, Config())
+        return functools.reduce(_merge_one, filter(None, configs), Config())
 
     @classmethod
     def from_json(cls, path):
