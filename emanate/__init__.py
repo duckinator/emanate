@@ -12,7 +12,7 @@ from collections import namedtuple
 from fnmatch import fnmatch
 from pathlib import Path
 import sys
-from . import config
+from .config import Config
 
 # Expose `emanate.version.__version__` as `emanate.__version__`.
 from .version import __version__  # noqa: F401
@@ -85,16 +85,15 @@ class Emanate:
     def __init__(self, *configs):
         """Construct an Emanate instance from configuration dictionaries.
 
-        The default values (as provided by config.defaults()) are implicitly
+        The default values (as provided by Config.defaults()) are implicitly
         the first configuration object; latter configurations override earlier
-        configurations (see config.merge).
+        configurations (see Config.merge).
 
         The configs must define a source directory.
         """
-        explicit_configs = config.merge(*configs)
-        self.config = config.merge(
-            config.defaults(explicit_configs.get('source')),
-            explicit_configs,
+        explicit_configs = Config.merge(*configs)
+        self.config = Config.defaults(explicit_configs.get('source')).merge(
+                explicit_configs,
         )
 
     @property
