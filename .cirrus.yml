@@ -17,6 +17,7 @@ Lint_task:
     - bork run lint
 
 Linux_task:
+  alias: Linux tests
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   container:
     matrix:
@@ -31,6 +32,7 @@ Linux_task:
     - pytest --verbose
 
 macOS_task:
+  alias: macOS tests
   osx_instance:
     image: mojave-base
   install_script:
@@ -41,6 +43,7 @@ macOS_task:
     - pytest --verbose
 
 FreeBSD_task:
+  alias: FreeBSD tests
   freebsd_instance:
     image_family: freebsd-12-1
   env:
@@ -62,6 +65,7 @@ FreeBSD_task:
     - pytest --verbose
 
 Windows_task:
+  alias: Windows tests
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   windows_container:
     os_version: 2019
@@ -89,10 +93,10 @@ success_task:
   alias: CI success
   depends_on:
     - Lint
-    - Linux
-    - macOS
-    - FreeBSD
-    - Windows
+    - FreeBSD tests
+    - Linux tests
+    - macOS tests
+    - Windows tests
   container:
     image: busybox
   script: "exit 0"
