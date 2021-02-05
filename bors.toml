@@ -1,7 +1,7 @@
 status = [
-  # The "Test" task is a meta-task that depends on all test/lint tasks
+  # The "CI success" task is a meta-task that depends on all test/lint tasks
   # to pass, then exits successfully.
-  "Test",
+  "CI success",
 ]
 
 delete_merged_branches = true
