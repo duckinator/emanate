@@ -90,16 +90,15 @@ Windows_task:
 
 # Meta-task which depends on every other test/lint task to finish.
 success_task:
-  alias: CI success
+  name: CI success
+  container: {image: "busybox"}
+  script: "exit 0"
   depends_on:
     - Lint
     - FreeBSD tests
     - Linux tests
     - macOS tests
     - Windows tests
-  container:
-    image: busybox
-  script: "exit 0"
 
 # If emanate/version.py is modified on the master branch, make a release.
 Release_task:
