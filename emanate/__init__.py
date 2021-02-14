@@ -8,9 +8,10 @@ symbolic links from the destination to each file in the source, mirroring
 the directory structure and creating directories as needed.
 """
 
-from collections import namedtuple
+from dataclasses import dataclass
 from fnmatch import fnmatch
 from pathlib import Path
+from typing import Any, Callable, Iterable
 import sys
 from .config import Config
 
@@ -24,16 +25,20 @@ __author__ = "Ellen Marie Dash"
 # __version__ is defined in version.py.
 
 
-class FilePair(namedtuple('FilePair', ['src', 'dest'])):
+@dataclass(frozen=True)
+class FilePair:
     """Pairs of source/destination file paths."""
+
+    src: Path
+    dest: Path
 
     def print_add(self):
         """Print a message when creating a link."""
-        print("{!r} -> {!r}".format(str(self.src), str(self.dest)))
+        print(f"{str(self.src)!r} -> {str(self.dest)!r}")
 
     def print_del(self):
         """Print a message when deleting a link."""
-        print("{!r}".format(str(self.dest)))
+        print(f"{str(self.dest)!r}")
 
     def del_symlink(self):
         """Delete a link."""
@@ -42,39 +47,42 @@ class FilePair(namedtuple('FilePair', ['src', 'dest'])):
 
         return not self.dest.exists()
 
-    def add_symlink(self):
+    def add_symlink(self) -> bool:
         """Add a link."""
         self.dest.symlink_to(self.src)
         return self.src.samefile(self.dest)
 
 
-class Execution(list):
+@dataclass(frozen=True)
+class Execution:
     """Describe an Emanate execution.
 
-    Callable once, useful to provide "dry-run"
+    The user passes functions defining the operation that is applied, and a
+    “printer” that's called upon changes; this is useful to provide "dry-run"
     functionality or report changes back to the user.
     """
 
-    def __init__(self, func, printer, iterable):
-        """Prepare an Emanate execution."""
-        self.func = func
-        self.printer = printer
-        super().__init__(iterable)
+    func: 'Callable[[FilePair], bool]'
+    printer: 'Callable[[FilePair], Any]'
+    ops: 'Iterable[FilePair]'
 
     def run(self):
-        """Run a prepared execution."""
-        for args in self:
+        """Run a prepared execution.
+
+        Callable only once per Execution object.
+        """
+        for args in self.ops:
             if self.func(args):
                 self.printer(args)
 
     def dry(self):
         """Print a dry-run of an execution."""
-        for args in self:
+        for args in self.ops:
             self.printer(args)
 
 
 class Emanate:
-    """Provide the core functionality of Emanate.
+    """Provides the core functionality of Emanate.
 
     This class is configurable at initialization-time, by passing it a number
     of configuration objects, supporting programmatic use (from a configuration
@@ -82,7 +90,9 @@ class Emanate:
     (see emanate.main for a simple example).
     """
 
-    def __init__(self, *configs):
+    config: Config
+
+    def __init__(self, *configs: Config):
         """Construct an Emanate instance from configuration dictionaries.
 
         The default values (as provided by Config.defaults()) are implicitly
@@ -92,13 +102,13 @@ class Emanate:
         The configs must define a source directory.
         """
         explicit_configs = Config.merge(*configs)
-        self.config = Config.defaults(explicit_configs.get('source')).merge(
-                explicit_configs,
+        self.conf = Config.defaults(explicit_configs.get('source')).merge(
+            explicit_configs,
         )
 
     @property
-    def dest(self):
-        return self.config.destination
+    def dest(self) -> Path:
+        return self.conf.destination
 
     @staticmethod
     def _is_dir(path_obj):
@@ -110,7 +120,7 @@ class Emanate:
         except OSError:
             return False
 
-    def valid_file(self, path_obj):
+    def valid_file(self, path_obj: Path) -> bool:
         """Check whether a given path is covered by an ignore glob.
 
         As a side effect, if the path is a directory, it is created
@@ -118,7 +128,7 @@ class Emanate:
         """
         path = str(path_obj.absolute())
         ignore_patterns = []
-        for pattern in self.config.ignore:
+        for pattern in self.conf.ignore:
             ignore_patterns.append(pattern)
             # If it's a directory, also ignore its contents.
             if Emanate._is_dir(pattern):
@@ -128,56 +138,54 @@ class Emanate:
             return False
 
         if path_obj.is_dir():
-            dest_path = self.dest / path_obj.relative_to(self.config.source)
+            dest_path = self.dest / path_obj.relative_to(self.conf.source)
             dest_path.mkdir(exist_ok=True)
             return False
 
         return True
 
-    def confirm_replace(self, dest_file):
+    def confirm_replace(self, dest_file: Path) -> bool:
         """Prompt the user before replacing a file.
 
         The prompt is skipped if the `confirm` configuration option is False.
         """
-        prompt = "{!r} already exists. Replace it?".format(str(dest_file))
+        prompt = f"{str(dest_file)!r} already exists. Replace it?"
 
-        if not self.config.confirm:
+        if not self.conf.confirm:
             return True
 
         result = None
         while result not in ["y", "n", "\n"]:
-            print("{} [Y/n] ".format(prompt), end="", flush=True)
+            print(f"{prompt} [Y/n] ", end="", flush=True)
             result = sys.stdin.read(1).lower()
 
         return result != "n"
 
-    def _add_symlink(self, pair):
-        _, dest = pair
-
+    def _add_symlink(self, pair: FilePair) -> bool:
         # If the file exists and _isn't_ the symbolic link we're
         # trying to make, prompt the user to determine what to do.
-        if dest.exists():
+        if pair.dest.exists():
             # If the user said no, skip the file.
-            if not self.confirm_replace(dest):
+            if not self.confirm_replace(pair.dest):
                 return False
-            Emanate.backup(dest)
+            Emanate.backup(pair.dest)
 
         return pair.add_symlink()
 
     @staticmethod
-    def backup(dest_file):
+    def backup(dest_file: Path):
         """Rename the file so we can safely write to the original path."""
         new_name = str(dest_file) + ".emanate"
         dest_file.rename(new_name)
 
-    def _files(self):
-        all_files = Path(self.config.source).glob("**/*")
+    def _files(self) -> Iterable[FilePair]:
+        all_files = Path(self.conf.source).glob("**/*")
         for file in filter(self.valid_file, all_files):
             src  = file.absolute()
-            dest = self.dest / file.relative_to(self.config.source)
+            dest = self.dest / file.relative_to(self.conf.source)
             yield FilePair(src, dest)
 
-    def create(self):
+    def create(self) -> Execution:
         """Create symbolic links."""
         # Ignore files that are already linked.
         gen = filter(lambda p: not (p.dest.exists() and p.src.samefile(p.dest)),
@@ -187,7 +195,7 @@ class Emanate:
                          FilePair.print_add,
                          gen)
 
-    def clean(self):
+    def clean(self) -> Execution:
         """Remove symbolic links."""
         # Skip non-existing files.
         gen = filter(lambda p: p.dest.exists(), self._files())

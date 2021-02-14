@@ -69,7 +69,7 @@ def _parse_args(args=None):
 
 
 def version():
-    print("Emanate v{} by {}.".format(__version__, __author__))
+    print(f"Emanate v{__version__} by {__author__}.")
 
 
 def main(args=None):
@@ -100,7 +100,8 @@ def main(args=None):
     elif args.command == 'clean':
         execute = emanate.clean()
     else:
-        raise AssertionError("emanate.main: Unknown command")
+        # Should be unreachable, as argparse already validated the command.
+        raise AssertionError(f"emanate.main: Unknown command '{args.command}'")
 
     if args.exec:
         execute.run()
