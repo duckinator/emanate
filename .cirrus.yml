@@ -1,6 +1,6 @@
 # Allow compute credits usage for collaborators and anything pushed to the
-# master, staging, and trying branches. (So bors can use them.)
-use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true' || $CIRRUS_BRANCH == 'master' || $CIRRUS_BRANCH == 'staging' || $CIRRUS_BRANCH == 'trying'
+# main, staging, and trying branches. (So bors can use them.)
+use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true' || $CIRRUS_BRANCH == 'main' || $CIRRUS_BRANCH == 'staging' || $CIRRUS_BRANCH == 'trying'
 
 # http://click.palletsprojects.com/en/5.x/python3/#python-3-surrogate-handling
 env:
@@ -17,6 +17,7 @@ Lint_task:
     - bork run lint
 
 Linux_task:
+  alias: Linux tests
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   container:
     matrix:
@@ -31,6 +32,7 @@ Linux_task:
     - pytest --verbose
 
 macOS_task:
+  alias: macOS tests
   osx_instance:
     image: mojave-base
   install_script:
@@ -41,8 +43,9 @@ macOS_task:
     - pytest --verbose
 
 FreeBSD_task:
+  alias: FreeBSD tests
   freebsd_instance:
-    image_family: freebsd-12-1
+    image_family: freebsd-12-2
   env:
     matrix:
       - PYTHON: 3.6
@@ -62,6 +65,7 @@ FreeBSD_task:
     - pytest --verbose
 
 Windows_task:
+  alias: Windows tests
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   windows_container:
     os_version: 2019
@@ -82,19 +86,24 @@ Windows_task:
     - C:\Python\python.exe --version
     - C:\Python\python.exe -m pip --version
     - C:\Python\python.exe -m bork --version
-    #- C:\Python\python.exe -m bork run test
     - C:\Python\python.exe -m pytest
 
-
-# If emanate/version.py is modified on the master branch, make a release.
-Release_task:
-  only_if: "changesInclude('emanate/version.py') && $BRANCH == 'master' && $CIRRUS_CRON == ''"
+# Meta-task which depends on every other test/lint task to finish.
+success_task:
+  name: CI success
+  container: {image: "busybox"}
+  script: "exit 0"
   depends_on:
     - Lint
-    - Linux
-    - macOS
-    - FreeBSD
-    - Windows
+    - FreeBSD tests
+    - Linux tests
+    - macOS tests
+    - Windows tests
+
+# If emanate/version.py is modified on the main branch, make a release.
+Release_task:
+  only_if: "changesInclude('emanate/version.py') && $BRANCH == 'main' && $CIRRUS_CRON == ''"
+  depends_on: [CI success]
   env:
     TWINE_USERNAME: "__token__"
     TWINE_PASSWORD: ENCRYPTED[93940c854f7cb146391fdb3ef75ab7f8e229e83837f49fbcb52472bcf3f1d0265ed8629fd57204152e019af4c6b9354c]
