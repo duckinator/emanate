@@ -10,11 +10,15 @@ the directory structure and creating directories as needed.
 
 from dataclasses import dataclass
 from fnmatch import fnmatch
-from importlib import metadata
 from pathlib import Path
 from typing import Any, Callable, Iterable
 import sys
 from .config import Config
+
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata  # type: ignore
 
 # Set the module-level dunders suggested in PEP8
 __author__ = metadata.metadata('emanate').get('author')
