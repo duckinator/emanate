@@ -16,12 +16,9 @@ from typing import Any, Callable, Iterable
 import sys
 from .config import Config
 
-# Expose the version number as emanate.__version__
+# Set the module-level dunders suggested in PEP8
+__author__ = metadata.metadata('emanate').get('author')
 __version__ = metadata.version('emanate')
-
-
-#: Emanate's maintainer.
-__author__ = "Ellen Marie Dash"
 
 
 @dataclass(frozen=True)
