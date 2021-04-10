@@ -10,19 +10,18 @@ the directory structure and creating directories as needed.
 
 from dataclasses import dataclass
 from fnmatch import fnmatch
+from importlib import metadata
 from pathlib import Path
 from typing import Any, Callable, Iterable
 import sys
 from .config import Config
 
-# Expose `emanate.version.__version__` as `emanate.__version__`.
-from .version import __version__  # noqa: F401
+# Expose the version number as emanate.__version__
+__version__ = metadata.version('emanate')
 
 
 #: Emanate's maintainer.
 __author__ = "Ellen Marie Dash"
-
-# __version__ is defined in version.py.
 
 
 @dataclass(frozen=True)

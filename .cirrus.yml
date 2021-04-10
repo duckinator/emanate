@@ -100,9 +100,9 @@ success_task:
     - macOS tests
     - Windows tests
 
-# If emanate/version.py is modified on the main branch, make a release.
+# If the `version` file is modified on the main branch, make a release.
 Release_task:
-  only_if: "changesInclude('emanate/version.py') && $BRANCH == 'main' && $CIRRUS_CRON == ''"
+  only_if: "changesInclude('version') && $BRANCH == 'main' && $CIRRUS_CRON == ''"
   depends_on: [CI success]
   env:
     TWINE_USERNAME: "__token__"
