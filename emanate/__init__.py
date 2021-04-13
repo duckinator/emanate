@@ -21,8 +21,8 @@ except ImportError:
     import importlib_metadata as metadata  # type: ignore
 
 # Set the module-level dunders suggested in PEP8
-__author__ = metadata.metadata('emanate').get('author')
-__version__ = metadata.version('emanate')
+__author__ = metadata.metadata(__name__).get('author')
+__version__ = metadata.version(__name__)
 
 
 @dataclass(frozen=True)
