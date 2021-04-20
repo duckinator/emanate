@@ -15,14 +15,14 @@ from typing import Any, Callable, Iterable
 import sys
 from .config import Config
 
-# Expose `emanate.version.__version__` as `emanate.__version__`.
-from .version import __version__  # noqa: F401
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata  # type: ignore
 
-
-#: Emanate's maintainer.
-__author__ = "Ellen Marie Dash"
-
-# __version__ is defined in version.py.
+# Set the module-level dunders suggested in PEP8
+__author__ = metadata.metadata(__name__).get('author')
+__version__ = metadata.version(__name__)
 
 
 @dataclass(frozen=True)
