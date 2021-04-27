@@ -11,8 +11,9 @@ from pathlib import Path
 from collections.abc import Iterable
 
 
-CONFIG_PATHS = ('destination', 'source', 'ignore')
-
+PATHS = frozenset(('destination', 'source',))
+PATH_SETS = frozenset(('ignore',))
+PATH_KEYS = PATHS.union(PATH_SETS)
 
 class Config(dict):
     """Simple wrapper around dict, allowing accessing values as attributes."""
@@ -66,15 +67,20 @@ class Config(dict):
         assert rel_to.is_absolute()
         result = self.copy()
 
-        for key in CONFIG_PATHS:
+        for key in PATHS:
             if key not in result:
                 continue
 
-            if isinstance(result[key], (str, Path)):
-                result[key] = rel_to / Path(result[key]).expanduser()
+            assert isinstance(result[key], (str, Path))
+            result[key] = rel_to / Path(result[key]).expanduser()
 
-            elif isinstance(result[key], Iterable):
-                result[key] = [rel_to / Path(p).expanduser() for p in result[key]]
+        for key in PATH_SETS:
+            if key not in result:
+                continue
+
+            assert isinstance(result[key], Iterable)
+            assert all((isinstance(p, (Path, str)) for p in result[key]))
+            result[key] = frozenset((rel_to / Path(p).expanduser() for p in result[key]))
 
         return result
 
@@ -122,25 +128,33 @@ class Config(dict):
     @property
     def resolved(self):
         """Check that all path options in a configuration object are absolute."""
-        for key in CONFIG_PATHS:
+        for key in PATHS:
             if key not in self:
                 continue
 
-            if isinstance(self[key], Path):
-                return self[key].is_absolute()
-            if isinstance(self[key], Iterable):
-                for path in self[key]:
-                    if not isinstance(path, Path):
-                        raise TypeError(
-                            f"Configuration key '{key}' should contain Paths, "
-                            f"got a '{type(path).__name__}': '{path!r}'"
-                        )
-                    if not path.is_absolute():
-                        return False
+            path = self[key]
+            if not isinstance(path, Path):
+                raise TypeError(
+                    f"Configuration key '{key}' should contain a Path, "
+                    f"got a '{type(path).__name__}': '{path!r}'"
+                )
 
-            raise TypeError(
-                f"Configuration key '{key}' should be a (list of) Path(s), "
-                f"got a '{type(key).__name__}': '{self[key]!r}'"
-            )
+            if not self[key].is_absolute():
+                return False
+
+        for key in PATH_SETS:
+            if key not in self:
+                continue
+
+            assert isinstance(self[key], Iterable)
+            for path in self[key]:
+                if not isinstance(path, Path):
+                    raise TypeError(
+                        f"Configuration key '{key}' should be a set of Paths, "
+                        f"got a '{type(path).__name__}': '{path!r}'"
+                    )
+
+                if not path.is_absolute():
+                    return False
 
         return True
