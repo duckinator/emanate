@@ -57,6 +57,9 @@ drwxr-xr-x.  8 pup pup 4096 Jun  3 12:10 .git/
 Bug reports and pull requests are welcome on GitHub at https://github.com/duckinator/emanate.
 Please report security problems to the normal issue tracker.
 
+When adding new functionality, please add tests. Mention @duckinator if you
+need assistance with adding tests.
+
 ## License
 
 The project is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
