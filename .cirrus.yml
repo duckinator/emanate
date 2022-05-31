@@ -21,10 +21,10 @@ Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   container:
     matrix:
-      - image: python:3.6-slim
       - image: python:3.7-slim
       - image: python:3.8-slim
       - image: python:3.9-slim
+      - image: python:3.10-slim
   install_script:
     - pip3 install -U .[testing]
   script:
@@ -45,15 +45,13 @@ macOS_task:
 FreeBSD_task:
   alias: FreeBSD tests
   freebsd_instance:
-    image_family: freebsd-12-2
+    image_family: freebsd-12-3
   env:
     matrix:
-      - PYTHON: 3.6
-        # Python 3.6 on FreeBSD does not support the C.UTF-8 locale.
-        LC_ALL: en_US.UTF-8
-        LANG: en_US.UTF-8
       - PYTHON: 3.7
       - PYTHON: 3.8
+      - PYTHON: 3.9
+      - PYTHON: 3.10
   install_script:
     - PY=`echo $PYTHON | tr -d '.'`
     - pkg install -y python${PY} py${PY}-setuptools
@@ -72,10 +70,11 @@ Windows_task:
     image: cirrusci/windowsservercore:2019
   env:
     matrix:
-      - PYTHON: 3.6.8
       - PYTHON: 3.7.9
-      - PYTHON: 3.8.6
-      - PYTHON: 3.9.0
+      - PYTHON: 3.8.10
+      - PYTHON: 3.9.13
+      - PYTHON: 3.10.4
+      
   python_install_script:
     - choco install -y python3 --version=%PYTHON% --params "/InstallDir:C:\Python"
   update_pip_script:
