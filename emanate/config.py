@@ -85,12 +85,14 @@ class Config(dict):
         return result
 
 
-    def merge(*configs, strict_resolve=True):  # pylint: disable=no-method-argument
+    def merge(*configs, strict_resolve=True):  # pylint: disable=no-method-argument,no-self-argument
         """Merge several Config objects.
 
         Later configurations override previous ones,
         and the `ignore` attributes are merged (according to set union).
         """
+        # NOTE: There is no `self` argument because it is part of `configs`.
+
         def _merge_one(config, other):
             assert isinstance(config, Config)
             assert isinstance(other, Config)
