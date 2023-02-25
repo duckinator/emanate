@@ -33,8 +33,8 @@ Linux_task:
 
 macOS_task:
   alias: macOS tests
-  osx_instance:
-    image: mojave-base
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
   install_script:
     - brew install python3
     - pip3 install -U .[testing]
