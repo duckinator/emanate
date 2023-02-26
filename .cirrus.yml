@@ -21,10 +21,10 @@ Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   container:
     matrix:
-      - image: python:3.7-slim
       - image: python:3.8-slim
       - image: python:3.9-slim
       - image: python:3.10-slim
+      - image: python:3.11-slim
   install_script:
     - pip3 install -U .[testing]
   script:
@@ -33,8 +33,8 @@ Linux_task:
 
 macOS_task:
   alias: macOS tests
-  osx_instance:
-    image: mojave-base
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
   install_script:
     - brew install python3
     - pip3 install -U .[testing]
@@ -48,10 +48,10 @@ FreeBSD_task:
     image_family: freebsd-12-3
   env:
     matrix:
-      - PYTHON: 3.7
       - PYTHON: 3.8
       - PYTHON: 3.9
       - PYTHON: 3.10
+      - PYTHON: 3.11
   install_script:
     - PY=`echo $PYTHON | tr -d '.'`
     - pkg install -y python${PY} py${PY}-setuptools
@@ -64,28 +64,26 @@ FreeBSD_task:
 
 Windows_task:
   alias: Windows tests
-  allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   windows_container:
-    os_version: 2019
     image: cirrusci/windowsservercore:2019
   env:
     matrix:
-      - PYTHON: 3.7.9
       - PYTHON: 3.8.10
       - PYTHON: 3.9.13
-      - PYTHON: 3.10.4
-      
+      - PYTHON: 3.10.9
+      - PYTHON: 3.11.1
   python_install_script:
-    - choco install -y python3 --version=%PYTHON% --params "/InstallDir:C:\Python"
-  update_pip_script:
-    - C:\Python\python.exe -m pip install -U pip
+    # https://docs.python.org/3.6/using/windows.html#installing-without-ui
+    - ps: Invoke-WebRequest -Uri https://www.python.org/ftp/python/${env:PYTHON}/python-${env:PYTHON}-amd64.exe -OutFile C:\python-installer.exe
+    - C:\python-installer.exe /quiet TargetDir=C:\Python SimpleInstall=1
   install_script:
-    - C:\Python\python.exe -m pip install .[testing]
-  script:
+    - C:\Python\python.exe -m pip install -e .[testing]
+  version_info_script:
     - C:\Python\python.exe --version
     - C:\Python\python.exe -m pip --version
-    - C:\Python\python.exe -m bork --version
-    - C:\Python\python.exe -m pytest
+  test_script:
+    - C:\Python\python.exe -m pytest --verbose
+
 
 # Meta-task which depends on every other test/lint task to finish.
 success_task:
