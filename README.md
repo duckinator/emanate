@@ -54,7 +54,11 @@ drwxr-xr-x.  8 pup pup 4096 Jun  3 12:10 .git/
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/duckinator/emanate. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/duckinator/emanate.
+Please report security problems to the normal issue tracker.
+
+When adding new functionality, please add tests. Mention @duckinator if you
+need assistance with adding tests.
 
 ## License
 

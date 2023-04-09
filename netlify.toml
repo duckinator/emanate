@@ -7,4 +7,4 @@
   publish = "html/emanate/"
 
   # Default build command.
-  command = "pip3 install -U '.[docs]' && bork run docs"
+  command = "pip3 install -U '.[docs]' && ./build-docs.sh"
