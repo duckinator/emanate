@@ -1,4 +1,4 @@
-# emanate [![Build Status][build-status-link]][build-status-img]
+# emanate [![Build Status][build-status-link]][build-status-img] ![PyPI](https://img.shields.io/pypi/v/emanate) [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/2916/badge)](https://bestpractices.coreinfrastructure.org/projects/2916)
 
 Symlink files from one directory into another directory.
 
@@ -19,7 +19,7 @@ and grab the `emanate-<version>.pyz` file. This should work as a
 standalone executable. If it doesn't, try `python3 emanate-<version>.pyz`.
 
 Emanate version numbers follow the [semantic versioning] convention.
-A [PEP 440] version specification for [compatible releases], like `~= 6.0`,
+A [PEP 440] version specification for [compatible releases], like `~= 7.0`,
 is the recommended way to select appropriate versions.
 
 [semantic versioning]: https://semver.org/
