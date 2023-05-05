@@ -1,4 +1,4 @@
-# emanate [![Build Status][build-status-link]][build-status-img]
+# emanate [![Build Status][build-status-link]][build-status-img] ![PyPI](https://img.shields.io/pypi/v/emanate) [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/2916/badge)](https://bestpractices.coreinfrastructure.org/projects/2916)
 
 Symlink files from one directory into another directory.
 
