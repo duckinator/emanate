@@ -10,12 +10,15 @@ import json
 from pathlib import Path
 from collections.abc import Iterable
 
+from frozendict import frozendict
+
 
 PATHS = frozenset(('destination', 'source',))
 PATH_SETS = frozenset(('ignore',))
 PATH_KEYS = PATHS.union(PATH_SETS)
 
-class Config(dict):
+
+class Config(frozendict):
     """Simple wrapper around dict, allowing accessing values as attributes."""
 
     def __getattr__(self, name):
@@ -26,10 +29,6 @@ class Config(dict):
             )
 
         return self[name]
-
-    def copy(self):
-        """Return a new Config, with the same contents as self."""
-        return Config(self)
 
     @classmethod
     def defaults(cls, src):
@@ -65,25 +64,15 @@ class Config(dict):
         """
         assert isinstance(rel_to, Path)
         assert rel_to.is_absolute()
-        result = self.copy()
 
-        for key in PATHS:
-            if key not in result:
-                continue
+        def _resolve(path):
+            return rel_to / Path(path).expanduser()
 
-            assert isinstance(result[key], (str, Path))
-            result[key] = rel_to / Path(result[key]).expanduser()
-
-        for key in PATH_SETS:
-            if key not in result:
-                continue
-
-            assert isinstance(result[key], Iterable)
-            assert all((isinstance(p, (Path, str)) for p in result[key]))
-            result[key] = frozenset((rel_to / Path(p).expanduser() for p in result[key]))
-
-        return result
-
+        return self.copy(**{
+            key: _resolve(v) if key in PATHS else frozenset(map(_resolve, v))
+            for (key, v) in self.items()
+            if key in PATH_KEYS
+        })
 
     def merge(*configs, strict_resolve=True):  # pylint: disable=no-method-argument,no-self-argument
         """Merge several Config objects.
@@ -101,17 +90,11 @@ class Config(dict):
             if strict_resolve and not other.resolved:
                 raise ValueError("Merging a non-resolved configuration")
 
-            config = config.copy()
-            for key, value in other.items():
-                if value is None:
-                    continue
-
-                if key == 'ignore':
-                    config[key] = config.get(key, frozenset()).union(value)
-                else:
-                    config[key] = value
-
-            return config
+            return config.copy(**other, **{
+                key: config[key].union(other[key])
+                for key in PATH_SETS
+                if key in config and key in other
+            })
 
         return functools.reduce(_merge_one, filter(None, configs), Config())
 
