@@ -6,7 +6,6 @@ jobs=1
 # usually to register additional checkers.
 load-plugins=pylint.extensions.check_elif,
              pylint.extensions.comparetozero,
-             pylint.extensions.emptystring,
              pylint.extensions.overlapping_exceptions,
              pylint.extensions.redefined_variable_type,
 

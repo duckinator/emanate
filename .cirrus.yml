@@ -1,7 +1,3 @@
-# Allow compute credits usage for collaborators and anything pushed to the
-# main, staging, and trying branches. (So bors can use them.)
-use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true' || $CIRRUS_BRANCH == 'main' || $CIRRUS_BRANCH == 'staging' || $CIRRUS_BRANCH == 'trying'
-
 # http://click.palletsprojects.com/en/5.x/python3/#python-3-surrogate-handling
 env:
   LC_ALL: C.UTF-8
@@ -11,7 +7,7 @@ Lint_task:
   container:
     image: python:3-slim
   install_script:
-    - pip3 install -U .[testing]
+    - pip3 install -U .[test]
   script:
     - pylint --version
     - bork run lint
@@ -21,12 +17,11 @@ Linux_task:
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   container:
     matrix:
-      - image: python:3.8-slim
       - image: python:3.9-slim
       - image: python:3.10-slim
       - image: python:3.11-slim
   install_script:
-    - pip3 install -U .[testing]
+    - pip3 install -U .[test]
   script:
     - python3 --version
     - pytest --verbose
@@ -37,7 +32,7 @@ macOS_task:
     image: ghcr.io/cirruslabs/macos-ventura-base:latest
   install_script:
     - brew install python3
-    - pip3 install -U .[testing]
+    - pip3 install -U .[test]
   script:
     - python3 --version
     - pytest --verbose
@@ -45,10 +40,9 @@ macOS_task:
 FreeBSD_task:
   alias: FreeBSD tests
   freebsd_instance:
-    image_family: freebsd-12-3
+    image_family: freebsd-13-2
   env:
     matrix:
-      - PYTHON: 3.8
       - PYTHON: 3.9
       - PYTHON: 3.10
       - PYTHON: 3.11
@@ -57,7 +51,7 @@ FreeBSD_task:
     - pkg install -y python${PY} py${PY}-setuptools
     - python${PYTHON} -m ensurepip --upgrade
     - python${PYTHON} -m pip install -U 'pip>=19' # Hard requirement for no setup.py.
-    - python${PYTHON} -m pip install .[testing_only]
+    - python${PYTHON} -m pip install .[test]
   script:
     - python${PYTHON} --version
     - pytest --verbose
@@ -68,7 +62,6 @@ Windows_task:
     image: cirrusci/windowsservercore:2019
   env:
     matrix:
-      - PYTHON: 3.8.10
       - PYTHON: 3.9.13
       - PYTHON: 3.10.9
       - PYTHON: 3.11.1
@@ -77,7 +70,7 @@ Windows_task:
     - ps: Invoke-WebRequest -Uri https://www.python.org/ftp/python/${env:PYTHON}/python-${env:PYTHON}-amd64.exe -OutFile C:\python-installer.exe
     - C:\python-installer.exe /quiet TargetDir=C:\Python SimpleInstall=1
   install_script:
-    - C:\Python\python.exe -m pip install -e .[testing]
+    - C:\Python\python.exe -m pip install -e .[test]
   version_info_script:
     - C:\Python\python.exe --version
     - C:\Python\python.exe -m pip --version
@@ -110,7 +103,7 @@ Release_task:
   install_script:
     - apt-get update
     - apt-get install -y git
-    - pip3 install . .[testing]
+    - pip3 install . .[test]
   build_script:
     - bork clean
     - bork build

@@ -1,9 +1,61 @@
 [build-system]
 # Specify the required build system.
-# Setuptools 40.9.0+ requirement is necessary to get rid of setup.py; see
-#  https://github.com/pypa/setuptools/pull/1675
-requires = ["setuptools >= 40.9.0", "wheel"]
+requires = ["setuptools >= 61", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "emanate"
+dynamic = ["version"]
+authors = [
+    {name = "Ellen Marie Dash", email = "me@duckie.co"},
+]
+description = "Symlink files from one directory to another, similary to Effuse and Stow."
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = []
+
+requires-python = ">= 3.8"
+
+[project.urls]
+repository = "https://github.com/duckinator/emanate"
+documentation = "https://emanate-docs.netlify.app/cli.html"
+
+[project.optional-dependencies]
+bork = [
+    "bork~=6.0.1",
+]
+
+test = [
+    ".[bork]",
+    "pytest~=7.4",
+    "pylint~=3.0",
+    "pytest-pylint~=0.21.0",
+    "mypy~=1.6.1",
+    "pytest-mypy~=0.10.3",
+]
+
+docs = [
+    "pdoc3",
+]
+
+[project.scripts]
+emanate = "emanate.cli:main"
+
+[tool.setuptools]
+packages = ["emanate"]
+
+[tool.setuptools.dynamic]
+version = {attr = "emanate.__version__"}
 
 [tool.bork.zipapp]
 enabled = true
