@@ -36,7 +36,7 @@ bork = [
 ]
 
 test = [
-    ".[bork]",
+    "emanate[bork]",
     "pytest~=7.4",
     "pylint~=3.0",
     "pytest-pylint~=0.21.0",
