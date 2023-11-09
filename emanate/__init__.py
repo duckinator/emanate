@@ -15,15 +15,9 @@ from typing import Any, Callable, Iterable
 import sys
 from .config import Config
 
-try:
-    from importlib import metadata
-except ImportError:
-    import importlib_metadata as metadata  # type: ignore
-
 # Set the module-level dunders suggested in PEP8
-__author__ = metadata.metadata(__name__)['author']
-__version__ = metadata.version(__name__)
-
+__author__ = "Ellen Marie Dash"
+from .version import __version__
 
 @dataclass(frozen=True)
 class FilePair:
