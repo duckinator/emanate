@@ -32,7 +32,7 @@ documentation = "https://emanate-docs.netlify.app/cli.html"
 
 [project.optional-dependencies]
 bork = [
-    "bork~=7.0.0",
+    "bork~=7.0.1",
 ]
 
 test = [
