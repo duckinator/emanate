@@ -26,7 +26,7 @@ from . import Emanate, __author__, __version__
 from .config import Config
 
 
-def _arg_parser(args=None):
+def _arg_parser():
     argparser = ArgumentParser(
         description="Link files from one directory to another",
         argument_default=SUPPRESS,
@@ -68,8 +68,7 @@ def _arg_parser(args=None):
     return argparser
 
 def _parse_args(args=None):
-    argparser = _arg_parser(args)
-    return argparser.parse_args(args)
+    return _arg_parser().parse_args(args)
 
 
 def version():
