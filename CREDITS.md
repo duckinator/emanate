@@ -25,6 +25,5 @@ Software and libraries:
 - [setuptools](https://github.com/pypa/setuptools) and [wheel](https://github.com/pypa/wheel)
 
 Services:
-- [bors](https://bors.tech/)
 - [Cirrus CI](https://cirrus-ci.org/)
 - [Python Package Index (PyPI)](https://pypi.org/)
