@@ -63,6 +63,12 @@ version = {attr = "emanate.__version__"}
 enabled = true
 main = "emanate.cli:main"
 
+[tool.bork.release]
+pypi = true
+github = true
+github_repository = "duckinator/emanate"
+strip_zipapp_version = true
+
 [tool.bork.aliases]
 # Runs *only* pylint. (Not the actual tests.)
 lint = "python -m pytest -k 'pylint or mypy' --pylint --mypy --verbose"
