@@ -1,16 +1,19 @@
 Lint_task:
   container:
+    cpu: 1
+    memory: 512Mi
     image: python:3-slim
   install_script:
-    - pip3 install -U .[test]
+    - pip3 install -U .[lint]
   script:
-    - pylint --version
     - bork run lint
 
 Linux_task:
   alias: Linux tests
   allow_failures: $CIRRUS_TASK_NAME =~ '.*-rc-.*'
   container:
+    cpu: 1
+    memory: 512Mi
     matrix:
       - image: python:3.8-slim
       - image: python:3.9-slim
@@ -26,10 +29,23 @@ Linux_task:
 macOS_task:
   alias: macOS tests
   macos_instance:
-    image: ghcr.io/cirruslabs/macos-sonoma-base:latest
-  install_script:
-    - brew install python3
-    - pip3 install -U .[test]
+    image: ghcr.io/cirruslabs/macos-runner:sonoma
+  env:
+    PATH: ${HOME}/.pyenv/shims:${PATH}
+    PYTHON: 3:latest
+  brew_update_script:
+    - brew update
+  brew_install_script:
+    # Per the pyenv homebrew recommendations.
+    #  https://github.com/pyenv/pyenv/wiki#suggested-build-environment
+    - brew install openssl readline sqlite3 xz zlib pyenv git
+  pyenv_install_script:
+    - pyenv install ${PYTHON}
+    - pyenv global 3
+    - pyenv rehash
+  pip_install_script:
+    - pip install -U --upgrade-strategy eager pip 'setuptools>61'
+    - pip install .[test]
   script:
     - python3 --version
     - pytest --verbose

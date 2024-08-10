@@ -17,7 +17,7 @@ from .config import Config
 
 # Set the module-level dunders suggested in PEP8
 __author__ = "Ellen Marie Dash"
-from .version import __version__
+from .version import __version__ as __version__
 
 @dataclass(frozen=True)
 class FilePair:
