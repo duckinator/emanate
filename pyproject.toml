@@ -31,15 +31,10 @@ repository = "https://github.com/duckinator/emanate"
 documentation = "https://emanate-docs.netlify.app/cli.html"
 
 [project.optional-dependencies]
-bork = [
-    "bork~=7.0.1",
-]
-
 test = [
-    "emanate[bork]",
+    "bork",
+    "ruff",
     "pytest~=7.4",
-    "pylint~=3.0",
-    "pytest-pylint~=0.21.0",
     "mypy~=1.6.1",
     "pytest-mypy~=0.10.3",
 ]
@@ -70,9 +65,7 @@ github_repository = "duckinator/emanate"
 strip_zipapp_version = true
 
 [tool.bork.aliases]
-# Runs *only* pylint. (Not the actual tests.)
-lint = "python -m pytest -k 'pylint or mypy' --pylint --mypy --verbose"
-# Runs tests
+lint = "ruff check"
 test = "python -m pytest --verbose"
 #docs = "env PYTHONPATH=./ pdoc3 --html --output-dir ./html --force emanate"
 docs = "sphinx-build -b html -d build/doctrees docs/source/ docs/build/"

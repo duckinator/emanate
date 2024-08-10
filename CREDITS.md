@@ -20,8 +20,8 @@ Software and libraries:
 
 - [Python](https://python.org)
 - [pip](https://pip.pypa.io/)
-- [pylint](https://www.pylint.org/) and the [pytest-pylint](https://github.com/carsongee/pytest-pylint) integration
 - [pytest](https://pytest.org/)
+* [ruff](https://astral.sh/ruff)
 - [setuptools](https://github.com/pypa/setuptools) and [wheel](https://github.com/pypa/wheel)
 
 Services:

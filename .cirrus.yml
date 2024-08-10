@@ -6,7 +6,6 @@ Lint_task:
   install_script:
     - pip3 install -U .[test]
   script:
-    - pylint --version
     - bork run lint
 
 Linux_task:
