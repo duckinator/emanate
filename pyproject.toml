@@ -31,9 +31,13 @@ repository = "https://github.com/duckinator/emanate"
 documentation = "https://emanate-docs.netlify.app/cli.html"
 
 [project.optional-dependencies]
+lint = [
+    "bork",
+    "ruff"
+]
+
 test = [
     "bork",
-    "ruff",
     "pytest~=7.4",
     "mypy~=1.6.1",
     "pytest-mypy~=0.10.3",

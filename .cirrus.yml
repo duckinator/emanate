@@ -4,7 +4,7 @@ Lint_task:
     memory: 512Mi
     image: python:3-slim
   install_script:
-    - pip3 install -U .[test]
+    - pip3 install -U .[lint]
   script:
     - bork run lint
 
