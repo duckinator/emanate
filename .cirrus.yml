@@ -29,8 +29,6 @@ Linux_task:
 macOS_task:
   alias: macOS tests
   macos_instance:
-    cpu: 1
-    memory: 4Gi
     image: ghcr.io/cirruslabs/macos-runner:sonoma
   env:
     PATH: ${HOME}/.pyenv/shims:${PATH}
