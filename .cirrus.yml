@@ -108,8 +108,8 @@ Release_task:
   only_if: "changesInclude('emanate/version.py') && $BRANCH == 'main' && $CIRRUS_CRON == ''"
   depends_on: [CI success]
   env:
-    TWINE_USERNAME: "__token__"
-    TWINE_PASSWORD: ENCRYPTED[93940c854f7cb146391fdb3ef75ab7f8e229e83837f49fbcb52472bcf3f1d0265ed8629fd57204152e019af4c6b9354c]
+    BORK_PYPI_USERNAME: "__token__"
+    BORK_PYPI_PASSWORD: ENCRYPTED[93940c854f7cb146391fdb3ef75ab7f8e229e83837f49fbcb52472bcf3f1d0265ed8629fd57204152e019af4c6b9354c]
     BORK_GITHUB_TOKEN: ENCRYPTED[f9e27463821d9631bfb0812468c644a99bfcabf4bfb69623ff8a7245e787541203ea9b29b65928f5c851f3ad17ec66b2]
   container:
     image: python:3-slim
