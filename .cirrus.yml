@@ -15,11 +15,10 @@ Linux_task:
     cpu: 1
     memory: 512Mi
     matrix:
-      - image: python:3.8-slim
-      - image: python:3.9-slim
       - image: python:3.10-slim
       - image: python:3.11-slim
       - image: python:3.12-slim
+      - image: python:3.13-slim
   install_script:
     - pip3 install -U .[test]
   script:
@@ -53,11 +52,9 @@ macOS_task:
 FreeBSD_task:
   alias: FreeBSD tests
   freebsd_instance:
-    image_family: freebsd-14-0
+    image_family: freebsd-14-2
   env:
     matrix:
-      - PYTHON: 3.8
-      - PYTHON: 3.9
       - PYTHON: 3.10
       - PYTHON: 3.11
   install_script:
@@ -76,7 +73,6 @@ Windows_task:
     image: cirrusci/windowsservercore:2019
   env:
     matrix:
-      - PYTHON: 3.8.10
       - PYTHON: 3.9.13
       - PYTHON: 3.10.9
       - PYTHON: 3.11.8
