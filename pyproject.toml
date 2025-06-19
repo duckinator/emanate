@@ -11,7 +11,7 @@ authors = [
 ]
 description = "Symlink files from one directory to another, similary to Effuse and Stow."
 readme = "README.md"
-license = "MIT
+license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
