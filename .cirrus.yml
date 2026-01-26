@@ -53,7 +53,7 @@ macOS_task:
 FreeBSD_task:
   alias: FreeBSD tests
   freebsd_instance:
-    image_family: freebsd-14-2
+    image_family: freebsd-15-0-amd64-zfs
   env:
     matrix:
       - PYTHON: 3.12
