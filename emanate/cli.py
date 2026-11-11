@@ -22,6 +22,7 @@ See `emanate --help` for all command-line options.
 """
 from argparse import ArgumentParser, SUPPRESS
 from pathlib import Path
+import sys
 from . import Emanate, __author__, __version__
 from .config import Config
 
@@ -93,8 +94,14 @@ def main(args=None):
     if args.config is None:
         args.config = args.source / "emanate.json"
 
+    try:
+        file_config = Config.from_json(args.config) if args.config.exists() else None
+    except (OSError, ValueError) as e:
+        print(f"emanate: cannot load config {args.config}: {e}", file=sys.stderr)
+        raise SystemExit(2)
+
     emanate = Emanate(
-        Config.from_json(args.config) if args.config.exists() else None,
+        file_config,
         Config(vars(args)).resolve(Path.cwd()),
     )
 
