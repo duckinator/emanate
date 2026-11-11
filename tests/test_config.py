@@ -1,7 +1,10 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from utils import chdir, directory_tree, home
+from emanate import cli
 from emanate.config import Config
 
 
@@ -28,6 +31,19 @@ def test_json_resolution():
         assert config_cwd == config_tmp == config_src
         assert config_cwd.destination.is_absolute()
         assert config_cwd.source.is_absolute()
+
+
+def test_unreadable_config_file_is_clean_error(capsys):
+    """A directory or invalid JSON as --config must exit 2, not traceback."""
+    with directory_tree({'src': {}, 'bad.json': '{not json'}) as tmpdir, chdir(tmpdir):
+        with pytest.raises(SystemExit) as exc:
+            cli.main(['--source', 'src', '--config', 'src'])
+        assert exc.value.code == 2
+        assert 'Traceback' not in capsys.readouterr().err
+        with pytest.raises(SystemExit) as exc:
+            cli.main(['--source', 'src', '--config', 'bad.json'])
+        assert exc.value.code == 2
+        assert 'Traceback' not in capsys.readouterr().err
 
 
 def test_defaults():
