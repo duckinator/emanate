@@ -72,3 +72,18 @@ test = "python -m pytest --verbose"
 #docs = "env PYTHONPATH=./ pdoc3 --html --output-dir ./html --force emanate"
 docs = "sphinx-build -b html -d build/doctrees docs/source/ docs/build/"
 docs-clean = "rm -rf docs/build/"
+
+[tool.ruff.lint]
+ignore = [
+    # allow nested with statements for clarity
+    "SIM117",
+
+    # FIXME: Disable these once CI works.
+
+    # unsorted imports
+    "I001",
+    # extreneous parenthesis
+    "UP034",
+    # deprecated import
+    "UP035",
+]
